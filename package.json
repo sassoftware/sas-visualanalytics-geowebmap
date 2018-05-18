@@ -1,0 +1,38 @@
+{
+  "name": "arcgis-js-api-sample-app",
+  "version": "1.0.0",
+  "private": true,
+  "description": "",
+  "repository": {
+    "url": "https://github.com/Esri/jsapi-resources/4.x/bower/dojo"
+  },
+  "scripts": {
+    "preinstall": "bower install",
+    "build": "grunt build",
+    "buildDebug": "grunt buildDebug",
+    "clean": "grunt clean",
+    "styles": "grunt styles --force",
+    "lint": "grunt eslint"
+  },
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "eslint": "^4.17.0",
+    "eslint-config-google": "^0.9.1",
+    "eslint-config-standard": "^11.0.0-beta.0",
+    "eslint-plugin-import": "^2.8.0",
+    "eslint-plugin-node": "^6.0.0",
+    "eslint-plugin-promise": "^3.6.0",
+    "eslint-plugin-standard": "^3.0.1",
+    "grunt": "^1.0.0",
+    "grunt-contrib-clean": "^1.0.0",
+    "grunt-contrib-copy": "^1.0.0",
+    "grunt-dojo": "^1.1.1",
+    "grunt-eslint": "^20.1.0",
+    "grunt-sass": "^2.0.0",
+    "gulp": "^3.9.1",
+    "gulp-clean": "^0.3.1",
+    "gulp-rename": "^1.2.2",
+    "load-grunt-tasks": "^3.5.2",
+    "uglify-js": "^2.7.5"
+  }
+}
