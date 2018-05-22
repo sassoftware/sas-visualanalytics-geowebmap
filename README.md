@@ -1,6 +1,8 @@
-# SAS ArcGISWebMapProvider Notes 
+# SAS ArcGISWebMapProvider  
 
 ![3D Choropleth in VA](3DChoropleth.png)
+
+For an overview of this project from the perspective of a user, see the document "[Using ArcGIS WebMaps in SAS Visual Analytics](https://raw.githubusercontent.com/sassoftware/sas-visualanalytics-geowebmap/master/doc/UsingArcGISWebMapsInSASVA.pdf)."  
 
 ## Project
 
