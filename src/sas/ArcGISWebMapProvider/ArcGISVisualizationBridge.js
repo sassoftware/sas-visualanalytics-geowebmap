@@ -23,6 +23,7 @@ define([
     "esri/layers/FeatureLayer",
     "esri/widgets/Expand",
     "esri/widgets/Legend",
+    "esri/core/lang",
     "sas/ArcGISWebMapProvider/AnimationHelper",
     "sas/ArcGISWebMapProvider/SmartLegendHelper",
     "sas/ArcGISWebMapProvider/SelectionHelper",
@@ -30,7 +31,7 @@ define([
     "dojo/dom-construct",
     "dojo/request/xhr",
     "dojo/_base/declare"
-], function(Point, FeatureLayer, Expand, Legend, AnimationHelper, SmartLegendHelper, SelectionHelper, ProviderUtil, domConstruct, xhr, declare){
+], function(Point, FeatureLayer, Expand, Legend, lang, AnimationHelper, SmartLegendHelper, SelectionHelper, ProviderUtil, domConstruct, xhr, declare){
 
     var _options;
     var _mapView;
@@ -229,6 +230,7 @@ define([
                     
                     var query = queryLayer.createQuery();
                     query.outFields = [_options.featureServiceGeoId]; // Note: ["*"] Gets _all_ attributes, which noticeably slows performance.
+                    query.outSpatialReference = {wkid: 4326};
                     if (_options.featureServiceWhere)
                         query.where = _options.featureServiceWhere;
                     queryLayer.queryFeatures(query).then(_util.proxy(function(results) {
@@ -263,9 +265,7 @@ define([
                             fields: fields, 
                             objectIdField: _util.getObjectIdFieldName(), 
                             renderer: renderer, 
-                            spatialReference: {
-                                wkid: 4326
-                            },
+                            spatialReference: lang.clone(results.spatialReference),
                             // Note: there are ArcGIS 4.6 hit-test related problems with SceneViews with elevation mode "on-the-ground"
                             geometryType: "polygon",
                             popupTemplate: this.createGenericUnformattedPopupTemplate(event.data.columns)
@@ -285,7 +285,7 @@ define([
 
                         this.validateGeoIds(event.data.columns, geoIdAttributeMap);
 
-                    },this));
+                    },this), function (e){ _util.logError(e); });
 
                 }
 
