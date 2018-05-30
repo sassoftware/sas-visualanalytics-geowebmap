@@ -91,6 +91,7 @@ define([
                 _options.featureServiceWhere = null;
 
             _options.zIndex = Math.max(parseInt(_options.zIndex),0); // Resolves to NaN or a whole number.
+            _options.featureServiceMaxAllowableOffset = parseFloat(_options.featureServiceMaxAllowableOffset);
 
             // If not using sample data, listen for data-driven content.
 
@@ -233,6 +234,8 @@ define([
                     query.outSpatialReference = {wkid: 4326};
                     if (_options.featureServiceWhere)
                         query.where = _options.featureServiceWhere;
+                    if (!isNaN(_options.featureServiceMaxAllowableOffset))
+                        query.maxAllowableOffset = _options.featureServiceMaxAllowableOffset;
                     queryLayer.queryFeatures(query).then(_util.proxy(function(results) {
 
                         // Join the data to the geometries.
