@@ -5,7 +5,7 @@
     <meta http-equiv='content-type' content='text/html; charset=utf-8' />
     <meta name='viewport' content='initial-scale=1.0 maximum-scale=1.0'>
     <link rel="stylesheet" href="esri/css/main.css">
-    <style>
+    <style title="inlineIndex">
       html, body, #map {
         height: 100%;
         width: 100%;
@@ -96,6 +96,44 @@
     </div>
 
     <script>
+
+      (function (){
+
+        /* Disables the layer list and search widgets' progress animations
+         * due to their causing reflows in VAN/VAV for Chrome version 
+         * 67.0.3396.62.  This issue is expected to be corrected in 
+         * VAN/VAV 8.4 (S1437578) or by Google.  Setting this action
+         * as non-default.
+         */
+
+        var disableWidgetAnimationInChrome = false;
+
+        if (disableWidgetAnimationInChrome) {
+
+          var isChrome = !!window.chrome && !!window.chrome.webstore;
+          if (isChrome) {
+            var getStyleSheet = function(title) {
+              for (var i=0; i<document.styleSheets.length; ++i) {
+                if (document.styleSheets[i].title === title)
+                    return document.styleSheets[i];
+              }
+              return null;
+            }
+            var stylesheet = getStyleSheet("inlineIndex"); 
+            if (stylesheet) {
+              stylesheet.insertRule("\
+                .esri-layer-list__item::after,\
+                .esri-search .esri-search__container::after {\
+                    animation: none !important;\
+                }", 0
+              );
+            }
+          }
+
+        }
+
+      })();      
+
       // set up your dojoConfig
       window.dojoConfig = {
         baseUrl: '.',
