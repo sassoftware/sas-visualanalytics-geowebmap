@@ -217,27 +217,15 @@ define([
                         geoIdAttributeMap[graphic.attributes[geoIdColumnName]] = graphic.attributes;
                     });
 
-                    /* TODO MAPPING:
-                     *
-                     * I made an interesting discovery when doing this simplistic where-clause 
-                     * construction.  The unoptimized call (which requested all regions) beat
-                     * the optimized call (which requests only the ones specified) when you
-                     * begin by including all regions.  
-                     * 
-                     * The reason was the "all region" call (unlike the calls with the where
-                     * clauses) never changes.  Therefore the browser gets 304s (not modified)
-                     * from the server and doesn't re-request the regions.  When the 
-                     * where-clause changed it invariably requeried.
-                     * 
-                     * If I want to use this as an optimization tool.  I need to reevaluate.
-                     * The browser's own caching already helps considerably.
-                     */
-
-                    // Add a where clause if requesting fewer than 200 IDs.
+                    // Add a where clause if requesting only one ID.  This was found to speed
+                    // browsing-by-area.  It's not always better, though, since the browser
+                    // caches responses; so an unfiltered query is usually never requeried.
+                    // On the other hand, unfiltered queries on some feature services can be
+                    // punishing.  
 
                     var whereClause;
 
-                    if (!_options.featureServiceWhere && graphics.length > 0 && graphics.length < 201) {
+                    if (!_options.featureServiceWhere && graphics.length === 1) {
                         whereClause = 
                             _options.featureServiceGeoId + 
                             " IN (" + 
@@ -246,8 +234,8 @@ define([
                     }
 
                     // Fetch _all_ the choropleth geometries, requesting only the attributes 
-                    // necessary to join the rows to the IDs.  Potential optimization: Request 
-                    // only geometries found in data.  Cache the geometries.
+                    // necessary to join the rows to the IDs.  Potential optimizations: 
+                    // Cache geometries.  Implement paging.
 
                     var queryLayer = new FeatureLayer({
                         url: _options.featureServiceUrl,
@@ -349,7 +337,7 @@ define([
                     // TODO: VA has a "Reset Zoom" feature that would move the extent
                     // back to the last goTo (see the Home widget) and that would
                     // essentially reset _hasUserPanned to false.
-                    if (!_hasUserPanned) 
+                    if (!_hasUserPanned || _options.visualizationType === _util.getChoroplethValue()) 
                         this.goToDataExtent(sasLayerReadied);
     
                     if (_options.animation) 
@@ -551,6 +539,7 @@ define([
                 type: "simple", 
                 symbol: {
                   type: "simple-fill", 
+                  color: _options.colorMax,
                   outline: { 
                     color: _options.outline,  
                     width: 0.5
