@@ -217,9 +217,25 @@ define([
                         geoIdAttributeMap[graphic.attributes[geoIdColumnName]] = graphic.attributes;
                     });
 
+                    // Add a where clause if requesting only one ID.  This was found to speed
+                    // browsing-by-area.  It's not always better, though, since the browser
+                    // caches responses; so an unfiltered query is usually never requeried.
+                    // On the other hand, unfiltered queries on some feature services can be
+                    // punishing.  
+
+                    var whereClause;
+
+                    if (!_options.featureServiceWhere && graphics.length === 1) {
+                        whereClause = 
+                            _options.featureServiceGeoId + 
+                            " IN (" + 
+                            _util.sqlEscape(Object.keys(geoIdAttributeMap)).join() + 
+                            ")";
+                    }
+
                     // Fetch _all_ the choropleth geometries, requesting only the attributes 
-                    // necessary to join the rows to the IDs.  Potential optimization: Request 
-                    // only geometries found in data.  Cache the geometries.
+                    // necessary to join the rows to the IDs.  Potential optimizations: 
+                    // Cache geometries.  Implement paging.
 
                     var queryLayer = new FeatureLayer({
                         url: _options.featureServiceUrl,
@@ -234,6 +250,8 @@ define([
                     query.outSpatialReference = {wkid: 4326};
                     if (_options.featureServiceWhere)
                         query.where = _options.featureServiceWhere;
+                    else if (whereClause)
+                        query.where = whereClause;
                     if (!isNaN(_options.featureServiceMaxAllowableOffset))
                         query.maxAllowableOffset = _options.featureServiceMaxAllowableOffset;
                     queryLayer.queryFeatures(query).then(_util.proxy(function(results) {
@@ -319,7 +337,7 @@ define([
                     // TODO: VA has a "Reset Zoom" feature that would move the extent
                     // back to the last goTo (see the Home widget) and that would
                     // essentially reset _hasUserPanned to false.
-                    if (!_hasUserPanned) 
+                    if (!_hasUserPanned || _options.visualizationType === _util.getChoroplethValue()) 
                         this.goToDataExtent(sasLayerReadied);
     
                     if (_options.animation) 
@@ -521,6 +539,7 @@ define([
                 type: "simple", 
                 symbol: {
                   type: "simple-fill", 
+                  color: _options.colorMax,
                   outline: { 
                     color: _options.outline,  
                     width: 0.5
