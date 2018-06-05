@@ -680,9 +680,15 @@ define([
          * Adapted from ArcGIS examples.
          */
         goToDataExtent: function (sasLayer) {
+            this.forDataExtent(sasLayer, _util.proxy(function(results){
+                this.getMapView().goTo(results.extent, {animate: false});  // go to the extent of all the graphics in the layer view
+            }, this));
+        },
+
+        forDataExtent: function (sasLayer, queryExtentResultsHandler) {
             var goToLayer = function (layer){
                 layer.queryExtent().then(function(results){
-                    view.goTo(results.extent, {animate: false});  // go to the extent of all the graphics in the layer view
+                    queryExtentResultsHandler(results);
                 });
             };
             var view = this.getMapView();
