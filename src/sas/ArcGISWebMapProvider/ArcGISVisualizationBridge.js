@@ -217,6 +217,34 @@ define([
                         geoIdAttributeMap[graphic.attributes[geoIdColumnName]] = graphic.attributes;
                     });
 
+                    /* TODO MAPPING:
+                     *
+                     * I made an interesting discovery when doing this simplistic where-clause 
+                     * construction.  The unoptimized call (which requested all regions) beat
+                     * the optimized call (which requests only the ones specified) when you
+                     * begin by including all regions.  
+                     * 
+                     * The reason was the "all region" call (unlike the calls with the where
+                     * clauses) never changes.  Therefore the browser gets 304s (not modified)
+                     * from the server and doesn't re-request the regions.  When the 
+                     * where-clause changed it invariably requeried.
+                     * 
+                     * If I want to use this as an optimization tool.  I need to reevaluate.
+                     * The browser's own caching already helps considerably.
+                     */
+
+                    // Add a where clause if requesting fewer than 200 IDs.
+
+                    var whereClause;
+
+                    if (!_options.featureServiceWhere && graphics.length > 0 && graphics.length < 201) {
+                        whereClause = 
+                            _options.featureServiceGeoId + 
+                            " IN (" + 
+                            _util.sqlEscape(Object.keys(geoIdAttributeMap)).join() + 
+                            ")";
+                    }
+
                     // Fetch _all_ the choropleth geometries, requesting only the attributes 
                     // necessary to join the rows to the IDs.  Potential optimization: Request 
                     // only geometries found in data.  Cache the geometries.
@@ -234,6 +262,8 @@ define([
                     query.outSpatialReference = {wkid: 4326};
                     if (_options.featureServiceWhere)
                         query.where = _options.featureServiceWhere;
+                    else if (whereClause)
+                        query.where = whereClause;
                     if (!isNaN(_options.featureServiceMaxAllowableOffset))
                         query.maxAllowableOffset = _options.featureServiceMaxAllowableOffset;
                     queryLayer.queryFeatures(query).then(_util.proxy(function(results) {

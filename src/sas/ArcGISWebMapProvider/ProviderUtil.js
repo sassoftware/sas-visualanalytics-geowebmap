@@ -78,6 +78,19 @@ define([
                 target.postMessage(msg,targetOrigin);
         }, 
 
+        sqlEscape: function (values) {
+
+            var quoteAndEscape = function(v){
+                return "'" + this._sqlEscape(v) + "'";
+            };
+
+            if (!Array.isArray(values)) 
+                return quoteAndEscape(values);
+            else
+                return values.map(quoteAndEscape,this);
+
+        },
+
         /**
          * Defines the allowed target for the publication of selection events
          * on the map.  For maximum security, this should return the most 
@@ -87,6 +100,37 @@ define([
          */
         _selectionPublicationTargetOrigin: function () {
             return "*"; // Lock down as needed.  E.g., (window.location !== window.parent.location) ? document.referrer : document.location.href;
+        },
+
+        // Following is a variation from sql-escape (https://github.com/packagestats/sql-escape).
+        _sqlEscape: function (value) {
+
+            if (typeof value !== 'string')
+                return value;
+        
+            return value.replace(/[\0\x08\x09\x1a\n\r"'\\%]/g, function (char) { // eslint-disable-line no-control-regex
+                switch (char) {
+                    case "\0":
+                        return "\\0";
+                    case "\x08":
+                        return "\\b";
+                    case "\x09":
+                        return "\\t";
+                    case "\x1a":
+                        return "\\z";
+                    case "\n":
+                        return "\\n";
+                    case "\r":
+                        return "\\r";
+                    case "\"":
+                    case "'":
+                    case "\\":
+                    case "%":
+                        return "\\" + char; // prepends a backslash to backslash, percent,
+                                            // and double/single quotes
+                }
+            });
+
         }
 
     });
