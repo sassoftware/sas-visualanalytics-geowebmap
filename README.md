@@ -54,6 +54,7 @@ Data-driven content aggregates report data.  Keep this in mind when including lo
 | use3D | Set to "true" to display the map in a 3D SceneView.  Defaults to false. |
 | title | The title of the layer that includes VA data.  Optional.  Defaults to the geoId, if available, or to "SAS VA Layer", if not. |
 | zIndex | The index of the layer that includes VA data.  Optional.  Use "0" to insert the layer below all others.  Defaults to the top-most level. |
+| featuresMax | The maximum number of features allowed in the SAS layer.  Optional.  If set, the user will receive a warning when the data's row count exceeds this number, and the SAS layer will be cleared. |
 | period | Defines the interval used to subdivide the animation date.  Valid values are units of time accepted by [Moment](http://momentjs.com/) (e.g., "millisecond", "day", "month", "year").  Defaults to "year". |
 | useSmartLegends | Set to "true" to use Esri's "smart mapping" legends for color and size (where appropriate).  Defaults to false.  This feature is experimental. |
 | useSampleData | Set to "true" to load data from SampleData.json instead of VA.  Useful for testing.  Optional. |

@@ -92,6 +92,7 @@ define([
 
             _options.zIndex = Math.max(parseInt(_options.zIndex),0); // Resolves to NaN or a whole number.
             _options.featureServiceMaxAllowableOffset = parseFloat(_options.featureServiceMaxAllowableOffset);
+            _options.featuresMax = parseInt(_options.featuresMax);
 
             // If not using sample data, listen for data-driven content.
 
@@ -162,6 +163,11 @@ define([
          */
         processMessageEvent: function (event) {
             if (event.data && event.data.columns && event.data.data) {   
+                
+                if (!this.validateFeaturesMax(event.data.data, _options.featuresMax)) {
+                    this.removeSasLayer();
+                    return;
+                }
                 
                 _selectionHelper.registerMapData(
                     event.data.resultName, // Identifier for incoming data set.
@@ -350,6 +356,20 @@ define([
                         _smartLegendHelper.addSmartLegends(sasLayerReadied, this.getMapView());
                     
                 }, this));
+
+            }
+        }, 
+
+        removeSasLayer: function() {
+
+            var view = this.getMapView();
+            var map = (view) ? view.map : null;
+
+            if (map) {
+
+                var oldLayer = map.findLayerById(_sasFeatureLayerId);
+                if (oldLayer)
+                    map.remove(oldLayer);
 
             }
         }, 
@@ -609,6 +629,20 @@ define([
 
             return warning.length === 0;
 
+        },
+
+        validateFeaturesMax: function (graphics, maximum) {
+
+            var warning = "";
+
+            // TODO: Localize warnings.
+
+            if (graphics.length > maximum) 
+                warning = "Feature count (" + graphics.length + ") exceeds maximum allowed (" + maximum + ").  Please filter your results.";
+
+            this.setWarning(warning);
+
+            return warning.length === 0;
         },
 
         validateGeoIds: function (columns, geoIdMap) {
