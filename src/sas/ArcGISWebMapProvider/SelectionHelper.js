@@ -24,6 +24,7 @@ define([
 
     var _util;
     var _mapView;
+    var _sasFeatureLayerId;
     var _use3D;
     var _3DHighlights;          // Map token identifying a highlighted feature set.
     var _dataResultName;        // Name of incoming dataset (from VA)
@@ -37,9 +38,10 @@ define([
             _util = new ProviderUtil();
         },
 
-        registerMapView: function(mapView) {
+        registerMapView: function(mapView, sasFeatureLayerId) {
 
             _mapView = mapView;
+            _sasFeatureLayerId = sasFeatureLayerId;
 
             // ArcGIS for Javascript 4.6: selectedFeature fires when window opens, having clicked 
             // on a feature, when clicking on a new feature, and when the window
@@ -104,9 +106,11 @@ define([
          */
         _onSelection: function (graphic) {
 
+            var isSasFeature = (graphic && graphic.layer && graphic.layer.id === _sasFeatureLayerId);
+
             // (1) Communicate selection to containing report in VA.
 
-            var id = (graphic && graphic.attributes) ? graphic.attributes[_util.getObjectIdFieldName()] : null;
+            var id = (isSasFeature && graphic && graphic.attributes) ? graphic.attributes[_util.getObjectIdFieldName()] : null;
             _util.publishMessage({
                 resultName: _dataResultName,
                 selections: [{row: id}]
@@ -119,8 +123,10 @@ define([
             // (3) Show selection on Map.
 
             // Only 2D requires custom work.  3D is managed automatically by API (highlight).
-            if (!_use3D) 
-                this._drawSelection(graphic);
+            if (isSasFeature) {
+                if (!_use3D) 
+                    this._drawSelection(graphic);
+            }
 
         }, 
 
@@ -147,7 +153,7 @@ define([
 
             graphics.forEach(_util.proxy(function (graphic){
 
-                var symbol = (graphic && graphic.layer && graphic.layer.renderer) ? graphic.layer.renderer.getSymbol() : null;
+                var symbol = (graphic && graphic.layer && graphic.layer.renderer && graphic.layer.renderer.getSymbol) ? graphic.layer.renderer.getSymbol() : null;
 
                 if (symbol) {
     

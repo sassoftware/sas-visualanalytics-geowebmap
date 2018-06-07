@@ -147,7 +147,7 @@ define([
             if (_options.use3D)
                 _mapView.highlightOptions.color = _options.outline;
 
-            _selectionHelper.registerMapView(_mapView);
+            _selectionHelper.registerMapView(_mapView, _sasFeatureLayerId);
     
         },
 
@@ -377,7 +377,7 @@ define([
         convertRowsToObjects: function(columns, rows) {
             return rows.map(function (row, i) {
                 var object = {};
-                object[_util.getObjectIdFieldName()] = i + 1; // Adding the object ID.
+                object[_util.getObjectIdFieldName()] = i; // Adding the object ID.
                 var index = 0;
                 columns.forEach(function(column){
                     object[column.name] = (index < row.length) ? row[index] : null;
