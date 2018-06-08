@@ -93,6 +93,7 @@ define([
             _options.zIndex = Math.max(parseInt(_options.zIndex),0); // Resolves to NaN or a whole number.
             _options.featureServiceMaxAllowableOffset = parseFloat(_options.featureServiceMaxAllowableOffset);
             _options.featuresMax = parseInt(_options.featuresMax);
+            _options.filterToFeatureServiceGeoId = (_options.filterToFeatureServiceGeoId && _options.filterToFeatureServiceGeoId.toUpperCase() === "TRUE");
 
             // If not using sample data, listen for data-driven content.
 
@@ -282,6 +283,9 @@ define([
                             }
 
                         });
+
+                        if (_options.filterToFeatureServiceGeoId)
+                            this.filterToFeatureServiceGeoId(whereClause);
 
                         // Build the feature layer from the geometries joined with the data.
 
@@ -599,6 +603,35 @@ define([
                 }
             }
 
+        },
+
+        /** 
+         * We may not keep "filterToFeatureServiceGeoId", since the use case is narrow.
+         * When a single region is being displayed, the feature will filter
+         * all other FeatureLayers in the map by the value of that region
+         * if those FeatureLayers have an attribute matching the featureServiceGeoId.
+         * So you display only the single feature and anything that intersects it
+         * (by attribute, not geometry).
+         */
+        filterToFeatureServiceGeoId: function(whereClause) {
+            if (whereClause && whereClause.length > 0) {
+                this.getMapView().map.allLayers.forEach(function(layer){
+
+                    if (layer.type && layer.type === "feature" && 
+                        layer.id !== _sasFeatureLayerId &&
+                        layer.fields) {
+
+                        var layerHasGeoId = layer.fields.find(function (f){ return f.name === _options.featureServiceGeoId });
+                        
+                        if (layerHasGeoId) 
+                            layer.definitionExpression = whereClause;
+                        else
+                            layer.definitionExpression = "";  
+
+                    }
+
+                });
+            }
         },
 
         validateCoordinates: function (rows, columns) {
