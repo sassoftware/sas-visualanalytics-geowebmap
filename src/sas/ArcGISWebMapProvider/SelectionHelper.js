@@ -153,7 +153,7 @@ define([
 
             graphics.forEach(_util.proxy(function (graphic){
 
-                var symbol = (graphic && graphic.layer && graphic.layer.renderer && graphic.layer.renderer.getSymbol) ? graphic.layer.renderer.getSymbol() : null;
+            var symbol = (graphic && graphic.layer && graphic.layer.renderer && graphic.layer.renderer.getSymbol) ? graphic.layer.renderer.getSymbol(graphic) : null;
 
                 if (symbol) {
     
@@ -203,7 +203,7 @@ define([
             var sizeVariable = (renderer.visualVariables || []).find(function (vv){ return vv.type === "size"; });
 
             if (!sizeVariable) {
-                var symbol = renderer.getSymbol();
+                var symbol = renderer.getSymbol(graphic);
                 return (symbol) ? symbol.size : 0;
             } else {
 

@@ -185,7 +185,9 @@ define([
                 var fields = this.createFields(event.data.columns);
 
                 var renderer;
-                if (_options.visualizationType === _util.getScatterValue())
+                if (_options.visualizationType === _util.getScatterValue() && _options.category)
+                    renderer = this.createScatterCategoryRenderer(event.data.columns, event.data.data);
+                else if (_options.visualizationType === _util.getScatterValue())
                     renderer = this.createScatterRenderer(event.data.columns);
                 else if (_options.visualizationType === _util.getBubbleValue())
                     renderer = this.createBubbleRenderer(event.data.columns, event.data.data);
@@ -434,6 +436,61 @@ define([
                 },
                 visualVariables: visualVariables
               };
+        },
+
+        createScatterCategoryRenderer: function(columns, rows) {
+            var visualVariables = [];
+
+            if (_options.animation)
+                visualVariables.push(_animationHelper.buildAnimationVisualVariable(columns, _options.animation));
+
+            var categoryVals = [];
+            var uniqueVals = [];
+            var categoryColumnIndex = _util.getIndexWithLabel(_options.category, columns);
+
+            rows.forEach(function (row) {
+                if (!categoryVals.includes(row[categoryColumnIndex]))
+                    categoryVals.push(row[categoryColumnIndex]);
+            });
+
+            var colors = _util.generateColors(categoryVals.length);
+
+            for (var i = 0; i < categoryVals.length; i++) {
+                uniqueVals.push({
+                    value: categoryVals[i],
+                    symbol: {
+                        type: "simple-marker",  // autocasts as new SimpleMarkerSymbol()
+                        color: colors[i],
+                        size: 6,
+                        outline: {
+                            width: 0.5,
+                            color: _options.outline
+                        }
+                    }
+                });
+            }
+
+            function getCategoryField (feature) {
+                var categoryName = _util.getNameWithLabel(_options.category, columns);
+
+                return feature.attributes[categoryName];
+            }
+
+            return {
+                type: "unique-value",
+                field: getCategoryField,
+                defaultSymbol: {
+                    type: "simple-marker",  // autocasts as new SimpleMarkerSymbol()
+                    color: "green",
+                    size: 6,
+                    outline: {
+                        width: 0.5,
+                        color: _options.outline
+                    }
+                },
+                uniqueValueInfos: uniqueVals,
+                visualVariables: visualVariables
+            };
         },
 
         createBubbleRenderer: function (columns, rows) {
