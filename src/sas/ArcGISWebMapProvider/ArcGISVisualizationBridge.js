@@ -114,7 +114,7 @@ define([
 
             _mapView = mapView;
             
-            if (_options.visualizationType !== _util.getScatterValue()) {
+            if (_options.visualizationType !== _util.getScatterValue() || _options.category) {
                 _sasLegend = new Legend({view: _mapView, container: document.createElement("div")});
                 var legendExpand = new Expand({expandIconClass: "esri-icon-question", view: _mapView, content: _sasLegend.domNode, group: "bottom-right"});
                 _mapView.ui.add(legendExpand, "bottom-right");
@@ -189,6 +189,8 @@ define([
                     renderer = this.createScatterCategoryRenderer(event.data.columns, event.data.data);
                 else if (_options.visualizationType === _util.getScatterValue())
                     renderer = this.createScatterRenderer(event.data.columns);
+                else if (_options.visualizationType === _util.getBubbleValue() && _options.category)
+                    renderer = this.createBubbleCategoryRenderer(event.data.columns, event.data.data);
                 else if (_options.visualizationType === _util.getBubbleValue())
                     renderer = this.createBubbleRenderer(event.data.columns, event.data.data);
                 else if (_options.visualizationType === _util.getChoroplethValue())
@@ -444,32 +446,6 @@ define([
             if (_options.animation)
                 visualVariables.push(_animationHelper.buildAnimationVisualVariable(columns, _options.animation));
 
-            var categoryVals = [];
-            var uniqueVals = [];
-            var categoryColumnIndex = _util.getIndexWithLabel(_options.category, columns);
-
-            rows.forEach(function (row) {
-                if (!categoryVals.includes(row[categoryColumnIndex]))
-                    categoryVals.push(row[categoryColumnIndex]);
-            });
-
-            var colors = _util.generateColors(categoryVals.length);
-
-            for (var i = 0; i < categoryVals.length; i++) {
-                uniqueVals.push({
-                    value: categoryVals[i],
-                    symbol: {
-                        type: "simple-marker",  // autocasts as new SimpleMarkerSymbol()
-                        color: colors[i],
-                        size: 6,
-                        outline: {
-                            width: 0.5,
-                            color: _options.outline
-                        }
-                    }
-                });
-            }
-
             function getCategoryField (feature) {
                 var categoryName = _util.getNameWithLabel(_options.category, columns);
 
@@ -488,7 +464,7 @@ define([
                         color: _options.outline
                     }
                 },
-                uniqueValueInfos: uniqueVals,
+                uniqueValueInfos: _util.generateUniqueVals(columns, rows, _options.category, _options.outline),
                 visualVariables: visualVariables
             };
         },
@@ -588,6 +564,61 @@ define([
             // }
 
             return renderer;
+        },
+
+        createBubbleCategoryRenderer: function (columns, rows) {
+
+            var visualVariables = [];
+            var minMax;
+
+            if (_options.size) {
+                var sizeColumnName = _util.getNameWithLabel(_options.size, columns);
+                var sizeIndex = _util.getIndexWithLabel(_options.size, columns);
+                minMax = _util.findMinMax(rows,sizeIndex);
+                visualVariables.push({
+                    type: "size",
+                    field: sizeColumnName,
+                    valueUnit: "unknown",
+                    stops: [
+                        {
+                            value: minMax[0],
+                            size: 6 // (!_options.use3D) ? 6 : 100000
+                        },
+                        {
+                            value: minMax[1],
+                            size: 30 // (!_options.use3D) ? 30 : 500000
+                        }],
+                    minDataValue: minMax[0],
+                    maxDataValue: minMax[1],
+                    minSize: 6,
+                    maxSize: 30
+                });
+            }
+
+            if (_options.animation)
+                visualVariables.push(_animationHelper.buildAnimationVisualVariable(columns, _options.animation));
+
+            function getCategoryField (feature) {
+                var categoryName = _util.getNameWithLabel(_options.category, columns);
+
+                return feature.attributes[categoryName];
+            }
+
+            return {
+                type: "unique-value",
+                field: getCategoryField,
+                defaultSymbol: {
+                    type: "simple-marker",  // autocasts as new SimpleMarkerSymbol()
+                    color: "blue",
+                    size: 6,
+                    outline: {
+                        width: 0.5,
+                        color: _options.outline
+                    }
+                },
+                uniqueValueInfos: _util.generateUniqueVals(columns, rows, _options.category, _options.outline),
+                visualVariables: visualVariables
+            };
         },
 
         createChoroplethRenderer: function (columns, rows) {

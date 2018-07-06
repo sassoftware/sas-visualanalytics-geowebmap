@@ -82,10 +82,40 @@ define([
             for (var i = 0; i < numColors; i++) {
                 h += goldenRatioConjugate;
                 h %= 1;
-                colors.push(hsvToRgb(0.5, 0.95))
+                colors.push(hsvToRgb(0.7, 0.95))
             }
 
             return colors;
+        },
+
+        generateUniqueVals: function (columns, rows, category, outline) {
+            var categoryVals = [];
+            var uniqueVals = [];
+            var categoryColumnIndex = this.getIndexWithLabel(category, columns);
+
+            rows.forEach(function (row) {
+                if (!categoryVals.includes(row[categoryColumnIndex]))
+                    categoryVals.push(row[categoryColumnIndex]);
+            });
+
+            var colors = this.generateColors(categoryVals.length);
+
+            for (var i = 0; i < categoryVals.length; i++) {
+                uniqueVals.push({
+                    value: categoryVals[i],
+                    symbol: {
+                        type: "simple-marker",  // autocasts as new SimpleMarkerSymbol()
+                        color: colors[i],
+                        size: 6,
+                        outline: {
+                            width: 0.5,
+                            color: outline
+                        }
+                    }
+                });
+            }
+
+            return uniqueVals;
         },
 
         getNameWithLabel: function (label, columns) {
@@ -100,7 +130,7 @@ define([
         getNameWithUsage: function (usage, columns) {
             var match = columns.find(function(column) { return column && column.usage === usage; });
             return (match) ? match.name : null;
-        }, 
+        },
 
         logError: function (error) {
             if (console && console.error)
