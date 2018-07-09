@@ -89,20 +89,21 @@ define([
         },
 
         generateUniqueVals: function (columns, rows, category, outline) {
-            var categoryVals = [];
+            var categoryVals = {};
             var uniqueVals = [];
             var categoryColumnIndex = this.getIndexWithLabel(category, columns);
 
             rows.forEach(function (row) {
-                if (!categoryVals.includes(row[categoryColumnIndex]))
-                    categoryVals.push(row[categoryColumnIndex]);
+               if (!categoryVals.hasOwnProperty(row[categoryColumnIndex]))
+                   categoryVals[row[categoryColumnIndex]] = true;
             });
 
-            var colors = this.generateColors(categoryVals.length);
+            var keys = Object.keys(categoryVals);
+            var colors = this.generateColors(keys.length);
 
-            for (var i = 0; i < categoryVals.length; i++) {
+            for (var i = 0; i < keys.length; i++) {
                 uniqueVals.push({
-                    value: categoryVals[i],
+                    value: keys[i],
                     symbol: {
                         type: "simple-marker",  // autocasts as new SimpleMarkerSymbol()
                         color: colors[i],
