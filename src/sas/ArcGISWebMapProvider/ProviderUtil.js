@@ -119,6 +119,11 @@ define([
             return uniqueVals;
         },
 
+        hasColorCategory: function (label, columns) {
+            var colorIndex = this.getIndexWithLabel(label, columns);
+            return (columns[colorIndex].usage === "categorical" || columns[colorIndex].type === "string")
+        },
+
         getNameWithLabel: function (label, columns) {
             var match = columns.find(function(column) { return column && column.label === label; });
             return (match) ? match.name : null;
