@@ -124,7 +124,11 @@ define([
         },
 
         generateSampleAnimationData: function(result, colorColumnLabel, sizeColumnLabel, animationColumnLabel) {
-            var colorIndex = _util.getIndexWithLabel(colorColumnLabel, result.columns);
+            var colorIndex;
+            if (_util.hasColorCategory(colorColumnLabel, result.columns))
+                colorIndex = -1;
+            else 
+                colorIndex = _util.getIndexWithLabel(colorColumnLabel, result.columns);
             var sizeIndex = _util.getIndexWithLabel(sizeColumnLabel, result.columns);
             var animationIndex = _util.getIndexWithLabel(animationColumnLabel, result.columns);
             var initialLength = result.data.length;
@@ -225,7 +229,10 @@ define([
 
             if (_sasLayer) {
                 var clonedRenderer = _sasLayer.renderer.clone();
-                clonedRenderer.symbol.outline = null;  // TODO: Bind outline opacity to symbol opacity.  Disabled for now.
+                if (clonedRenderer.symbol)
+                    clonedRenderer.symbol.outline = null;  // TODO: Bind outline opacity to symbol opacity.  Disabled for now.
+                if (clonedRenderer.defaultSymbol)
+                    clonedRenderer.defaultSymbol.outline = null; // TODO: Bind outline opacity to symbol opacity.  Disabled for now.
                 var opacityVV = clonedRenderer.visualVariables.find(function (vv){ return vv.type === "opacity"; });
                 if (opacityVV) {
                     opacityVV.stops = [

@@ -422,7 +422,7 @@ define([
             if (_options.animation) 
                 visualVariables.push(_animationHelper.buildAnimationVisualVariable(columns, _options.animation));
 
-            if (_options.color) {
+            if (_util.hasColorCategory(_options.color, columns)) {
                 renderer =  {
                     type: "unique-value",
                     field: _util.getNameWithLabel(_options.color, columns),
@@ -435,7 +435,7 @@ define([
                             color: _options.outline
                         }
                     },
-                    uniqueValueInfos: _util.generateUniqueVals(columns, rows, _options.color, _options.outline),
+                    uniqueValueInfos: _util.generateUniqueVals(columns, rows, _options),
                     visualVariables: visualVariables
                 };
             } else {

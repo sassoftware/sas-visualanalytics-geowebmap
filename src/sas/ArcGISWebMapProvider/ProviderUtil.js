@@ -88,10 +88,10 @@ define([
             return colors;
         },
 
-        generateUniqueVals: function (columns, rows, category, outline) {
+        generateUniqueVals: function (columns, rows, options) {
             var categoryVals = {};
             var uniqueVals = [];
-            var categoryColumnIndex = this.getIndexWithLabel(category, columns);
+            var categoryColumnIndex = this.getIndexWithLabel(options.color, columns);
 
             rows.forEach(function (row) {
                if (!categoryVals.hasOwnProperty(row[categoryColumnIndex]))
@@ -108,10 +108,12 @@ define([
                         type: "simple-marker",  // autocasts as new SimpleMarkerSymbol()
                         color: colors[i],
                         size: 6,
-                        outline: {
-                            width: 0.5,
-                            color: outline
-                        }
+                        outline: options.animation
+                          ? null
+                          : {
+                              width: 0.5,
+                              color: options.outline
+                          }
                     }
                 });
             }
@@ -120,6 +122,8 @@ define([
         },
 
         hasColorCategory: function (label, columns) {
+            if (!label)
+                return false;
             var colorIndex = this.getIndexWithLabel(label, columns);
             return (columns[colorIndex].usage === "categorical" || columns[colorIndex].type === "string")
         },
