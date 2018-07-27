@@ -477,7 +477,7 @@ define([
                             color: _options.outline
                         }
                     },
-                    uniqueValueInfos: _util.generateUniqueVals(columns, rows, _options.color, _options.outline),
+                    uniqueValueInfos: _util.generateUniqueVals(columns, rows, _options),
                     visualVariables: visualVariables
                 };
             } else {
