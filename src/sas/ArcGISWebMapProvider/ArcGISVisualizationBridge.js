@@ -114,7 +114,7 @@ define([
 
             _mapView = mapView;
             
-            if (_options.visualizationType !== _util.getScatterValue()) {
+            if (_options.visualizationType !== _util.getScatterValue() || _options.color) {
                 _sasLegend = new Legend({view: _mapView, container: document.createElement("div")});
                 var legendExpand = new Expand({expandIconClass: "esri-icon-question", view: _mapView, content: _sasLegend.domNode, group: "bottom-right"});
                 _mapView.ui.add(legendExpand, "bottom-right");
@@ -186,7 +186,7 @@ define([
 
                 var renderer;
                 if (_options.visualizationType === _util.getScatterValue())
-                    renderer = this.createScatterRenderer(event.data.columns);
+                    renderer = this.createScatterRenderer(event.data.columns, event.data.data);
                 else if (_options.visualizationType === _util.getBubbleValue())
                     renderer = this.createBubbleRenderer(event.data.columns, event.data.data);
                 else if (_options.visualizationType === _util.getChoroplethValue())
@@ -415,37 +415,92 @@ define([
             });
         },
 
-        createScatterRenderer: function(columns) {
+        createScatterRenderer: function(columns, rows) {
             var visualVariables = [];
+            var renderer;
 
             if (_options.animation) 
-                visualVariables.push(_animationHelper.buildAnimationVisualVariable(columns, _options.animation));                
+                visualVariables.push(_animationHelper.buildAnimationVisualVariable(columns, _options.animation));
 
-            return {
-                type: "simple",  
-                symbol: {
-                  type: "simple-marker",  
-                  size: 6,
-                  color: _options.colorMax,
-                  outline: {  
-                    width: 0.5,
-                    color: _options.outline
-                  }
-                },
-                visualVariables: visualVariables
-              };
+            if (_util.hasColorCategory(_options.color, columns)) {
+                renderer =  {
+                    type: "unique-value",
+                    field: _util.getNameWithLabel(_options.color, columns),
+                    defaultSymbol: {
+                        type: "simple-marker",  // autocasts as new SimpleMarkerSymbol()
+                        color: "green",
+                        size: 6,
+                        outline: {
+                            width: 0.5,
+                            color: _options.outline
+                        }
+                    },
+                    uniqueValueInfos: _util.generateUniqueVals(columns, rows, _options),
+                    visualVariables: visualVariables
+                };
+            } else {
+                renderer = {
+                    type: "simple",
+                    symbol: {
+                        type: "simple-marker",
+                        size: 6,
+                        color: _options.colorMax,
+                        outline: {
+                            width: 0.5,
+                            color: _options.outline
+                        }
+                    },
+                    visualVariables: visualVariables
+                };
+            }
+
+            return renderer;
         },
 
         createBubbleRenderer: function (columns, rows) {
 
             var visualVariables = [];
             var minMax;
+            var renderer;
+
+            //Create either unique-value renderer or simple renderer
+            if (_util.hasColorCategory(_options.color, columns)) {
+                renderer = {
+                    type: "unique-value",
+                    field: _util.getNameWithLabel(_options.color, columns),
+                    defaultSymbol: {
+                        type: "simple-marker",  // autocasts as new SimpleMarkerSymbol()
+                        color: "blue",
+                        size: 6,
+                        outline: {
+                            width: 0.5,
+                            color: _options.outline
+                        }
+                    },
+                    uniqueValueInfos: _util.generateUniqueVals(columns, rows, _options.color, _options.outline),
+                    visualVariables: visualVariables
+                };
+            } else {
+                renderer = {
+                    type: "simple",
+                    symbol: {
+                        type: "simple-marker",
+                        size: 0,
+                        outline: {
+                            color: _options.outline,
+                            width: 0.5,
+                            opacity: 0
+                        }
+                    },
+                    visualVariables: visualVariables
+                };
+            }
 
             if (_options.size) {
                 var sizeColumnName = _util.getNameWithLabel(_options.size, columns);
                 var sizeIndex = _util.getIndexWithLabel(_options.size, columns);
-                minMax = _util.findMinMax(rows,sizeIndex);  
-                visualVariables.push({
+                minMax = _util.findMinMax(rows,sizeIndex);
+                renderer.visualVariables.push({
                     type: "size",
                     field: sizeColumnName,
                     valueUnit: "unknown",
@@ -465,11 +520,15 @@ define([
                 });
             }
 
-            if (_options.color) {
+            if (_options.animation)
+                renderer.visualVariables.push(_animationHelper.buildAnimationVisualVariable(columns, _options.animation));
+
+            if (!_util.hasColorCategory(_options.color, columns)) {
                 var colorColumnName = _util.getNameWithLabel(_options.color, columns);
                 var colorIndex = _util.getIndexWithLabel(_options.color, columns);
-                minMax = _util.findMinMax(rows,colorIndex);  
-                visualVariables.push({
+
+                minMax = _util.findMinMax(rows,colorIndex);
+                renderer.visualVariables.push({
                     type: "color",
                     field: colorColumnName,
                     stops: [
@@ -486,25 +545,6 @@ define([
                     _smartLegendHelper.expandTwoPartColorRange(visualVariables[visualVariables.length - 1].stops);
             }
 
-            if (_options.animation) 
-                visualVariables.push(_animationHelper.buildAnimationVisualVariable(columns, _options.animation));                
-
-            var renderer;
-
-            // if (!_options.use3D) {
-                renderer =  {
-                    type: "simple", 
-                    symbol: {
-                        type: "simple-marker", 
-                        size: 0,
-                        outline: { 
-                            color: _options.outline, 
-                            width: 0.5,
-                            opacity: 0
-                        }
-                    },
-                    visualVariables: visualVariables
-                };
             // This 3D render requires the symbol to be measured in meters, and the correct
             // choice really depends on the expected extent; so, if it were generalized, 
             // it would have to be exposed as another querystring option. See the 
