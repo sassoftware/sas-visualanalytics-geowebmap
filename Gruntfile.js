@@ -42,6 +42,11 @@ module.exports = function (grunt) {
           rename: function (dest, src) {
             return dest + 'index.html';
           }
+        }, {
+          expand: true,
+          cwd: 'src/',
+          src: ['examples.html'],
+          dest: './dist/'
         }]
       },
       debug: {

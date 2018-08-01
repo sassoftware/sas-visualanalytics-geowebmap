@@ -52,6 +52,82 @@ define([
             }, []);
         },
 
+        //Credit to: http://axonflux.com/handy-rgb-to-hsl-and-rgb-to-hsv-color-model-c
+        generateColors: function (numColors) {
+            var h = Math.floor(Math.random() * Math.floor(360));
+            var goldenRatioConjugate = 0.618033988749895;
+            var colors = [];
+
+            function hsvToRgb (s, v) {
+                var r, g, b;
+
+                var i = Math.floor(h * 6);
+                var f = h * 6 - i;
+                var p = v * (1 - s);
+                var q = v * (1 - f * s);
+                var t = v * (1 - (1 - f) * s);
+
+                switch (i % 6){
+                    case 0: r = v; g = t; b = p; break;
+                    case 1: r = q; g = v; b = p; break;
+                    case 2: r = p; g = v; b = t; break;
+                    case 3: r = p; g = q; b = v; break;
+                    case 4: r = t; g = p; b = v; break;
+                    case 5: r = v; g = p; b = q; break;
+                }
+
+                return {r: r * 255, g: g * 255, b: b * 255, a: 1};
+            }
+
+            for (var i = 0; i < numColors; i++) {
+                h += goldenRatioConjugate;
+                h %= 1;
+                colors.push(hsvToRgb(0.7, 0.95))
+            }
+
+            return colors;
+        },
+
+        generateUniqueVals: function (columns, rows, options) {
+            var categoryVals = {};
+            var uniqueVals = [];
+            var categoryColumnIndex = this.getIndexWithLabel(options.color, columns);
+
+            rows.forEach(function (row) {
+               if (!categoryVals.hasOwnProperty(row[categoryColumnIndex]))
+                   categoryVals[row[categoryColumnIndex]] = true;
+            });
+
+            var keys = Object.keys(categoryVals);
+            var colors = this.generateColors(keys.length);
+
+            for (var i = 0; i < keys.length; i++) {
+                uniqueVals.push({
+                    value: keys[i],
+                    symbol: {
+                        type: "simple-marker",  // autocasts as new SimpleMarkerSymbol()
+                        color: colors[i],
+                        size: 6,
+                        outline: options.animation
+                          ? null
+                          : {
+                              width: 0.5,
+                              color: options.outline
+                          }
+                    }
+                });
+            }
+
+            return uniqueVals;
+        },
+
+        hasColorCategory: function (label, columns) {
+            if (!label)
+                return false;
+            var colorIndex = this.getIndexWithLabel(label, columns);
+            return (columns[colorIndex].usage === "categorical" || columns[colorIndex].type === "string")
+        },
+
         getNameWithLabel: function (label, columns) {
             var match = columns.find(function(column) { return column && column.label === label; });
             return (match) ? match.name : null;
@@ -64,7 +140,7 @@ define([
         getNameWithUsage: function (usage, columns) {
             var match = columns.find(function(column) { return column && column.usage === usage; });
             return (match) ? match.name : null;
-        }, 
+        },
 
         logError: function (error) {
             if (console && console.error)
