@@ -610,7 +610,7 @@ define([
                 };
             }
 
-            if (!_util.hasColorCategory(_options.color, columns)) {
+            if (!_util.hasColorCategory(_options.color, columns) && _options.color) {
                 var colorColumnName = _util.getNameWithLabel(_options.color, columns);
                 var colorIndex = _util.getIndexWithLabel(_options.color, columns);
                 minMax = _util.findMinMax(rows,colorIndex);
