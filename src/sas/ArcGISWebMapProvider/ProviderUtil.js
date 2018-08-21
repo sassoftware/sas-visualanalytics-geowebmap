@@ -92,6 +92,7 @@ define([
             var categoryVals = {};
             var uniqueVals = [];
             var categoryColumnIndex = this.getIndexWithLabel(options.color, columns);
+            var isChoropleth = options.visualizationType === this.getChoroplethValue();
 
             rows.forEach(function (row) {
                if (!categoryVals.hasOwnProperty(row[categoryColumnIndex]))
@@ -105,9 +106,10 @@ define([
                 uniqueVals.push({
                     value: keys[i],
                     symbol: {
-                        type: "simple-marker",  // autocasts as new SimpleMarkerSymbol()
+                        type: isChoropleth ? "simple-fill" : "simple-marker",  // autocasts as new SimpleMarkerSymbol()
                         color: colors[i],
-                        size: 6,
+                        size: isChoropleth ? null : 6,
+                        style: isChoropleth ? "solid" : null,
                         outline: options.animation
                           ? null
                           : {

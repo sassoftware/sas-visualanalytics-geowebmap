@@ -577,12 +577,44 @@ define([
 
             var visualVariables = [];
             var minMax;
+            var renderer;
 
-            if (_options.color) {
+            if (_util.hasColorCategory(_options.color, columns)) {
+                renderer = {
+                    type: "unique-value",
+                    field: _util.getNameWithLabel(_options.color, columns),
+                    defaultSymbol: {
+                        type: "simple-fill",  // autocasts as new SimpleMarkerSymbol()
+                        color: "blue",
+                        style: "solid",
+                        outline: {
+                            width: 0.5,
+                            color: _options.outline
+                        }
+                    },
+                    uniqueValueInfos: _util.generateUniqueVals(columns, rows, _options),
+                    visualVariables: visualVariables
+                };
+            } else {
+                renderer = {
+                    type: "simple",
+                    symbol: {
+                        type: "simple-fill",
+                        color: _options.colorMax,
+                        outline: {
+                            color: _options.outline,
+                            width: 0.5
+                        }
+                    },
+                    visualVariables: visualVariables
+                };
+            }
+
+            if (!_util.hasColorCategory(_options.color, columns) && _options.color) {
                 var colorColumnName = _util.getNameWithLabel(_options.color, columns);
                 var colorIndex = _util.getIndexWithLabel(_options.color, columns);
-                minMax = _util.findMinMax(rows,colorIndex); 
-                visualVariables.push({
+                minMax = _util.findMinMax(rows,colorIndex);
+                renderer.visualVariables.push({
                     type: "color",
                     field: colorColumnName,
                     stops: [
@@ -599,18 +631,7 @@ define([
                     _smartLegendHelper.expandTwoPartColorRange(visualVariables[visualVariables.length - 1].stops);
             }
 
-            return {
-                type: "simple", 
-                symbol: {
-                  type: "simple-fill", 
-                  color: _options.colorMax,
-                  outline: { 
-                    color: _options.outline,  
-                    width: 0.5
-                  }
-                },
-                visualVariables: visualVariables
-              };
+            return renderer;
         },
 
         createGenericUnformattedPopupTemplate: function (fields) {
