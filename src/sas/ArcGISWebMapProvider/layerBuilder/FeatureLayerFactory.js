@@ -30,14 +30,14 @@ define([
     var factorySingleton = declare(null, {
 
         createLayerBuilder: function (options, rows, columns) {
-            if (options.visualizationType === _util.getScatterValue())
-                return new ScatterLayerBuilder(options, rows, columns);
-            else if (options.visualizationType === _util.getBubbleValue())
+            if (options.visualizationType === _util.getBubbleValue())
                 return new BubbleLayerBuilder(options, rows, columns);
             else if (options.visualizationType === _util.getChoroplethValue())
                 return new ChoroplethLayerBuilder(options, rows, columns);
+            else // (options.visualizationType === _util.getScatterValue())
+                return new ScatterLayerBuilder(options, rows, columns);
         }
-
+        
     });
 
     return factorySingleton;

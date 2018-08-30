@@ -32,6 +32,10 @@ define([
 
     return declare(BaseLayerBuilder, {
 
+        validateOptions: function() {
+            return this._validateRequiredOptions(['geoId', 'featureServiceUrl', 'featureServiceGeoId']);
+        },
+
         validateResults: function () {
 
             var warning;

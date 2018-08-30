@@ -26,6 +26,10 @@ define([
 
     return declare(BaseLayerBuilder, {
 
+        validateOptions: function() {
+            return this._validateRequiredOptions(['x', 'y', 'size']);     
+        },
+
         validateResults: function () {
             return this._validateCoordinates(this._rows, this._columns);
         },

@@ -58,7 +58,14 @@ define([
             return promise;
         },
 
-        // Subclasses should override this method.  Return string description of errors.
+        // Subclasses should override this method.  Return string description of errors
+        // for input options.
+        validateOptions: function() {
+            return null;
+        },
+
+        // Subclasses should override this method.  Return string description of errors
+        // for results.
         validateResults: function () {
             return null;
         },
@@ -135,6 +142,25 @@ define([
                 type: "opacity",
                 field: animationColumnName
             };     
+        },
+
+        _validateRequiredOptions: function(optionNames) {
+
+            var message;
+            var missingNames = [];
+
+            optionNames.forEach(this._util.proxy(function(name){
+                if (!(name in this._options) || !this._options[name] || this._options[name].toString().length === 0)
+                    missingNames.push(name);
+            }, this));
+
+            // TODO: Localize warnings.
+
+            if (missingNames.length > 0) 
+               message = "The following required options were not identified: " + missingNames.join(", ") + ".";
+            
+            return message;
+
         },
 
         // Build simple layer (for scatter and bubble).

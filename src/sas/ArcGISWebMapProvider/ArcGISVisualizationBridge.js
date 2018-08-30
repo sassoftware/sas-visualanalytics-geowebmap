@@ -19,11 +19,8 @@ limitations under the License.
  * feature layer in a web map.
  */
 define([
-    "esri/geometry/Point",
-    "esri/layers/FeatureLayer",
     "esri/widgets/Expand",
     "esri/widgets/Legend",
-    "esri/core/lang",
     "sas/ArcGISWebMapProvider/AnimationHelper",
     "sas/ArcGISWebMapProvider/SmartLegendHelper",
     "sas/ArcGISWebMapProvider/SelectionHelper",
@@ -32,7 +29,7 @@ define([
     "dojo/dom-construct",
     "dojo/request/xhr",
     "dojo/_base/declare"
-], function(Point, FeatureLayer, Expand, Legend, lang, AnimationHelper, SmartLegendHelper, SelectionHelper, ProviderUtil, FeatureLayerFactory, domConstruct, xhr, declare){
+], function(Expand, Legend, AnimationHelper, SmartLegendHelper, SelectionHelper, ProviderUtil, FeatureLayerFactory, domConstruct, xhr, declare){
 
     var _options;
     var _mapView;
@@ -45,6 +42,7 @@ define([
     var _hasUserPanned = false; // Tagged to allow automatically fitting extent to data 
                                 // unless the user has manually panned.
     var _warningControl;
+    var _warning;
 
     return declare(null, {
 
@@ -120,8 +118,6 @@ define([
                 _mapView.ui.add(legendExpand, "bottom-right");
             }
 
-            this.validateOptions();
-
             // If using sample data, load it.
 
             if (_options.useSampleData) {
@@ -164,8 +160,10 @@ define([
          */
         processMessageEvent: function (event) {
             if (event.data && event.data.columns && event.data.data) {   
+
+                this.setWarning(null);
                 
-                if (!this.validateFeaturesMax(event.data.data, _options.featuresMax)) {
+                if (!this.validateOptions() || !this.validateFeaturesMax(event.data.data, _options.featuresMax)) {
                     this.removeSasLayer();
                     return;
                 }
@@ -186,7 +184,7 @@ define([
                 builder.buildFeatureLayer().then(_util.proxy(function(layer){
 
                     this.addOrReplaceSasLayer(layer);
-                    this.setWarning(builder.validateResults());
+                    this.appendWarning(builder.validateResults());
 
                     if (this._options.filterToFeatureServiceGeoId) {
                         var whereClause = builder.getGeoIdFilter();
@@ -311,44 +309,16 @@ define([
             if (graphics.length > maximum) 
                 warning = "Feature count (" + graphics.length + ") exceeds maximum allowed (" + maximum + ").  Please filter your results.";
 
-            this.setWarning(warning);
+            this.appendWarning(warning);
 
             return warning.length === 0;
         },
 
         validateOptions: function() {
-
-            switch (_options.visualizationType) {
-                case _util.getChoroplethValue():
-                    return this.validateRequiredOptions(['geoId', 'featureServiceUrl', 'featureServiceGeoId']);
-                case _util.getBubbleValue():
-                    return this.validateRequiredOptions(['x', 'y', 'size']);             
-                case _util.getScatterValue():
-                default:
-                    return this.validateRequiredOptions(['x', 'y']);             
-            }
-
-        },
-
-        validateRequiredOptions: function(optionNames) {
-
-            var message = "";
-            var missingNames = [];
-
-            optionNames.forEach(function(name){
-                if (!(name in _options) || !_options[name] || _options[name].toString().length === 0)
-                    missingNames.push(name);
-            });
-
-            // TODO: Localize warnings.
-
-            if (missingNames.length > 0) 
-               message = "The following required options were not identified: " + missingNames.join(", ") + ".";
-            
-            this.setWarning(message);
-
-            return message.length === 0;
-
+            var builder = new FeatureLayerFactory().createLayerBuilder(_options, null, null);
+            var warning = builder.validateOptions();
+            this.appendWarning(warning);
+            return !warning || warning.length === 0;
         },
 
         getWarningControl: function () {
@@ -367,6 +337,24 @@ define([
         },
 
         setWarning: function(warning) {
+            if (_warning !== warning) {
+                _warning = warning;
+                this.displayWarning(_warning);
+            }
+        },
+
+        getWarning: function () {
+            return _warning;
+        },
+
+        appendWarning: function(warning) {
+            if (warning && warning.length > 0) {
+                var current = this.getWarning();
+                this.setWarning(((current && current.length > 0) ? " " : "") + warning);
+            }
+        },
+
+        displayWarning: function(warning) {
             var control = this.getWarningControl();
             if (warning && warning.length > 0) {
                 if (control.content)
