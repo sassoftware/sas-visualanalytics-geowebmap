@@ -181,14 +181,19 @@ define([
                 if (_options.animation)
                     _animationHelper.initializeAnimationData(event, _options.animation);
 
-                new FeatureLayerFactory().buildFeatureLayer(_options, event.data.data, event.data.columns).then(_util.proxy(function(layer){
+                var builder = new FeatureLayerFactory().createLayerBuilder(_options, event.data.data, event.data.columns);
+                
+                builder.buildFeatureLayer().then(_util.proxy(function(layer){
+
                     this.addOrReplaceSasLayer(layer);
-                    // TODO: Refactor distinctive validation logic into builders.  
-                    // Return builder, not layer.  Call and apply validation results here.
-                    if (_options.visualizationType !== _util.getChoroplethValue())
-                        this.validateCoordinates(event.data.data, event.data.columns);
-                    else
-                        this.validateGeoIds(event.data.columns, {} /* geoIdAttributeMap */);  // TODO: Full validation temporarily disabled.
+                    this.setWarning(builder.validateResults());
+
+                    if (this._options.filterToFeatureServiceGeoId) {
+                        var whereClause = builder.getGeoIdFilter();
+                        if (whereClause && whereClause.length > 0)
+                            this.applyFilterToAllLayersWithGeoIDs(whereClause);
+                    }
+
                 }, this), function (e){ _util.logError(e); });
 
             }
@@ -276,7 +281,7 @@ define([
          * So you display only the single feature and anything that intersects it
          * (by attribute, not geometry).
          */
-        filterToFeatureServiceGeoId: function(whereClause) {
+        applyFilterToAllLayersWithGeoIDs: function(whereClause) {
             if (whereClause && whereClause.length > 0) {
                 this.getMapView().map.allLayers.forEach(function(layer){
 
@@ -297,36 +302,6 @@ define([
             }
         },
 
-        validateCoordinates: function (rows, columns) {
-
-            var warning = "";
-            var invalidCount = 0;
-            var latitudeColumnIndex = _util.getIndexWithLabel(_options.y, columns);
-            var longitudeColumnIndex = _util.getIndexWithLabel(_options.x, columns);
-
-            // TODO: Localize warnings.  
-
-            if (latitudeColumnIndex < 0 || longitudeColumnIndex < 0) {
-                warning = "Data for 'x' or 'y' coordinates could not be identified.";
-            } else {
-                rows.forEach(function(row){
-                    if (!_util.isValidCoordinate(row[latitudeColumnIndex]) || 
-                        !_util.isValidCoordinate(row[longitudeColumnIndex]) ||
-                        Math.abs(Math.round(row[latitudeColumnIndex])) > 90 || 
-                        Math.abs(Math.round(row[longitudeColumnIndex])) > 180) {
-                        ++invalidCount;
-                    }
-                });
-                if (invalidCount > 0)
-                    warning = "Data contains missing or invalid coordinates (" + invalidCount + ").";
-            }
-
-            this.setWarning(warning);
-
-            return warning.length === 0;
-
-        },
-
         validateFeaturesMax: function (graphics, maximum) {
 
             var warning = "";
@@ -339,28 +314,6 @@ define([
             this.setWarning(warning);
 
             return warning.length === 0;
-        },
-
-        validateGeoIds: function (columns, geoIdMap) {
-
-            var warning = "";
-  
-            // TODO: Localize warnings. 
-
-            if (_util.getIndexWithLabel(_options.geoId, columns) < 0) {
-                warning = "Data for 'geoId' could not be identified.";
-            } else {
-                var missingIds = Object.keys(geoIdMap);
-                if (missingIds.length > 0) {
-                    warning = "Some geoIds could not be found with the feature service: " +
-                        missingIds.slice(0,5).join(", ") + ((missingIds.length > 5) ? " ..." : ".");
-                }
-            }
-
-            this.setWarning(warning);
-
-            return warning.length === 0;
-
         },
 
         validateOptions: function() {

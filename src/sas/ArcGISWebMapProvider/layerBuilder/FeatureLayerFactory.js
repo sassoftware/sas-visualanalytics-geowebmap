@@ -29,15 +29,13 @@ define([
 
     var factorySingleton = declare(null, {
 
-        buildFeatureLayer: function (options, rows, columns) {
-
+        createLayerBuilder: function (options, rows, columns) {
             if (options.visualizationType === _util.getScatterValue())
-                return new ScatterLayerBuilder(options, rows, columns).buildFeatureLayer();
+                return new ScatterLayerBuilder(options, rows, columns);
             else if (options.visualizationType === _util.getBubbleValue())
-                return new BubbleLayerBuilder(options, rows, columns).buildFeatureLayer();
+                return new BubbleLayerBuilder(options, rows, columns);
             else if (options.visualizationType === _util.getChoroplethValue())
-                return new ChoroplethLayerBuilder(options, rows, columns).buildFeatureLayer();
-
+                return new ChoroplethLayerBuilder(options, rows, columns);
         }
 
     });

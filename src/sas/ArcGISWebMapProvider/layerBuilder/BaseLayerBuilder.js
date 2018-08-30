@@ -58,6 +58,17 @@ define([
             return promise;
         },
 
+        // Subclasses should override this method.  Return string description of errors.
+        validateResults: function () {
+            return null;
+        },
+
+        // Subclasses should override this method.  Return where clause used by 
+        // feature service (if any).
+        getGeoIdFilter: function () {
+            return null;
+        },
+
         // Subclasses should override this method.  Return a Promise or a feature layer.
         _buildFeatureLayerImpl: function () {
             return null;
@@ -126,6 +137,7 @@ define([
             };     
         },
 
+        // Build simple layer (for scatter and bubble).
         _buildSimpleFeatureLayer: function(renderer) {
             return new FeatureLayer({
                 id: this._util.getSASFeatureLayerId(),
@@ -140,6 +152,35 @@ define([
                 geometryType: "point", 
                 popupTemplate: this._createGenericUnformattedPopupTemplate(this._columns)
             });
+        }, 
+
+        // Validates lat/long data (for scatter and bubble).
+        _validateCoordinates: function (rows, columns) {
+
+            var warning;
+            var invalidCount = 0;
+            var latitudeColumnIndex = this._util.getIndexWithLabel(this._options.y, columns);
+            var longitudeColumnIndex = this._util.getIndexWithLabel(this._options.x, columns);
+
+            // TODO: Localize warnings.  
+
+            if (latitudeColumnIndex < 0 || longitudeColumnIndex < 0) {
+                warning = "Data for 'x' or 'y' coordinates could not be identified.";
+            } else {
+                rows.forEach(function(row){
+                    if (!this._util.isValidCoordinate(row[latitudeColumnIndex]) || 
+                        !this._util.isValidCoordinate(row[longitudeColumnIndex]) ||
+                        Math.abs(Math.round(row[latitudeColumnIndex])) > 90 || 
+                        Math.abs(Math.round(row[longitudeColumnIndex])) > 180) {
+                        ++invalidCount;
+                    }
+                });
+                if (invalidCount > 0)
+                    warning = "Data contains missing or invalid coordinates (" + invalidCount + ").";
+            }
+
+            return warning;
+
         }
 
     });

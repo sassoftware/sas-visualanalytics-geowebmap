@@ -28,8 +28,32 @@ define([
 ], function(FeatureLayer, lang, BaseLayerBuilder, SmartLegendHelper, Deferred, declare){
 
     var _geoIdAttributeMap;
+    var _geoIdFilter;
 
     return declare(BaseLayerBuilder, {
+
+        validateResults: function () {
+
+            var warning;
+  
+            // TODO: Localize warnings. 
+
+            if (this._util.getIndexWithLabel(this._options.geoId, this._columns) < 0) {
+                warning = "Data for 'geoId' could not be identified.";
+            } else {
+                var missingIds = Object.keys(_geoIdAttributeMap);
+                if (missingIds.length > 0) {
+                    warning = "Some geoIds could not be found with the feature service: " +
+                        missingIds.slice(0,5).join(", ") + ((missingIds.length > 5) ? " ..." : ".");
+                }
+            }
+
+            return warning;
+        },
+
+        getGeoIdFilter: function () {
+            return _geoIdFilter;
+        },
 
         _buildFeatureLayerImpl: function () {
             var renderer = this._createRenderer(this._rows, this._columns);
@@ -118,14 +142,14 @@ define([
             // On the other hand, unfiltered queries on some feature services can be
             // punishing.  
 
-            var whereClause;
-
             if (!this._options.featureServiceWhere && graphics.length === 1) {
-                whereClause = 
+                _geoIdFilter = 
                     this._options.featureServiceGeoId + 
                     " IN (" + 
                     this._util.sqlEscape(Object.keys(_geoIdAttributeMap)).join() + 
                     ")";
+            } else {
+                _geoIdFilter = null;
             }
 
             // Fetch _all_ the choropleth geometries, requesting only the attributes 
@@ -145,8 +169,8 @@ define([
             query.outSpatialReference = {wkid: 4326};
             if (this._options.featureServiceWhere)
                 query.where = this._options.featureServiceWhere;
-            else if (whereClause)
-                query.where = whereClause;
+            else if (_geoIdFilter)
+                query.where = _geoIdFilter;
             if (!isNaN(this._options.featureServiceMaxAllowableOffset))
                 query.maxAllowableOffset = this._options.featureServiceMaxAllowableOffset;
 
@@ -172,9 +196,6 @@ define([
                     }
 
                 }, this));
-
-                if (this._options.filterToFeatureServiceGeoId)
-                    this.filterToFeatureServiceGeoId(whereClause);
 
                 // Build the feature layer from the geometries joined with the data.
 

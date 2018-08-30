@@ -25,6 +25,10 @@ define([
 
     return declare(BaseLayerBuilder, {
 
+        validateResults: function () {
+            return this._validateCoordinates(this._rows, this._columns);
+        },
+
         _buildFeatureLayerImpl: function () {
             var renderer = this._createRenderer(this._rows, this._columns);
             return this._buildSimpleFeatureLayer(renderer);
