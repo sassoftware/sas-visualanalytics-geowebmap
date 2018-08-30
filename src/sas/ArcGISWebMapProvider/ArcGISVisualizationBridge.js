@@ -28,10 +28,11 @@ define([
     "sas/ArcGISWebMapProvider/SmartLegendHelper",
     "sas/ArcGISWebMapProvider/SelectionHelper",
     "sas/ArcGISWebMapProvider/ProviderUtil",
+    "sas/ArcGISWebMapProvider/layerBuilder/FeatureLayerFactory",
     "dojo/dom-construct",
     "dojo/request/xhr",
     "dojo/_base/declare"
-], function(Point, FeatureLayer, Expand, Legend, lang, AnimationHelper, SmartLegendHelper, SelectionHelper, ProviderUtil, domConstruct, xhr, declare){
+], function(Point, FeatureLayer, Expand, Legend, lang, AnimationHelper, SmartLegendHelper, SelectionHelper, ProviderUtil, FeatureLayerFactory, domConstruct, xhr, declare){
 
     var _options;
     var _mapView;
@@ -40,7 +41,6 @@ define([
     var _animationHelper;
     var _selectionHelper;    
     var _smartLegendHelper;
-    var _sasFeatureLayerId = "_sasFeatureLayerId";
     var _lastMessageReceivedBeforeMapViewRegistered;
     var _hasUserPanned = false; // Tagged to allow automatically fitting extent to data 
                                 // unless the user has manually panned.
@@ -148,7 +148,7 @@ define([
             if (_options.use3D)
                 _mapView.highlightOptions.color = _options.outline;
 
-            _selectionHelper.registerMapView(_mapView, _sasFeatureLayerId);
+            _selectionHelper.registerMapView(_mapView, _util.getSASFeatureLayerId());
     
         },
 
@@ -180,145 +180,160 @@ define([
 
                 if (_options.animation)
                     _animationHelper.initializeAnimationData(event, _options.animation);
-        
-                var graphics = this.createGraphics(event.data.columns, event.data.data);
-                var fields = this.createFields(event.data.columns);
 
-                var renderer;
-                if (_options.visualizationType === _util.getScatterValue())
-                    renderer = this.createScatterRenderer(event.data.columns, event.data.data);
-                else if (_options.visualizationType === _util.getBubbleValue())
-                    renderer = this.createBubbleRenderer(event.data.columns, event.data.data);
-                else if (_options.visualizationType === _util.getChoroplethValue())
-                    renderer = this.createChoroplethRenderer(event.data.columns, event.data.data);
-
-                if (_options.visualizationType !== _util.getChoroplethValue()) { // i.e., scatter or bubble
-
-                    // Create feature layer using client-side graphics.
-
-                    var layer = new FeatureLayer({
-                            id: _sasFeatureLayerId,
-                            title: _options.title,
-                            source: graphics, 
-                            fields: fields, 
-                            objectIdField: _util.getObjectIdFieldName(), 
-                            renderer: renderer, 
-                            spatialReference: {
-                                wkid: 4326
-                            },
-                            geometryType: "point", 
-                            popupTemplate: this.createGenericUnformattedPopupTemplate(event.data.columns)
-                        });
-
+                new FeatureLayerFactory().buildFeatureLayer(_options, event.data.data, event.data.columns).then(_util.proxy(function(layer){
                     this.addOrReplaceSasLayer(layer);
+                    // TODO: Refactor distinctive validation logic into builders.  
+                    // Return builder, not layer.  Call and apply validation results here.
+                    if (_options.visualizationType !== _util.getChoroplethValue())
+                        this.validateCoordinates(event.data.data, event.data.columns);
+                    else
+                        this.validateGeoIds(event.data.columns, {} /* geoIdAttributeMap */);  // TODO: Full validation temporarily disabled.
+                }, this), function (e){ _util.logError(e); });
+        
+                // var graphics = this.createGraphics(event.data.columns, event.data.data);
+                // var fields = this.createFields(event.data.columns);
 
-                    this.validateCoordinates(event.data.data, event.data.columns);
+                // var renderer;
+                // if (_options.visualizationType === _util.getScatterValue())
+                //     ;//renderer = this.createScatterRenderer(event.data.columns, event.data.data);
+                // else if (_options.visualizationType === _util.getBubbleValue())
+                //     ;//renderer = this.createBubbleRenderer(event.data.columns, event.data.data);
+                // else if (_options.visualizationType === _util.getChoroplethValue())
+                //     renderer = this.createChoroplethRenderer(event.data.columns, event.data.data);
 
-                } else { // choropleth
+                // if (_options.visualizationType !== _util.getChoroplethValue()) { // i.e., scatter or bubble
 
-                    // Build a list of VA-supplied attributes mapped by GeoID.
+                //     // Create feature layer using client-side graphics.
 
-                    var geoIdColumnName = _util.getNameWithLabel(_options.geoId, event.data.columns);
-                    var geoIdAttributeMap = {};
-                    graphics.forEach(function(graphic){
-                        geoIdAttributeMap[graphic.attributes[geoIdColumnName]] = graphic.attributes;
-                    });
+                //     // if (_options.visualizationType !== _util.getChoroplethValue()) {
 
-                    // Add a where clause if requesting only one ID.  This was found to speed
-                    // browsing-by-area.  It's not always better, though, since the browser
-                    // caches responses; so an unfiltered query is usually never requeried.
-                    // On the other hand, unfiltered queries on some feature services can be
-                    // punishing.  
+                //     // } else {
 
-                    var whereClause;
+                //     //     var layer = new FeatureLayer({
+                //     //             id: _util.getSASFeatureLayerId(),
+                //     //             title: _options.title,
+                //     //             source: graphics, 
+                //     //             fields: fields, 
+                //     //             objectIdField: _util.getObjectIdFieldName(), 
+                //     //             renderer: renderer, 
+                //     //             spatialReference: {
+                //     //                 wkid: 4326
+                //     //             },
+                //     //             geometryType: "point", 
+                //     //             popupTemplate: this.createGenericUnformattedPopupTemplate(event.data.columns)
+                //     //         });
 
-                    if (!_options.featureServiceWhere && graphics.length === 1) {
-                        whereClause = 
-                            _options.featureServiceGeoId + 
-                            " IN (" + 
-                            _util.sqlEscape(Object.keys(geoIdAttributeMap)).join() + 
-                            ")";
-                    }
+                //     //     this.addOrReplaceSasLayer(layer);
 
-                    // Fetch _all_ the choropleth geometries, requesting only the attributes 
-                    // necessary to join the rows to the IDs.  Potential optimizations: 
-                    // Cache geometries.  Implement paging.
+                //     //     this.validateCoordinates(event.data.data, event.data.columns);
+                //     // }
 
-                    var queryLayer = new FeatureLayer({
-                        url: _options.featureServiceUrl,
-                        objectIdField: _util.getObjectIdFieldName(), 
-                        spatialReference: {
-                            wkid: 4326
-                        }
-                    });
+                // } else { // choropleth
+
+                //     // Build a list of VA-supplied attributes mapped by GeoID.
+
+                //     var geoIdColumnName = _util.getNameWithLabel(_options.geoId, event.data.columns);
+                //     var geoIdAttributeMap = {};
+                //     graphics.forEach(function(graphic){
+                //         geoIdAttributeMap[graphic.attributes[geoIdColumnName]] = graphic.attributes;
+                //     });
+
+                //     // Add a where clause if requesting only one ID.  This was found to speed
+                //     // browsing-by-area.  It's not always better, though, since the browser
+                //     // caches responses; so an unfiltered query is usually never requeried.
+                //     // On the other hand, unfiltered queries on some feature services can be
+                //     // punishing.  
+
+                //     var whereClause;
+
+                //     if (!_options.featureServiceWhere && graphics.length === 1) {
+                //         whereClause = 
+                //             _options.featureServiceGeoId + 
+                //             " IN (" + 
+                //             _util.sqlEscape(Object.keys(geoIdAttributeMap)).join() + 
+                //             ")";
+                //     }
+
+                //     // Fetch _all_ the choropleth geometries, requesting only the attributes 
+                //     // necessary to join the rows to the IDs.  Potential optimizations: 
+                //     // Cache geometries.  Implement paging.
+
+                //     var queryLayer = new FeatureLayer({
+                //         url: _options.featureServiceUrl,
+                //         objectIdField: _util.getObjectIdFieldName(), 
+                //         spatialReference: {
+                //             wkid: 4326
+                //         }
+                //     });
                     
-                    var query = queryLayer.createQuery();
-                    query.outFields = [_options.featureServiceGeoId]; // Note: ["*"] Gets _all_ attributes, which noticeably slows performance.
-                    query.outSpatialReference = {wkid: 4326};
-                    if (_options.featureServiceWhere)
-                        query.where = _options.featureServiceWhere;
-                    else if (whereClause)
-                        query.where = whereClause;
-                    if (!isNaN(_options.featureServiceMaxAllowableOffset))
-                        query.maxAllowableOffset = _options.featureServiceMaxAllowableOffset;
-                    queryLayer.queryFeatures(query).then(_util.proxy(function(results) {
+                //     var query = queryLayer.createQuery();
+                //     query.outFields = [_options.featureServiceGeoId]; // Note: ["*"] Gets _all_ attributes, which noticeably slows performance.
+                //     query.outSpatialReference = {wkid: 4326};
+                //     if (_options.featureServiceWhere)
+                //         query.where = _options.featureServiceWhere;
+                //     else if (whereClause)
+                //         query.where = whereClause;
+                //     if (!isNaN(_options.featureServiceMaxAllowableOffset))
+                //         query.maxAllowableOffset = _options.featureServiceMaxAllowableOffset;
+                //     queryLayer.queryFeatures(query).then(_util.proxy(function(results) {
 
-                        // Join the data to the geometries.
+                //         // Join the data to the geometries.
 
-                        var joinedFeatures = [];
-                        results.features.forEach(function (feature) {
+                //         var joinedFeatures = [];
+                //         results.features.forEach(function (feature) {
 
-                            // VA attributes, mapped by _options.geoId, are joined to the feature layer geometries 
-                            // by _options.featureLayerGeoId.
+                //             // VA attributes, mapped by _options.geoId, are joined to the feature layer geometries 
+                //             // by _options.featureLayerGeoId.
 
-                            var dataMatch = geoIdAttributeMap[feature.attributes[_options.featureServiceGeoId]];  
+                //             var dataMatch = geoIdAttributeMap[feature.attributes[_options.featureServiceGeoId]];  
 
-                            if (dataMatch) {
-                                for (var key in dataMatch) {
-                                    if (dataMatch.hasOwnProperty(key))
-                                        feature.attributes[key] = dataMatch[key];
-                                }
-                                joinedFeatures.push(feature);
-                                delete geoIdAttributeMap[feature.attributes[_options.featureServiceGeoId]]
-                            }
+                //             if (dataMatch) {
+                //                 for (var key in dataMatch) {
+                //                     if (dataMatch.hasOwnProperty(key))
+                //                         feature.attributes[key] = dataMatch[key];
+                //                 }
+                //                 joinedFeatures.push(feature);
+                //                 delete geoIdAttributeMap[feature.attributes[_options.featureServiceGeoId]]
+                //             }
 
-                        });
+                //         });
 
-                        if (_options.filterToFeatureServiceGeoId)
-                            this.filterToFeatureServiceGeoId(whereClause);
+                //         if (_options.filterToFeatureServiceGeoId)
+                //             this.filterToFeatureServiceGeoId(whereClause);
 
-                        // Build the feature layer from the geometries joined with the data.
+                //         // Build the feature layer from the geometries joined with the data.
 
-                        var viewLayer = new FeatureLayer({
-                            id: _sasFeatureLayerId,
-                            title: _options.title,
-                            source: joinedFeatures, 
-                            fields: fields, 
-                            objectIdField: _util.getObjectIdFieldName(), 
-                            renderer: renderer, 
-                            spatialReference: lang.clone(results.spatialReference),
-                            // Note: there are ArcGIS 4.6 hit-test related problems with SceneViews with elevation mode "on-the-ground"
-                            geometryType: "polygon",
-                            popupTemplate: this.createGenericUnformattedPopupTemplate(event.data.columns)
-                        });
-                        viewLayer.then(function(layer){
-                            // See https://community.esri.com/message/693120-re-sceneview-source-polygons-no-popup?commentID=693120#comment-693120
-                            // To enable popups.
-                            layer.createQuery = function(){
-                                var q = layer.__proto__.createQuery.call(layer); // eslint-disable-line no-proto
-                                q.outFields = null;
-                                q.where = null;
-                                return q;
-                            }
-                        });
+                //         var viewLayer = new FeatureLayer({
+                //             id: _util.getSASFeatureLayerId(),
+                //             title: _options.title,
+                //             source: joinedFeatures, 
+                //             fields: fields, 
+                //             objectIdField: _util.getObjectIdFieldName(), 
+                //             renderer: renderer, 
+                //             spatialReference: lang.clone(results.spatialReference),
+                //             // Note: there are ArcGIS 4.6 hit-test related problems with SceneViews with elevation mode "on-the-ground"
+                //             geometryType: "polygon",
+                //             popupTemplate: this.createGenericUnformattedPopupTemplate(event.data.columns)
+                //         });
+                //         viewLayer.then(function(layer){
+                //             // See https://community.esri.com/message/693120-re-sceneview-source-polygons-no-popup?commentID=693120#comment-693120
+                //             // To enable popups.
+                //             layer.createQuery = function(){
+                //                 var q = layer.__proto__.createQuery.call(layer); // eslint-disable-line no-proto
+                //                 q.outFields = null;
+                //                 q.where = null;
+                //                 return q;
+                //             }
+                //         });
 
-                        this.addOrReplaceSasLayer(viewLayer);
+                //         this.addOrReplaceSasLayer(viewLayer);
 
-                        this.validateGeoIds(event.data.columns, geoIdAttributeMap);
+                //         this.validateGeoIds(event.data.columns, geoIdAttributeMap);
 
-                    },this), function (e){ _util.logError(e); });
+                //     },this), function (e){ _util.logError(e); });
 
-                }
+                // }
 
             }
         },
@@ -330,7 +345,7 @@ define([
 
             if (map) {
 
-                var oldLayer = map.findLayerById(_sasFeatureLayerId);
+                var oldLayer = map.findLayerById(_util.getSASFeatureLayerId());
                 if (oldLayer)
                     map.remove(oldLayer);
                 if (isNaN(_options.zIndex))
@@ -371,7 +386,7 @@ define([
 
             if (map) {
 
-                var oldLayer = map.findLayerById(_sasFeatureLayerId);
+                var oldLayer = map.findLayerById(_util.getSASFeatureLayerId());
                 if (oldLayer)
                     map.remove(oldLayer);
 
@@ -413,225 +428,6 @@ define([
                     attributes: row
                 }
             });
-        },
-
-        createScatterRenderer: function(columns, rows) {
-            var visualVariables = [];
-            var renderer;
-
-            if (_options.animation) 
-                visualVariables.push(_animationHelper.buildAnimationVisualVariable(columns, _options.animation));
-
-            if (_util.hasColorCategory(_options.color, columns)) {
-                renderer =  {
-                    type: "unique-value",
-                    field: _util.getNameWithLabel(_options.color, columns),
-                    defaultSymbol: {
-                        type: "simple-marker",  // autocasts as new SimpleMarkerSymbol()
-                        color: "green",
-                        size: 6,
-                        outline: {
-                            width: 0.5,
-                            color: _options.outline
-                        }
-                    },
-                    uniqueValueInfos: _util.generateUniqueVals(columns, rows, _options),
-                    visualVariables: visualVariables
-                };
-            } else {
-                renderer = {
-                    type: "simple",
-                    symbol: {
-                        type: "simple-marker",
-                        size: 6,
-                        color: _options.colorMax,
-                        outline: {
-                            width: 0.5,
-                            color: _options.outline
-                        }
-                    },
-                    visualVariables: visualVariables
-                };
-            }
-
-            return renderer;
-        },
-
-        createBubbleRenderer: function (columns, rows) {
-
-            var visualVariables = [];
-            var minMax;
-            var renderer;
-
-            //Create either unique-value renderer or simple renderer
-            if (_util.hasColorCategory(_options.color, columns)) {
-                renderer = {
-                    type: "unique-value",
-                    field: _util.getNameWithLabel(_options.color, columns),
-                    defaultSymbol: {
-                        type: "simple-marker",  // autocasts as new SimpleMarkerSymbol()
-                        color: "blue",
-                        size: 6,
-                        outline: {
-                            width: 0.5,
-                            color: _options.outline
-                        }
-                    },
-                    uniqueValueInfos: _util.generateUniqueVals(columns, rows, _options),
-                    visualVariables: visualVariables
-                };
-            } else {
-                renderer = {
-                    type: "simple",
-                    symbol: {
-                        type: "simple-marker",
-                        size: 0,
-                        outline: {
-                            color: _options.outline,
-                            width: 0.5,
-                            opacity: 0
-                        }
-                    },
-                    visualVariables: visualVariables
-                };
-            }
-
-            if (_options.size) {
-                var sizeColumnName = _util.getNameWithLabel(_options.size, columns);
-                var sizeIndex = _util.getIndexWithLabel(_options.size, columns);
-                minMax = _util.findMinMax(rows,sizeIndex);
-                renderer.visualVariables.push({
-                    type: "size",
-                    field: sizeColumnName,
-                    valueUnit: "unknown",
-                    stops: [
-                    {
-                      value: minMax[0],
-                      size: 6 // (!_options.use3D) ? 6 : 100000
-                    },
-                    {
-                      value: minMax[1], 
-                      size: 30 // (!_options.use3D) ? 30 : 500000
-                    }],
-                    minDataValue: minMax[0],
-                    maxDataValue: minMax[1],
-                    minSize: 6,
-                    maxSize: 30
-                });
-            }
-
-            if (_options.animation)
-                renderer.visualVariables.push(_animationHelper.buildAnimationVisualVariable(columns, _options.animation));
-
-            if (!_util.hasColorCategory(_options.color, columns)) {
-                var colorColumnName = _util.getNameWithLabel(_options.color, columns);
-                var colorIndex = _util.getIndexWithLabel(_options.color, columns);
-
-                minMax = _util.findMinMax(rows,colorIndex);
-                renderer.visualVariables.push({
-                    type: "color",
-                    field: colorColumnName,
-                    stops: [
-                    {
-                      value: minMax[0],
-                      color: _options.colorMin
-                    },
-                    {
-                      value: minMax[1],
-                      color: _options.colorMax
-                    }]
-                });
-                if (_options.useSmartLegends)
-                    _smartLegendHelper.expandTwoPartColorRange(visualVariables[visualVariables.length - 1].stops);
-            }
-
-            // This 3D render requires the symbol to be measured in meters, and the correct
-            // choice really depends on the expected extent; so, if it were generalized, 
-            // it would have to be exposed as another querystring option. See the 
-            // commented code in the visualVariables definition above.
-            // } else {
-            //     renderer =  {
-            //         type: "simple", 
-            //         symbol: {
-            //             type: "point-3d", 
-            //             symbolLayers: [{
-            //                 type: "object",
-            //                 width: 0,
-            //                 height: 0,
-            //                 depth: 0,
-            //                 resource: { primitive: "cylinder" }
-            //             }],
-            //             outline: { 
-            //                 color: _options.outline,  
-            //                 width: 0.5
-            //             }
-            //         },
-            //         visualVariables: visualVariables
-            //     };
-            // }
-
-            return renderer;
-        },
-
-        createChoroplethRenderer: function (columns, rows) {
-
-            var visualVariables = [];
-            var minMax;
-            var renderer;
-
-            if (_util.hasColorCategory(_options.color, columns)) {
-                renderer = {
-                    type: "unique-value",
-                    field: _util.getNameWithLabel(_options.color, columns),
-                    defaultSymbol: {
-                        type: "simple-fill",  // autocasts as new SimpleMarkerSymbol()
-                        color: "blue",
-                        style: "solid",
-                        outline: {
-                            width: 0.5,
-                            color: _options.outline
-                        }
-                    },
-                    uniqueValueInfos: _util.generateUniqueVals(columns, rows, _options),
-                    visualVariables: visualVariables
-                };
-            } else {
-                renderer = {
-                    type: "simple",
-                    symbol: {
-                        type: "simple-fill",
-                        color: _options.colorMax,
-                        outline: {
-                            color: _options.outline,
-                            width: 0.5
-                        }
-                    },
-                    visualVariables: visualVariables
-                };
-            }
-
-            if (!_util.hasColorCategory(_options.color, columns) && _options.color) {
-                var colorColumnName = _util.getNameWithLabel(_options.color, columns);
-                var colorIndex = _util.getIndexWithLabel(_options.color, columns);
-                minMax = _util.findMinMax(rows,colorIndex);
-                renderer.visualVariables.push({
-                    type: "color",
-                    field: colorColumnName,
-                    stops: [
-                    {
-                      value: minMax[0],
-                      color: _options.colorMin
-                    },
-                    {
-                      value: minMax[1],
-                      color: _options.colorMax
-                    }]
-                });
-                if (_options.useSmartLegends)
-                    _smartLegendHelper.expandTwoPartColorRange(visualVariables[visualVariables.length - 1].stops);
-            }
-
-            return renderer;
         },
 
         createGenericUnformattedPopupTemplate: function (fields) {
@@ -679,7 +475,7 @@ define([
                 this.getMapView().map.allLayers.forEach(function(layer){
 
                     if (layer.type && layer.type === "feature" && 
-                        layer.id !== _sasFeatureLayerId &&
+                        layer.id !== _util.getSASFeatureLayerId() &&
                         layer.fields) {
 
                         var layerHasGeoId = layer.fields.find(function (f){ return f.name === _options.featureServiceGeoId });

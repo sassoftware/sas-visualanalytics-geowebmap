@@ -25,13 +25,14 @@ define([
 
     return declare(null, {
 
-        getScatterValue: function () { return "SCATTER" },
-        getBubbleValue: function () { return "BUBBLE" },
-        getChoroplethValue: function () { return "CHOROPLETH" },
-
+        getScatterValue: function () { return "SCATTER"; },
+        getBubbleValue: function () { return "BUBBLE"; },
+        getChoroplethValue: function () { return "CHOROPLETH"; },
+        getSASFeatureLayerId: function () { return "_sasFeatureLayerId"; }, 
+ 
         proxy: function (f, thisArg) {
             return function (e) {
-                f.call(thisArg, e);
+                return f.call(thisArg, e);
             }
         },
 
