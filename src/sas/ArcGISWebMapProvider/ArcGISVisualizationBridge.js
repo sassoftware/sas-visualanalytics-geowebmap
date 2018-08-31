@@ -186,7 +186,7 @@ define([
                     this.addOrReplaceSasLayer(layer);
                     this.appendWarning(builder.validateResults());
 
-                    if (this._options.filterToFeatureServiceGeoId) {
+                    if (_options.filterToFeatureServiceGeoId) {
                         var whereClause = builder.getGeoIdFilter();
                         if (whereClause && whereClause.length > 0)
                             this.applyFilterToAllLayersWithGeoIDs(whereClause);
