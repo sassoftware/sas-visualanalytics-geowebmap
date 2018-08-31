@@ -77,6 +77,8 @@ An "animated" scatter plot:
 
 http://&lt;server&gt;/ArcGisWebMapProvider/?useSampleData=true&animation=Date
 
+Other examples can be found in the file examples.html.
+
 ### Some useful Esri feature layers
 
 * [World borders](https://services.arcgis.com/V6ZHFr6zdgNZuVG0/ArcGIS/rest/services/World_borders/FeatureServer)
