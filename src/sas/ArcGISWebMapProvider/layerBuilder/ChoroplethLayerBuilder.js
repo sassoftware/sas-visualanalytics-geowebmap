@@ -29,6 +29,7 @@ define([
 
     var _geoIdAttributeMap;
     var _geoIdFilter;
+    var _queryServiceLayerOverride;
 
     return declare(BaseLayerBuilder, {
 
@@ -57,6 +58,11 @@ define([
 
         getGeoIdFilter: function () {
             return _geoIdFilter;
+        },
+
+        // Provided to support unit tests mocking the geometry-providing feature service.
+        _setQueryServiceLayerOverride: function (override) {
+            _queryServiceLayerOverride = override;
         },
 
         _buildFeatureLayerImpl: function () {
@@ -160,13 +166,18 @@ define([
             // necessary to join the rows to the IDs.  Potential optimizations: 
             // Cache geometries.  Implement paging.
 
-            var queryLayer = new FeatureLayer({
-                url: this._options.featureServiceUrl,
-                objectIdField: this._util.getObjectIdFieldName(), 
-                spatialReference: {
-                    wkid: 4326
-                }
-            });
+            var queryLayer;
+            if (_queryServiceLayerOverride) {
+                queryLayer = _queryServiceLayerOverride;
+            } else {
+                    queryLayer = new FeatureLayer({
+                        url: this._options.featureServiceUrl,
+                        objectIdField: this._util.getObjectIdFieldName(), 
+                        spatialReference: {
+                            wkid: 4326
+                        }
+                });
+            }
             
             var query = queryLayer.createQuery();
             query.outFields = [this._options.featureServiceGeoId]; // Note: ["*"] Gets _all_ attributes, which noticeably slows performance.
