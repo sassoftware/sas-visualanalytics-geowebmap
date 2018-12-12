@@ -111,9 +111,10 @@ define([
             // (1) Communicate selection to containing report in VA.
 
             var id = (isSasFeature && graphic && graphic.attributes) ? graphic.attributes[_util.getObjectIdFieldName()] : null;
+            var selections = (id === null) ? [] : [{row: id}];
             _util.publishMessage({
                 resultName: _dataResultName,
-                selections: [{row: id}]
+                selections: selections
             });
 
             // (2) Clear any old selection visuals.
