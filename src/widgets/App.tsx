@@ -8,14 +8,16 @@ import {
 } from "esri/core/accessorSupport/decorators";
 import { tsx } from "esri/widgets/support/widget";
 
+import __forceLoad = require("esri/layers/graphics/sources/support/MemorySourceWorker"); __forceLoad; // See https://github.com/Esri/arcgis-webpack-plugin/issues/26, 12/19/18.
 import FeatureLayer from "esri/layers/FeatureLayer";
 import EsriMap from "esri/Map";
 import MapView from "esri/views/MapView";
+import SceneView from "esri/views/SceneView";
+import View from "esri/views/View";
 import Widget from "esri/widgets/Widget";
+import ArcGISVisualizationBridge from "sas/ArcGISWebMapProvider/ArcGISVisualizationBridge";
 
 import AppViewModel, { AppParams } from "./App/AppViewModel";
-
-import { Header } from "./Header";
 
 interface AppViewParams extends AppParams, esri.WidgetProperties {}
 
@@ -34,7 +36,11 @@ export default class App extends declared(Widget) {
 
   @aliasOf("viewModel.map") map: EsriMap;
 
-  @aliasOf("viewModel.view") view: __esri.MapView;
+  @aliasOf("viewModel.view") view: View;
+
+  @aliasOf("viewModel.visualizationBridge") visualizationBridge: ArcGISVisualizationBridge;
+
+  @aliasOf("viewModel.options") options:any;
 
   constructor(params: Partial<AppViewParams>) {
     super(params);
@@ -43,20 +49,36 @@ export default class App extends declared(Widget) {
   render() {
     return (
       <div class={CSS.base}>
-        {Header({ appName: this.appName })}
         <div class={CSS.webmap} bind={this} afterCreate={this.onAfterCreate} />
       </div>
     );
   }
 
   private onAfterCreate(element: HTMLDivElement) {
-    import("./../data/app").then(({ featureLayer, map }) => {
-      this.featureLayer = featureLayer;
+    import("./../data/app").then(({ options, visualizationBridge, map }) => {
+
+      this.visualizationBridge = visualizationBridge;
       this.map = map;
-      this.view = new MapView({
-        map: this.map,
-        container: element
+
+      if (options.use3D) {
+        this.view = new SceneView({
+          map,
+          container: element
+        });
+      }
+      else {
+        this.view = new MapView({
+          map,
+          container: element
+        });
+      }
+
+      this.view.when((view:View)=>{
+        visualizationBridge.registerMapView(view);
+      }, (error:any)=>{
+        console.error(error); // MAP TODO: new ProviderUtil().logError(error); 
       });
+
     });
   }
 }

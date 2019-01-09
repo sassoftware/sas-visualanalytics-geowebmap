@@ -1,51 +1,35 @@
-import FeatureLayer from "esri/layers/FeatureLayer";
-import TileLayer from "esri/layers/TileLayer";
-import VectorTileLayer from "esri/layers/VectorTileLayer";
 import EsriMap from "esri/Map";
+import WebMap from "esri/WebMap";
+import ArcGISVisualizationBridge from 'sas/ArcGISWebMapProvider/ArcGISVisualizationBridge'; 
 
-const labelClass = {
-  symbol: {
-    type: "text",
-    color: "white",
-    haloColor: "black",
-    haloSize: 2,
-    font: {
-      size: 10,
-      weight: "bold"
+export const options = (()=>{
+  var urlUtils2 = require("esri/core/urlUtils");
+  var url = urlUtils2.urlToObject(window.location.href);
+  var options = url.query || {};
+  // MAP TODO: Old method -> var options = IOQuery.queryToObject(searchString.substring(searchString.indexOf("?") + 1, searchString.length));
+  // MAP TODO: Move this option-parsing logic to a more central area.
+  options.basemap = options.basemap || "osm";
+  options.use3D = (options.use3D && options.use3D.toUpperCase() === "TRUE");
+  return options;
+})();
+
+export const visualizationBridge = new ArcGISVisualizationBridge(options);
+
+export const featureLayer = null; 
+
+export const map = (()=>{
+    var map;
+    if (options.portalItemId) {
+        map = new WebMap({
+            portalItem: {
+                id: options.portalItemId
+            }
+        });
+    } else {
+        map = new EsriMap({
+            basemap: options.basemap,
+            //ground: "world-elevation" // MAP TODO: This is causing a console error.  May no longer need.
+        });
     }
-  },
-  labelPlacement: "above-center",
-  labelExpressionInfo: {
-    expression: "'Pop: ' + Text($feature.POP2012, '#,###')"
-  }
-};
-
-export const featureLayer = new FeatureLayer({
-  portalItem: {
-    id: "b234a118ab6b4c91908a1cf677941702"
-  },
-  labelingInfo: [labelClass],
-  outFields: ["NAME", "STATE_NAME", "VACANT", "HSE_UNITS"],
-  title: "U.S. counties",
-  opacity: 0.8
-} as any);
-
-export const map = new EsriMap({
-  basemap: {
-    baseLayers: [
-      new TileLayer({
-        portalItem: {
-          // world hillshade
-          id: "1b243539f4514b6ba35e7d995890db1d"
-        }
-      }),
-      new VectorTileLayer({
-        portalItem: {
-          // topographic
-          id: "7dc6cea0b1764a1f9af2e679f642f0f5"
-        }
-      })
-    ]
-  },
-  layers: [featureLayer]
-});
+    return map;
+})();

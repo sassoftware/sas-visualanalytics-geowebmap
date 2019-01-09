@@ -1,22 +1,20 @@
 import Accessor from "esri/core/Accessor";
+import { declared, property, subclass } from "esri/core/accessorSupport/decorators";
 import { whenOnce } from "esri/core/watchUtils";
 import FeatureLayer from "esri/layers/FeatureLayer";
 import EsriMap from "esri/Map";
-import MapView from "esri/views/MapView";
+import View from "esri/views/View";
+import BasemapGallery from "esri/widgets/BasemapGallery";
 import Expand from "esri/widgets/Expand";
+import LayerList from "esri/widgets/LayerList";
 import Search from "esri/widgets/Search";
-
-import {
-  declared,
-  property,
-  subclass
-} from "esri/core/accessorSupport/decorators";
+import ArcGISVisualizationBridge from "sas/ArcGISWebMapProvider/ArcGISVisualizationBridge";
 
 export interface AppParams {
   appName: string;
   map: EsriMap;
   featureLayer: FeatureLayer;
-  view: MapView;
+  view: View;
 }
 
 @subclass("widgets.App.AppViewModel")
@@ -27,7 +25,11 @@ class AppViewModel extends declared(Accessor) {
 
   @property() featureLayer: FeatureLayer;
 
-  @property() view: MapView;
+  @property() view: View;
+
+  @property() visualizationBridge: ArcGISVisualizationBridge;
+
+  @property() options: any;
 
   constructor(params?: Partial<AppParams>) {
     super(params);
@@ -35,16 +37,25 @@ class AppViewModel extends declared(Accessor) {
   }
 
   onload() {
-    const search = new Search({ view: this.view });
-    const expand = new Expand({
-      content: search
-    });
-    this.view.ui.add(expand, "top-right");
-
-    this.featureLayer.when(() => {
-      this.view.goTo({ target: this.featureLayer.fullExtent });
-    });
+    this.addMapWidgets(this.view);
   }
+  
+  private addMapWidgets(view:View) {
+
+    const layerList = new LayerList({view: this.view});
+    const layerListExpand = new Expand({expandIconClass: "esri-icon-layer-list", view: this.view, content: layerList, group: "top-right"});
+    this.view.ui.add(layerListExpand, "top-right");
+
+    const basemapGallery = new BasemapGallery({view: this.view});
+    const basemapExpand = new Expand({expandIconClass: "esri-icon-basemap", view: this.view, content: basemapGallery, group: "top-right"});
+    this.view.ui.add(basemapExpand, "top-right");
+
+    const search = new Search({view, container: document.createElement("div")});
+    const searchExpand = new Expand({expandIconClass: "esri-icon-search", view: this.view, content: search});
+    this.view.ui.add(searchExpand, "bottom-left");
+
+  }
+
 }
 
 export default AppViewModel;

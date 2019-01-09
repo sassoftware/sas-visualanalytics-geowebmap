@@ -3,6 +3,7 @@ const CleanWebpackPlugin = require("clean-webpack-plugin");
 const HtmlWebPackPlugin = require("html-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const UglifyJsPlugin = require("uglifyjs-webpack-plugin");
+const CopyWebpackPlugin = require('copy-webpack-plugin'); 
 
 const path = require("path");
 
@@ -73,11 +74,13 @@ module.exports = {
     new MiniCssExtractPlugin({
       filename: "[name].[chunkhash].css",
       chunkFilename: "[id].css"
-    })
+    }),
+
+    new CopyWebpackPlugin(["./examples.html"])
   ],
   resolve: {
     modules: [
-      path.resolve(__dirname, "/src"),
+      path.resolve(__dirname, "src"),
       path.resolve(__dirname, "node_modules/")
     ],
     extensions: [".ts", ".tsx", ".js", ".scss", ".css"]

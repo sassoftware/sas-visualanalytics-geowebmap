@@ -15,6 +15,10 @@
     "object-literal-sort-keys": false,
     "one-line": [false],
     "trailing-comma": [false],
-    "no-implicit-dependencies": false
+    "no-implicit-dependencies": false,
+
+    // MAP TODO: Remove following rules:
+    "no-console": false,
+    "variable-name": false,
   }
 }
