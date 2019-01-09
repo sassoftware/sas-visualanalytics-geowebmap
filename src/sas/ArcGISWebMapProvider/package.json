@@ -1,6 +1,0 @@
-{
-    "name": "SASArcGISWebMapProvider",
-    "description": "SAS ArcGIS Web Map Provider",
-    "version": "1.0",
-    "dojoBuild": "package.js"
-}
