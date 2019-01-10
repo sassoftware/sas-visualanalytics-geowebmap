@@ -18,40 +18,41 @@ limitations under the License.
 /// <amd-dependency path="dojo/promise/Promise" name="Promise" />
 declare const Deferred:any;
 declare const Promise:any;
-
-import ProviderUtil from "sas/ArcGISWebMapProvider/ProviderUtil";
 import Point from "esri/geometry/Point";
+import Graphic from "esri/Graphic";
 import FeatureLayer from "esri/layers/FeatureLayer";
-import { nullLiteral } from 'babel-types';
+import Field from "esri/layers/support/Field";
+import PopupTemplate from "esri/PopupTemplate";
+import ProviderUtil from "sas/ArcGISWebMapProvider/ProviderUtil";
 
 /**
  * Base class for buildFeatureLayer() and support functions.  Subclasses
- * should override and construct a feature layer in _buildFeatureLayerImpl().
+ * should override and construct a feature layer in buildFeatureLayerImpl().
  */
 abstract class BaseLayerBuilder {
 
     protected _options:any;
-    protected _rows:any;
-    protected _columns:any;
+    protected _rows:any[];
+    protected _columns:any[];
     protected _util:any;
 
-    public constructor(options:any, rows:any, columns:any) {
+    constructor(options:any, rows:any[], columns:any[]) {
         this._options = options;
         this._rows = rows;
         this._columns = columns;
         this._util = new ProviderUtil();
     }
 
-    public buildFeatureLayer () {
+    buildFeatureLayer():any {
 
-        var result = this._buildFeatureLayerImpl();
+        const result = this.buildFeatureLayerImpl();
 
-        var promise;
+        var promise:any;
 
         if (result instanceof Promise) {
             promise = result;
         } else {
-            var featureLayerReady = new Deferred();
+            const featureLayerReady = new Deferred();
             promise = featureLayerReady.promise;  
             featureLayerReady.resolve(result);  // Immediately resolve.
         }
@@ -61,56 +62,56 @@ abstract class BaseLayerBuilder {
 
     // Subclasses should override this method.  Return string description of errors
     // for input options.
-    public abstract validateOptions():any;
+    abstract validateOptions():any;
 
     // Subclasses should override this method.  Return string description of errors
     // for results.
-    public abstract validateResults():any;
+    abstract validateResults():any;
 
     // Subclasses should override this method.  Return where clause used by 
     // feature service (if any).
-    public getGeoIdFilter():any {
+    getGeoIdFilter():any {
         return undefined;
     }
 
     // Subclasses should override this method.  Return a Promise or a feature layer.
-    protected abstract _buildFeatureLayerImpl():FeatureLayer;
+    protected abstract buildFeatureLayerImpl():FeatureLayer;
 
-    protected _createGraphics():any {
+    protected createGraphics():Graphic[] {
 
-        var rowObjects = this.convertRowsToObjects(this._columns, this._rows);
-        var latitudeColumnName = this._util.getNameWithLabel(this._options.y, this._columns);
-        var longitudeColumnName = this._util.getNameWithLabel(this._options.x, this._columns);
+        const rowObjects = this.convertRowsToObjects(this._columns, this._rows);
+        const latitudeColumnName = this._util.getNameWithLabel(this._options.y, this._columns);
+        const longitudeColumnName = this._util.getNameWithLabel(this._options.x, this._columns);
         return rowObjects.map((row:any) => {
-            return {
+            return new Graphic({
                 geometry: new Point({
                     x: !this._util.isValidCoordinate(row[longitudeColumnName]) ? 0 : row[longitudeColumnName], 
                     y: !this._util.isValidCoordinate(row[latitudeColumnName]) ? 0 : row[latitudeColumnName]
                 }), // Assumes wkid 102100.
                 attributes: row
-            };
+            });
         });
 
     }
 
-    protected _createFields():any {
+    protected createFields():Field[] {
 
         // Feature layer's "fields" property expects objects of {name, alias, type}.
-        var fields = [{name: this._util.getObjectIdFieldName(), alias: this._util.getObjectIdFieldName(), type: "oid"}];
-        this._columns.forEach(function(column:any) {
-            fields.push({name: column.name, alias: column.label, type: ((column.type === "number") ? "double" : column.type)});
+        const fields = [new Field({name: this._util.getObjectIdFieldName(), alias: this._util.getObjectIdFieldName(), type: "oid"})];
+        this._columns.forEach((column:any) => {
+            fields.push(new Field({name: column.name, alias: column.label, type: ((column.type === "number") ? "double" : column.type)}));
         });
         return fields;
 
     } 
 
-    protected convertRowsToObjects(columns:any, rows:any) {
-        var objectIDFieldName = this._util.getObjectIdFieldName();
-        return rows.map(function (row:any, i:number) {
-            var object = {};
+    protected convertRowsToObjects(columns:any[], rows:any[]):any[] {
+        const objectIDFieldName = this._util.getObjectIdFieldName();
+        return rows.map((row:any, i:number) => {
+            const object = {};
             object[objectIDFieldName] = i; // Adding the object ID.
             var index = 0;
-            columns.forEach(function(column:any){
+            columns.forEach((column:any) => {
                 object[column.name] = (index < row.length) ? row[index] : null;
                 ++index;
             });
@@ -118,31 +119,31 @@ abstract class BaseLayerBuilder {
         });
     }
 
-    protected _createGenericUnformattedPopupTemplate(fields:any[]) {
-        var fieldInfos:any[] = [];
-        fields.forEach(this._util.proxy(function(field:any){
+    protected createGenericUnformattedPopupTemplate(fields:any[]):PopupTemplate {
+        const fieldInfos:any[] = [];
+        fields.forEach((field:any) => {
             if (field.name !== this._util.getObjectIdFieldName() && field.label !== this._options.x && field.label !== this._options.y) {
-                var fieldInfo = {fieldName: field.name, label: field.label, visible: true}
+                const fieldInfo = {fieldName: field.name, label: field.label, visible: true, format: {}}
                 if (field.type === "number" || field.type === "double")
-                    fieldInfo["format"] = {digitSeparator: true}; // places: 2  // MAP TODO: correct partial
+                    fieldInfo.format = {digitSeparator: true}; // places: 2  
                 fieldInfos.push(fieldInfo);
             }
-        }, this));
-        return {title: this._options.title, content: [{type: "fields", fieldInfos: fieldInfos}], fieldInfos: []}; 
+        });
+        return new PopupTemplate({title: this._options.title, content: [{type: "fields", fieldInfos}], fieldInfos: []}); 
     }
 
-    protected _buildAnimationVisualVariable(columns:any[], animationColumnLabel:string):any {
-        var animationColumnName = this._util.getNameWithLabel(animationColumnLabel, columns);
+    protected buildAnimationVisualVariable(columns:any[], animationColumnLabel:string):any {
+        const animationColumnName = this._util.getNameWithLabel(animationColumnLabel, columns);
         return {
             type: "opacity",
             field: animationColumnName
         };     
     }
 
-    protected _validateRequiredOptions(optionNames:string[]):any {
+    protected validateRequiredOptions(optionNames:string[]):any {
 
         var message;
-        var missingNames:string[] = [];
+        const missingNames:string[] = [];
 
         optionNames.forEach((name:string) =>{
             if (!(name in this._options) || !this._options[name] || this._options[name].toString().length === 0)
@@ -159,29 +160,29 @@ abstract class BaseLayerBuilder {
     }
 
     // Build simple layer (for scatter and bubble).
-    protected _buildSimpleFeatureLayer(renderer:any):FeatureLayer {
+    protected buildSimpleFeatureLayer(renderer:any):FeatureLayer {
         return new FeatureLayer({
             id: this._util.getSASFeatureLayerId(),
             title: this._options.title,
-            source: this._createGraphics(), 
-            fields: this._createFields(), 
+            source: this.createGraphics(), 
+            fields: this.createFields(), 
             objectIdField: this._util.getObjectIdFieldName(), 
-            renderer: renderer, 
+            renderer, 
             spatialReference: {
                 wkid: 4326
             },
             geometryType: "point", 
-            popupTemplate: this._createGenericUnformattedPopupTemplate(this._columns)
+            popupTemplate: this.createGenericUnformattedPopupTemplate(this._columns)
         });
     }
 
     // Validates lat/long data (for scatter and bubble).
-    protected _validateCoordinates(rows:any[], columns:any[]):any {
+    protected validateCoordinates(rows:any[], columns:any[]):any {
 
         var warning;
         var invalidCount = 0;
-        var latitudeColumnIndex = this._util.getIndexWithLabel(this._options.y, columns);
-        var longitudeColumnIndex = this._util.getIndexWithLabel(this._options.x, columns);
+        const latitudeColumnIndex = this._util.getIndexWithLabel(this._options.y, columns);
+        const longitudeColumnIndex = this._util.getIndexWithLabel(this._options.x, columns);
 
         // TODO: Localize warnings.  
 

@@ -19,8 +19,9 @@ limitations under the License.
  * scatter plot feature layer in a web map.
  */
 
-import BaseLayerBuilder from "sas/ArcGISWebMapProvider/layerBuilder/BaseLayerBuilder";
 import FeatureLayer from "esri/layers/FeatureLayer";
+import BaseLayerBuilder from "sas/ArcGISWebMapProvider/layerBuilder/BaseLayerBuilder";
+
 
 /**
  * Responsible for consuming incoming data from SAS Visual Analytics to create a 
@@ -28,25 +29,25 @@ import FeatureLayer from "esri/layers/FeatureLayer";
  */
 class ScatterLayerBuilder extends BaseLayerBuilder {
 
-    public validateOptions():any {
-        return this._validateRequiredOptions(['x', 'y']);
+    validateOptions():any {
+        return this.validateRequiredOptions(['x', 'y']);
     }
 
-    public validateResults():any {
-        return this._validateCoordinates(this._rows, this._columns);
+    validateResults():any {
+        return this.validateCoordinates(this._rows, this._columns);
     }
 
-    protected _buildFeatureLayerImpl():FeatureLayer {
-        var renderer = this._createRenderer(this._rows, this._columns);
-        return this._buildSimpleFeatureLayer(renderer);
+    protected buildFeatureLayerImpl():FeatureLayer {
+        const renderer = this.createRenderer(this._rows, this._columns);
+        return this.buildSimpleFeatureLayer(renderer);
     }
 
-    private _createRenderer(rows:any[], columns:any[]):any {
-        var visualVariables = [];
+    private createRenderer(rows:any[], columns:any[]):any {
+        const visualVariables = [];
         var renderer;
 
         if (this._options.animation) 
-            visualVariables.push(this._buildAnimationVisualVariable(columns, this._options.animation));
+            visualVariables.push(this.buildAnimationVisualVariable(columns, this._options.animation));
 
         if (this._util.hasColorCategory(this._options.color, columns)) {
             renderer =  {
@@ -62,7 +63,7 @@ class ScatterLayerBuilder extends BaseLayerBuilder {
                     }
                 },
                 uniqueValueInfos: this._util.generateUniqueVals(columns, rows, this._options),
-                visualVariables: visualVariables
+                visualVariables
             };
         } else {
             renderer = {
@@ -76,7 +77,7 @@ class ScatterLayerBuilder extends BaseLayerBuilder {
                         color: this._options.outline
                     }
                 },
-                visualVariables: visualVariables
+                visualVariables
             };
         }
 

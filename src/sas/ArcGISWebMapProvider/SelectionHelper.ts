@@ -21,7 +21,7 @@ import View from "esri/views/View";
  */
 class SelectionHelper {
 
-    public registerMapView(view:View) {
+    public registerMapView(view:View, sasFeatureLayerId:any) {
     }
 
     public registerMapData(dataResultName:any, selectionColumnName:any, use3D:any) {

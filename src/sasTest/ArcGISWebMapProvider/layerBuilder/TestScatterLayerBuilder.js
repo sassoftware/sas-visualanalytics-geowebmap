@@ -41,7 +41,7 @@ define([
     });
 
     // This test provided to illustrate how to write tests to validate the returned feature layer.
-    // Note that the ScatterLayerBuilder._buildFeatureLayerImpl() is actually synchronous, and 
+    // Note that the ScatterLayerBuilder.buildFeatureLayerImpl() is actually synchronous, and 
     // so the scatter builder could be tested synchronously, although that is not done here.
     doh.register("ScatterLayerBuilder.samplePromiseResolution", function(t){
 

@@ -46,7 +46,7 @@ define([
     });
 
     // This test provided to illustrate how to write tests to validate the returned feature layer.
-    // Note that the BubbleLayerBuilder._buildFeatureLayerImpl() is actually synchronous, and 
+    // Note that the BubbleLayerBuilder.buildFeatureLayerImpl() is actually synchronous, and 
     // so the bubble builder could be tested synchronously, although that is not done here.
     doh.register("BubbleLayerBuilder.samplePromiseResolution", function(t){
 

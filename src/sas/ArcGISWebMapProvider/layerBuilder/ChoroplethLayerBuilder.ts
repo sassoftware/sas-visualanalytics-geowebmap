@@ -17,10 +17,10 @@ limitations under the License.
 /// <amd-dependency path="dojo/Deferred" name="Deferred" />
 declare const Deferred:any;
 
+import lang from "esri/core/lang";
+import FeatureLayer from "esri/layers/FeatureLayer";
 import BaseLayerBuilder from "sas/ArcGISWebMapProvider/layerBuilder/BaseLayerBuilder";
 import SmartLegendHelper from "sas/ArcGISWebMapProvider/SmartLegendHelper";
-import FeatureLayer from "esri/layers/FeatureLayer";
-import lang from "esri/core/lang";
 
 /**
  * Responsible for consuming incoming data from SAS Visual Analytics to create a 
@@ -32,11 +32,11 @@ class ChoroplethLayerBuilder extends BaseLayerBuilder {
     private _geoIdFilter:any;
     private _queryServiceLayerOverride:any;
 
-    public validateOptions():any {
-        return this._validateRequiredOptions(['geoId', 'featureServiceUrl', 'featureServiceGeoId']);
+    validateOptions():any {
+        return this.validateRequiredOptions(['geoId', 'featureServiceUrl', 'featureServiceGeoId']);
     }
 
-    public validateResults():any {
+    validateResults():any {
 
         var warning;
 
@@ -45,7 +45,7 @@ class ChoroplethLayerBuilder extends BaseLayerBuilder {
         if (this._util.getIndexWithLabel(this._options.geoId, this._columns) < 0) {
             warning = "Data for 'geoId' could not be identified.";
         } else {
-            var missingIds = Object.keys(this._geoIdAttributeMap);
+            const missingIds = Object.keys(this._geoIdAttributeMap);
             if (missingIds.length > 0) {
                 warning = "Some geoIds could not be found with the feature service: " +
                     missingIds.slice(0,5).join(", ") + ((missingIds.length > 5) ? " ..." : ".");
@@ -55,23 +55,23 @@ class ChoroplethLayerBuilder extends BaseLayerBuilder {
         return warning;
     }
 
-    public getGeoIdFilter():any {
+    getGeoIdFilter():any {
         return this._geoIdFilter;
     }
 
     // Provided to support unit tests mocking the geometry-providing feature service.
-    public _setQueryServiceLayerOverride(override:any) {
+    setQueryServiceLayerOverride(override:any) {
         this._queryServiceLayerOverride = override;
     }
 
-    protected _buildFeatureLayerImpl() {
-        var renderer = this._createRenderer(this._rows, this._columns);
-        return this._buildChoroplethFeatureLayer(renderer, this._rows, this._columns);
+    protected buildFeatureLayerImpl() {
+        const renderer = this.createRenderer(this._rows, this._columns);
+        return this.buildChoroplethFeatureLayer(renderer, this._rows, this._columns);
     }
 
-    private _createRenderer(rows:any[], columns:any) {
+    private createRenderer(rows:any[], columns:any) {
 
-        var visualVariables:any[] = [];
+        const visualVariables:any[] = [];
         var minMax:any;
         var renderer:any;
 
@@ -89,7 +89,7 @@ class ChoroplethLayerBuilder extends BaseLayerBuilder {
                     }
                 },
                 uniqueValueInfos: this._util.generateUniqueVals(columns, rows, this._options),
-                visualVariables: visualVariables
+                visualVariables
             };
         } else {
             renderer = {
@@ -102,13 +102,13 @@ class ChoroplethLayerBuilder extends BaseLayerBuilder {
                         width: 0.5
                     }
                 },
-                visualVariables: visualVariables
+                visualVariables
             };
         }
 
         if (!this._util.hasColorCategory(this._options.color, columns) && this._options.color) {
-            var colorColumnName = this._util.getNameWithLabel(this._options.color, columns);
-            var colorIndex = this._util.getIndexWithLabel(this._options.color, columns);
+            const colorColumnName = this._util.getNameWithLabel(this._options.color, columns);
+            const colorIndex = this._util.getIndexWithLabel(this._options.color, columns);
             minMax = this._util.findMinMax(rows,colorIndex);
             renderer.visualVariables.push({
                 type: "color",
@@ -130,16 +130,16 @@ class ChoroplethLayerBuilder extends BaseLayerBuilder {
         return renderer;
     }
 
-    private _buildChoroplethFeatureLayer(renderer:any, rows:any[], columns:any[]) {
+    private buildChoroplethFeatureLayer(renderer:any, rows:any[], columns:any[]) {
 
-        var featureLayerReady = new Deferred();
+        const featureLayerReady = new Deferred();
 
-        var graphics = this._createGraphics(); // this._createGraphics(columns, rows);  // MAP TODO: Was this cruft?  If so, adjust parent sig?
-        var fields = this._createFields(); // this._createFields(columns);  // MAP TODO: Was this cruft?
+        const graphics = this.createGraphics(); // this._createGraphics(columns, rows);  // MAP TODO: Was this cruft?  If so, adjust parent sig?
+        const fields = this.createFields(); // this._createFields(columns);  // MAP TODO: Was this cruft?
                     
         // Build a list of VA-supplied attributes mapped by GeoID.
 
-        var geoIdColumnName = this._util.getNameWithLabel(this._options.geoId, columns);
+        const geoIdColumnName = this._util.getNameWithLabel(this._options.geoId, columns);
         this._geoIdAttributeMap = {}; 
         graphics.forEach((graphic:any) => {
             this._geoIdAttributeMap[graphic.attributes[geoIdColumnName]] = graphic.attributes;
@@ -178,7 +178,7 @@ class ChoroplethLayerBuilder extends BaseLayerBuilder {
             });
         }
         
-        var query:any = queryLayer.createQuery();
+        const query:any = queryLayer.createQuery();
         query.outFields = [this._options.featureServiceGeoId]; // Note: ["*"] Gets _all_ attributes, which noticeably slows performance.
         query.outSpatialReference = {wkid: 4326};
         if (this._options.featureServiceWhere)
@@ -192,16 +192,16 @@ class ChoroplethLayerBuilder extends BaseLayerBuilder {
 
             // Join the data to the geometries.
 
-            var joinedFeatures:any[] = [];
+            const joinedFeatures:any[] = [];
             results.features.forEach((feature:any) => {
 
                 // VA attributes, mapped by _options.geoId, are joined to the feature layer geometries 
                 // by _options.featureLayerGeoId.
 
-                var dataMatch = this._geoIdAttributeMap[feature.attributes[this._options.featureServiceGeoId]];  
+                const dataMatch = this._geoIdAttributeMap[feature.attributes[this._options.featureServiceGeoId]];  
 
                 if (dataMatch) {
-                    for (var key in dataMatch) {
+                    for (const key in dataMatch) {
                         if (dataMatch.hasOwnProperty(key))
                             feature.attributes[key] = dataMatch[key];
                     }
@@ -213,17 +213,17 @@ class ChoroplethLayerBuilder extends BaseLayerBuilder {
 
             // Build the feature layer from the geometries joined with the data.
 
-            var viewLayer:any = new FeatureLayer({
+            const viewLayer:any = new FeatureLayer({
                 id: this._util.getSASFeatureLayerId(),
                 title: this._options.title,
                 source: joinedFeatures, 
-                fields: fields, 
+                fields, 
                 objectIdField: this._util.getObjectIdFieldName(), 
-                renderer: renderer, 
+                renderer, 
                 spatialReference: lang.clone(results.spatialReference),
                 // Note: there are ArcGIS 4.6 hit-test related problems with SceneViews with elevation mode "on-the-ground"
                 geometryType: "polygon",
-                popupTemplate: this._createGenericUnformattedPopupTemplate(columns)
+                popupTemplate: this.createGenericUnformattedPopupTemplate(columns)
             });
             // viewLayer.then((layer:any)=>{
             //     // MAP TODO: Is this even needed anymore?

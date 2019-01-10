@@ -14,8 +14,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import BaseLayerBuilder from "sas/ArcGISWebMapProvider/layerBuilder/BaseLayerBuilder";
 import FeatureLayer from "esri/layers/FeatureLayer";
+import BaseLayerBuilder from "sas/ArcGISWebMapProvider/layerBuilder/BaseLayerBuilder";
 import SmartLegendHelper from "sas/ArcGISWebMapProvider/SmartLegendHelper";
 
 /**
@@ -24,26 +24,26 @@ import SmartLegendHelper from "sas/ArcGISWebMapProvider/SmartLegendHelper";
  */
 class BubbleLayerBuilder extends BaseLayerBuilder {
 
-    public validateOptions():any {
-        return this._validateRequiredOptions(['x', 'y', 'size']);     
+    validateOptions():any {
+        return this.validateRequiredOptions(['x', 'y', 'size']);     
     }
 
-    public validateResults():any {
-        return this._validateCoordinates(this._rows, this._columns);
+    validateResults():any {
+        return this.validateCoordinates(this._rows, this._columns);
     }
 
-    protected _buildFeatureLayerImpl():FeatureLayer {
-        var renderer = this._createRenderer(this._rows, this._columns);
-        return this._buildSimpleFeatureLayer(renderer);
+    protected buildFeatureLayerImpl():FeatureLayer {
+        const renderer = this.createRenderer(this._rows, this._columns);
+        return this.buildSimpleFeatureLayer(renderer);
     }
 
-    private _createRenderer(rows:any[], columns:any[]):any {
+    private createRenderer(rows:any[], columns:any[]):any {
 
-        var visualVariables:any[] = [];
+        const visualVariables:any[] = [];
         var minMax;
         var renderer;
 
-        //Create either unique-value renderer or simple renderer
+        // Create either unique-value renderer or simple renderer
         if (this._util.hasColorCategory(this._options.color, columns)) {
             renderer = {
                 type: "unique-value",
@@ -58,7 +58,7 @@ class BubbleLayerBuilder extends BaseLayerBuilder {
                     }
                 },
                 uniqueValueInfos: this._util.generateUniqueVals(columns, rows, this._options),
-                visualVariables: visualVariables
+                visualVariables
             };
         } else {
             renderer = {
@@ -72,27 +72,17 @@ class BubbleLayerBuilder extends BaseLayerBuilder {
                         opacity: 0
                     }
                 },
-                visualVariables: visualVariables
+                visualVariables
             };
         }
 
         if (this._options.size) {
-            var sizeColumnName = this._util.getNameWithLabel(this._options.size, columns);
-            var sizeIndex = this._util.getIndexWithLabel(this._options.size, columns);
+            const sizeColumnName = this._util.getNameWithLabel(this._options.size, columns);
+            const sizeIndex = this._util.getIndexWithLabel(this._options.size, columns);
             minMax = this._util.findMinMax(rows,sizeIndex);
             renderer.visualVariables.push({
                 type: "size",
                 field: sizeColumnName,
-                // valueUnit: "unknown",
-                // stops: [
-                // {
-                //   value: minMax[0],
-                //   size: 6 // (!_options.use3D) ? 6 : 100000
-                // },
-                // {
-                //   value: minMax[1], 
-                //   size: 30 // (!_options.use3D) ? 30 : 500000
-                // }],
                 minDataValue: minMax[0],
                 maxDataValue: minMax[1],
                 minSize: 16,
@@ -101,11 +91,11 @@ class BubbleLayerBuilder extends BaseLayerBuilder {
         }
 
         if (this._options.animation)
-            renderer.visualVariables.push(this._buildAnimationVisualVariable(columns, this._options.animation));
+            renderer.visualVariables.push(this.buildAnimationVisualVariable(columns, this._options.animation));
 
         if (!this._util.hasColorCategory(this._options.color, columns)) {
-            var colorColumnName = this._util.getNameWithLabel(this._options.color, columns);
-            var colorIndex = this._util.getIndexWithLabel(this._options.color, columns);
+            const colorColumnName = this._util.getNameWithLabel(this._options.color, columns);
+            const colorIndex = this._util.getIndexWithLabel(this._options.color, columns);
 
             minMax = this._util.findMinMax(rows,colorIndex);
             renderer.visualVariables.push({

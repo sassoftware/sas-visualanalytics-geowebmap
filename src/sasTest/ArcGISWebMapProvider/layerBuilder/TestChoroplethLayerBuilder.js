@@ -59,7 +59,7 @@ define([
         var builder = new ChoroplethLayerBuilder(options, [], []);
 
         // Establish a mock feature service.
-        builder._setQueryServiceLayerOverride({
+        builder.setQueryServiceLayerOverride({
             createQuery: function() {
                 return {};
             },

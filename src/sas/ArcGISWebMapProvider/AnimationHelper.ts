@@ -20,7 +20,17 @@ limitations under the License.
  * SceneViews.
  */
 class AnimationHelper {
-    public constructor(animationPeriod:any) {
+    constructor(animationPeriod:any) {
+    }
+    initializeAnimation(sasLayer) {
+    }
+    initializeAnimationData(event, animationColumnLabel) {
+        // MAP TODO
+        return;
+    }
+    generateSampleAnimationData(result, colorColumnLabel, sizeColumnLabel, animationColumnLabel):void {
+        // MAP TODO
+        return;
     }
 }
 export default AnimationHelper;

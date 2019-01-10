@@ -25,19 +25,19 @@ import ProviderUtil from "sas/ArcGISWebMapProvider/ProviderUtil";
  */
 class FeatureLayerFactory {
 
-    private static _instance: FeatureLayerFactory;
-
-    private constructor() {}
-
-    public static getInstance() {
+    static getInstance() {
         if (!FeatureLayerFactory._instance)
             FeatureLayerFactory._instance = new FeatureLayerFactory();
         return FeatureLayerFactory._instance;
     }
 
-    public createLayerBuilder(options: any, rows: any, columns: any): BaseLayerBuilder {
+    private static _instance: FeatureLayerFactory;
 
-        var util = new ProviderUtil();
+    private constructor() {}
+
+    createLayerBuilder(options: any, rows: any, columns: any): BaseLayerBuilder {
+
+        const util = new ProviderUtil();
 
         switch (options.visualizationType) {
 

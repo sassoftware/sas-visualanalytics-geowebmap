@@ -24,36 +24,32 @@ class ProviderUtil {
     // MAP TODO: Use statics.
 
     // MAP TODO: Convert these to constants.
-    public getScatterValue(): string {
+    getScatterValue(): string {
         return "SCATTER";
     }
-    public getBubbleValue(): string {
+    getBubbleValue(): string {
         return "BUBBLE";
     }
-    public getChoroplethValue(): string {
+    getChoroplethValue(): string {
         return "CHOROPLETH";
     }
-    public getSASFeatureLayerId(): string {
+    getSASFeatureLayerId(): string {
         return "_sasFeatureLayerId";
     }
 
     // MAP TODO: Get rid of this method (ProviderUtil.proxy)
-    public proxy(f: any, thisArg: any) {
-        return function (e: any) {
-            return f.call(thisArg, e);
-        }
-    }
+    // proxy(f: any, thisArg: any) {
+    //     return function (e: any) {
+    //         return f.call(thisArg, e);
+    //     }
+    // }
 
-    private getObjectIdFieldName(): string {
-        return this._objectIDFieldName;
-    }
-
-    public isValidCoordinate(n: any): boolean {
+    isValidCoordinate(n: any): boolean {
         return !isNaN(n) && n !== null;
     }
 
-    public findMinMax(items: any, field: any): any {  
-        return items.reduce(function (acc: any, val: any) {
+    findMinMax(items: any[], field?: string): any[] {  
+        return items.reduce((acc: any, val: any) => {
             val = (field !== undefined) ? val[field] : val;
             if (val === null) 
                 val = undefined;
@@ -63,21 +59,23 @@ class ProviderUtil {
         }, []);
     }
 
-    //Credit to: http://axonflux.com/handy-rgb-to-hsl-and-rgb-to-hsv-color-model-c
-    public generateColors(numColors: number):any {
+    // Credit to: http://axonflux.com/handy-rgb-to-hsl-and-rgb-to-hsv-color-model-c
+    generateColors(numColors: number):any[] {
         var h = Math.floor(Math.random() * Math.floor(360));
-        var goldenRatioConjugate = 0.618033988749895;
-        var colors = [];
+        const goldenRatioConjugate = 0.618033988749895;
+        const colors = [];
 
-        var hsvToRgb = (s:number, v:number) => {
-            var r:number, g:number, b:number;
+        const hsvToRgb = (s:number, v:number) => {
+            var r:number;
+            var g:number;
+            var b:number;
             r = g = b = 0;
 
-            var i = Math.floor(h * 6);
-            var f = h * 6 - i;
-            var p = v * (1 - s);
-            var q = v * (1 - f * s);
-            var t = v * (1 - (1 - f) * s);
+            const i = Math.floor(h * 6);
+            const f = h * 6 - i;
+            const p = v * (1 - s);
+            const q = v * (1 - f * s);
+            const t = v * (1 - (1 - f) * s);
 
             switch (i % 6) {
                 case 0:
@@ -120,7 +118,7 @@ class ProviderUtil {
             };
         }
 
-        for (var i = 0; i < numColors; i++) {
+        for (var j = 0; j < numColors; j++) {
             h += goldenRatioConjugate;
             h %= 1;
             colors.push(hsvToRgb(0.7, 0.95))
@@ -129,19 +127,19 @@ class ProviderUtil {
         return colors;
     }
 
-    public generateUniqueVals(columns: any, rows: any, options: any): any {
-        var categoryVals = {};
-        var uniqueVals = [];
-        var categoryColumnIndex = this.getIndexWithLabel(options.color, columns);
-        var isChoropleth = options.visualizationType === this.getChoroplethValue();
+    generateUniqueVals(columns: any[], rows: any[], options: any): any[] {
+        const categoryVals = {};
+        const uniqueVals = [];
+        const categoryColumnIndex = this.getIndexWithLabel(options.color, columns);
+        const isChoropleth = options.visualizationType === this.getChoroplethValue();
 
-        rows.forEach(function (row: any) {
+        rows.forEach((row: any) => {
             if (!categoryVals.hasOwnProperty(row[categoryColumnIndex]))
                 categoryVals[row[categoryColumnIndex]] = true;
         });
 
-        var keys = Object.keys(categoryVals);
-        var colors = this.generateColors(keys.length);
+        const keys = Object.keys(categoryVals);
+        const colors = this.generateColors(keys.length);
 
         for (var i = 0; i < keys.length; i++) {
             uniqueVals.push({
@@ -163,48 +161,48 @@ class ProviderUtil {
         return uniqueVals;
     }
 
-    public hasColorCategory(label: string, columns: any): boolean {
+    hasColorCategory(label: string, columns: any[]): boolean {
         if (!label)
             return false;
-        var colorIndex = this.getIndexWithLabel(label, columns);
+        const colorIndex = this.getIndexWithLabel(label, columns);
         return (columns[colorIndex].usage === "categorical" || columns[colorIndex].type === "string")
     }
 
-    public getNameWithLabel(label: string, columns: any): string {
-        var match = columns.find(function (column: any) {
+    getNameWithLabel(label: string, columns: any[]): string {
+        const match = columns.find((column: any) => {
             return column && column.label === label;
         });
         return (match) ? match.name : null;
     }
 
-    public getIndexWithLabel(label: string, columns: any): number {
-        return columns.findIndex(function (column: any) {
+    getIndexWithLabel(label: string, columns: any[]): number {
+        return columns.findIndex((column: any) => {
             return column && column.label === label;
         });
     }
 
-    public getNameWithUsage(usage: any, columns: any): string {
-        var match = columns.find(function (column:any) {
+    getNameWithUsage(usage: string, columns: any[]): string {
+        const match = columns.find((column:any) => {
             return column && column.usage === usage;
         });
         return (match) ? match.name : null;
     }
 
-    public logError(error: any) {
+    logError(error: any) {
         if (console && console.error)
             console.error(error);
     }
 
-    public publishMessage(msg: any) {
-        var target = window.parent || window;
-        var targetOrigin = this._selectionPublicationTargetOrigin();
+    publishMessage(msg: any) {
+        const target = window.parent || window;
+        const targetOrigin = this._selectionPublicationTargetOrigin();
         if (target)
             target.postMessage(msg, targetOrigin);
     }
 
-    public sqlEscape(values: any): any {
+    sqlEscape(values: any): any {
 
-        var quoteAndEscape = function (v:any) {
+        const quoteAndEscape = (v:any) => {
             return "'" + this._sqlEscape(v) + "'";
         };
 
@@ -213,6 +211,10 @@ class ProviderUtil {
         else
             return values.map(quoteAndEscape, this);
 
+    }
+
+    private getObjectIdFieldName(): string {
+        return this._objectIDFieldName;
     }
 
     /**

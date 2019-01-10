@@ -20,5 +20,10 @@
     // MAP TODO: Remove following rules:
     "no-console": false,
     "variable-name": false,
+    "no-any": false,
+    "curly": false,
+    "no-angle-bracket-type-assertion": false,
+    "no-var-keyword": false,
+    "prefer-conditional-expression": false
   }
 }

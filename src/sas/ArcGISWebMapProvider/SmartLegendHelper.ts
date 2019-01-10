@@ -21,6 +21,8 @@ class SmartLegendHelper {
 
     public expandTwoPartColorRange(stops:any) {
     }
+    addSmartLegends(readiedFeatureLayer, mapView)  {
+    }
 
 }
 export default SmartLegendHelper;
