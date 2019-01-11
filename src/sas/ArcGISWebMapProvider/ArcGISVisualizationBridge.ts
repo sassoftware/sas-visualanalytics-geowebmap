@@ -40,7 +40,6 @@ class ArcGISVisualizationBridge {
     private _options: any;
     private _mapView: View;
     private _sasLegend: Legend;
-    private _util: ProviderUtil;
     private _animationHelper: AnimationHelper;
     private _selectionHelper: SelectionHelper;
     private _smartLegendHelper: SmartLegendHelper;
@@ -52,7 +51,6 @@ class ArcGISVisualizationBridge {
 
     constructor(visualizationOptions: any) {
 
-        this._util = new ProviderUtil();
         this._selectionHelper = new SelectionHelper();
 
         // Initialize options.
@@ -60,17 +58,17 @@ class ArcGISVisualizationBridge {
         this._options = visualizationOptions;
 
         this._options.visualizationType = (this._options.visualizationType) ? this._options.visualizationType.toUpperCase() : null;
-        if (this._options.visualizationType !== this._util.getScatterValue() &&
-            this._options.visualizationType !== this._util.getBubbleValue() &&
-            this._options.visualizationType !== this._util.getChoroplethValue()) {
+        if (this._options.visualizationType !== ProviderUtil.VISUALIZATION_TYPE_SCATTER &&
+            this._options.visualizationType !== ProviderUtil.VISUALIZATION_TYPE_BUBBLE &&
+            this._options.visualizationType !== ProviderUtil.VISUALIZATION_TYPE_CHOROPLETH) {
             if (this._options.geoId) {
-                this._options.visualizationType = this._util.getChoroplethValue();
+                this._options.visualizationType = ProviderUtil.VISUALIZATION_TYPE_CHOROPLETH;
             }
             else if (this._options.size) {
-                this._options.visualizationType = this._util.getBubbleValue();
+                this._options.visualizationType = ProviderUtil.VISUALIZATION_TYPE_BUBBLE;
             }
             else {
-                this._options.visualizationType = this._util.getScatterValue();
+                this._options.visualizationType = ProviderUtil.VISUALIZATION_TYPE_SCATTER;
             }
         }
 
@@ -124,7 +122,7 @@ class ArcGISVisualizationBridge {
 
         this._mapView = mapView;
 
-        if (this._options.visualizationType !== this._util.getScatterValue() || this._options.color) {
+        if (this._options.visualizationType !== ProviderUtil.VISUALIZATION_TYPE_SCATTER || this._options.color) {
             this._sasLegend = new Legend({
                 view: this._mapView,
                 container: document.createElement("div")
@@ -151,7 +149,7 @@ class ArcGISVisualizationBridge {
                 });
             },
             (error) => {
-                this._util.logError(error);
+                ProviderUtil.logError(error);
             });
 
             // Else if data has already arrived, load it.
@@ -169,7 +167,7 @@ class ArcGISVisualizationBridge {
             (this._mapView as any).highlightOptions.color = this._options.outline;
         }
 
-        this._selectionHelper.registerMapView(this._mapView, this._util.getSASFeatureLayerId());
+        this._selectionHelper.registerMapView(this._mapView, ProviderUtil.SAS_FEATURE_LAYER_ID);
 
     }
 
@@ -201,7 +199,7 @@ class ArcGISVisualizationBridge {
 
             this._selectionHelper.registerMapData(
                 event.data.resultName, // Identifier for incoming data set.
-                this._util.getNameWithUsage("brush", event.data.columns), // Name of column with selection brushing boolean.
+                ProviderUtil.getNameWithUsage("brush", event.data.columns), // Name of column with selection brushing boolean.
                 this._options.use3D
             );
 
@@ -227,7 +225,7 @@ class ArcGISVisualizationBridge {
                 }
 
             }, (e: any) => {
-                this._util.logError(e);
+                ProviderUtil.logError(e);
             });
 
         }
@@ -240,7 +238,7 @@ class ArcGISVisualizationBridge {
 
         if (map) {
 
-            const oldLayer = map.findLayerById(this._util.getSASFeatureLayerId());
+            const oldLayer = map.findLayerById(ProviderUtil.SAS_FEATURE_LAYER_ID);
             if (oldLayer) {
                 map.remove(oldLayer);
             }
@@ -261,7 +259,7 @@ class ArcGISVisualizationBridge {
                 // TODO: VA has a "Reset Zoom" feature that would move the extent
                 // back to the last goTo (see the Home widget) and that would
                 // essentially reset _hasUserPanned to false.
-                if (!this._hasUserPanned || this._options.visualizationType === this._util.getChoroplethValue()) {
+                if (!this._hasUserPanned || this._options.visualizationType === ProviderUtil.VISUALIZATION_TYPE_CHOROPLETH) {
                     this.goToDataExtent(sasLayerReadied);
                 }
 
@@ -293,7 +291,7 @@ class ArcGISVisualizationBridge {
 
         if (map) {
 
-            const oldLayer = map.findLayerById(this._util.getSASFeatureLayerId());
+            const oldLayer = map.findLayerById(ProviderUtil.SAS_FEATURE_LAYER_ID);
             if (oldLayer) {
                 map.remove(oldLayer);
             }
@@ -351,13 +349,13 @@ class ArcGISVisualizationBridge {
      */
     private applyFilterToAllLayersWithGeoIDs(whereClause: any) {
         if (whereClause && whereClause.length > 0) {
-            this.getMapView().map.allLayers.forEach(function (layer: any) {
+            this.getMapView().map.allLayers.forEach((layer: any) => {
 
                 if (layer.type && layer.type === "feature" &&
-                    layer.id !== this._util.getSASFeatureLayerId() &&
+                    layer.id !== ProviderUtil.SAS_FEATURE_LAYER_ID &&
                     layer.fields) {
 
-                    const layerHasGeoId = layer.fields.find(function (f: any) {
+                    const layerHasGeoId = layer.fields.find((f: any) => {
                         return f.name === this._options.featureServiceGeoId
                     });
 
@@ -430,7 +428,7 @@ class ArcGISVisualizationBridge {
                 (control.content as Element).innerHTML = warning;
             }
             this._mapView.ui.add(control, "bottom-right");
-            this._util.logError(warning);
+            ProviderUtil.logError(warning);
         } else {
             this._mapView.ui.remove(control);
         }

@@ -20,6 +20,7 @@ declare const Deferred:any;
 import lang from "esri/core/lang";
 import FeatureLayer from "esri/layers/FeatureLayer";
 import BaseLayerBuilder from "sas/ArcGISWebMapProvider/layerBuilder/BaseLayerBuilder";
+import ProviderUtil from "sas/ArcGISWebMapProvider/ProviderUtil";
 import SmartLegendHelper from "sas/ArcGISWebMapProvider/SmartLegendHelper";
 
 /**
@@ -42,7 +43,7 @@ class ChoroplethLayerBuilder extends BaseLayerBuilder {
 
         // TODO: Localize warnings. 
 
-        if (this._util.getIndexWithLabel(this._options.geoId, this._columns) < 0) {
+        if (ProviderUtil.getIndexWithLabel(this._options.geoId, this._columns) < 0) {
             warning = "Data for 'geoId' could not be identified.";
         } else {
             const missingIds = Object.keys(this._geoIdAttributeMap);
@@ -75,10 +76,10 @@ class ChoroplethLayerBuilder extends BaseLayerBuilder {
         let minMax:any;
         let renderer:any;
 
-        if (this._util.hasColorCategory(this._options.color, columns)) {
+        if (ProviderUtil.hasColorCategory(this._options.color, columns)) {
             renderer = {
                 type: "unique-value",
-                field: this._util.getNameWithLabel(this._options.color, columns),
+                field: ProviderUtil.getNameWithLabel(this._options.color, columns),
                 defaultSymbol: {
                     type: "simple-fill",  // autocasts as new SimpleMarkerSymbol()
                     color: "blue",
@@ -88,7 +89,7 @@ class ChoroplethLayerBuilder extends BaseLayerBuilder {
                         color: this._options.outline
                     }
                 },
-                uniqueValueInfos: this._util.generateUniqueVals(columns, rows, this._options),
+                uniqueValueInfos: ProviderUtil.generateUniqueVals(columns, rows, this._options),
                 visualVariables
             };
         } else {
@@ -106,10 +107,10 @@ class ChoroplethLayerBuilder extends BaseLayerBuilder {
             };
         }
 
-        if (!this._util.hasColorCategory(this._options.color, columns) && this._options.color) {
-            const colorColumnName = this._util.getNameWithLabel(this._options.color, columns);
-            const colorIndex = this._util.getIndexWithLabel(this._options.color, columns);
-            minMax = this._util.findMinMax(rows,colorIndex);
+        if (!ProviderUtil.hasColorCategory(this._options.color, columns) && this._options.color) {
+            const colorColumnName = ProviderUtil.getNameWithLabel(this._options.color, columns);
+            const colorIndex = ProviderUtil.getIndexWithLabel(this._options.color, columns);
+            minMax = ProviderUtil.findMinMax(rows,colorIndex);
             renderer.visualVariables.push({
                 type: "color",
                 field: colorColumnName,
@@ -140,7 +141,7 @@ class ChoroplethLayerBuilder extends BaseLayerBuilder {
                     
         // Build a list of VA-supplied attributes mapped by GeoID.
 
-        const geoIdColumnName = this._util.getNameWithLabel(this._options.geoId, columns);
+        const geoIdColumnName = ProviderUtil.getNameWithLabel(this._options.geoId, columns);
         this._geoIdAttributeMap = {}; 
         graphics.forEach((graphic:any) => {
             this._geoIdAttributeMap[graphic.attributes[geoIdColumnName]] = graphic.attributes;
@@ -156,7 +157,7 @@ class ChoroplethLayerBuilder extends BaseLayerBuilder {
             this._geoIdFilter = 
                 this._options.featureServiceGeoId + 
                 " IN (" + 
-                this._util.sqlEscape(Object.keys(this._geoIdAttributeMap)).join() + 
+                ProviderUtil.sqlEscape(Object.keys(this._geoIdAttributeMap)).join() + 
                 ")";
         } else {
             this._geoIdFilter = null;
@@ -172,7 +173,7 @@ class ChoroplethLayerBuilder extends BaseLayerBuilder {
         } else {
                 queryLayer = new FeatureLayer({
                     url: this._options.featureServiceUrl,
-                    objectIdField: this._util.getObjectIdFieldName(), 
+                    objectIdField: ProviderUtil.FIELD_NAME_OBJECT_ID, 
                     spatialReference: {
                         wkid: 4326
                     }
@@ -219,11 +220,11 @@ class ChoroplethLayerBuilder extends BaseLayerBuilder {
             // Build the feature layer from the geometries joined with the data.
 
             const viewLayer:any = new FeatureLayer({
-                id: this._util.getSASFeatureLayerId(),
+                id: ProviderUtil.SAS_FEATURE_LAYER_ID,
                 title: this._options.title,
                 source: joinedFeatures, 
                 fields, 
-                objectIdField: this._util.getObjectIdFieldName(), 
+                objectIdField: ProviderUtil.FIELD_NAME_OBJECT_ID, 
                 renderer, 
                 spatialReference: lang.clone(results.spatialReference),
                 // Note: there are ArcGIS 4.6 hit-test related problems with SceneViews with elevation mode "on-the-ground"

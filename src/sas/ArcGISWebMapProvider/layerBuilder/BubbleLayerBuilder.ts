@@ -16,6 +16,7 @@ limitations under the License.
 
 import FeatureLayer from "esri/layers/FeatureLayer";
 import BaseLayerBuilder from "sas/ArcGISWebMapProvider/layerBuilder/BaseLayerBuilder";
+import ProviderUtil from "sas/ArcGISWebMapProvider/ProviderUtil";
 import SmartLegendHelper from "sas/ArcGISWebMapProvider/SmartLegendHelper";
 
 /**
@@ -44,10 +45,10 @@ class BubbleLayerBuilder extends BaseLayerBuilder {
         let renderer;
 
         // Create either unique-value renderer or simple renderer
-        if (this._util.hasColorCategory(this._options.color, columns)) {
+        if (ProviderUtil.hasColorCategory(this._options.color, columns)) {
             renderer = {
                 type: "unique-value",
-                field: this._util.getNameWithLabel(this._options.color, columns),
+                field: ProviderUtil.getNameWithLabel(this._options.color, columns),
                 defaultSymbol: {
                     type: "simple-marker",  // autocasts as new SimpleMarkerSymbol()
                     color: "blue",
@@ -57,7 +58,7 @@ class BubbleLayerBuilder extends BaseLayerBuilder {
                         color: this._options.outline
                     }
                 },
-                uniqueValueInfos: this._util.generateUniqueVals(columns, rows, this._options),
+                uniqueValueInfos: ProviderUtil.generateUniqueVals(columns, rows, this._options),
                 visualVariables
             };
         } else {
@@ -77,9 +78,9 @@ class BubbleLayerBuilder extends BaseLayerBuilder {
         }
 
         if (this._options.size) {
-            const sizeColumnName = this._util.getNameWithLabel(this._options.size, columns);
-            const sizeIndex = this._util.getIndexWithLabel(this._options.size, columns);
-            minMax = this._util.findMinMax(rows,sizeIndex);
+            const sizeColumnName = ProviderUtil.getNameWithLabel(this._options.size, columns);
+            const sizeIndex = ProviderUtil.getIndexWithLabel(this._options.size, columns);
+            minMax = ProviderUtil.findMinMax(rows,sizeIndex);
             renderer.visualVariables.push({
                 type: "size",
                 field: sizeColumnName,
@@ -94,11 +95,11 @@ class BubbleLayerBuilder extends BaseLayerBuilder {
             renderer.visualVariables.push(this.buildAnimationVisualVariable(columns, this._options.animation));
         }
 
-        if (!this._util.hasColorCategory(this._options.color, columns)) {
-            const colorColumnName = this._util.getNameWithLabel(this._options.color, columns);
-            const colorIndex = this._util.getIndexWithLabel(this._options.color, columns);
+        if (!ProviderUtil.hasColorCategory(this._options.color, columns)) {
+            const colorColumnName = ProviderUtil.getNameWithLabel(this._options.color, columns);
+            const colorIndex = ProviderUtil.getIndexWithLabel(this._options.color, columns);
 
-            minMax = this._util.findMinMax(rows,colorIndex);
+            minMax = ProviderUtil.findMinMax(rows,colorIndex);
             renderer.visualVariables.push({
                 type: "color",
                 field: colorColumnName,

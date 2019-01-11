@@ -38,12 +38,10 @@ class FeatureLayerFactory {
 
     createLayerBuilder(options: any, rows: any[], columns: any[]): BaseLayerBuilder {
 
-        const util = new ProviderUtil();
-
         switch (options.visualizationType) {
-            case util.getBubbleValue():
+            case ProviderUtil.VISUALIZATION_TYPE_BUBBLE:
                 return new BubbleLayerBuilder(options, rows, columns);
-            case util.getChoroplethValue():
+            case ProviderUtil.VISUALIZATION_TYPE_CHOROPLETH:
                 return new ChoroplethLayerBuilder(options, rows, columns);
             default: 
                 return new ScatterLayerBuilder(options, rows, columns);

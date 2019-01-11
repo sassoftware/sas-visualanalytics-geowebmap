@@ -21,7 +21,7 @@ limitations under the License.
 
 import FeatureLayer from "esri/layers/FeatureLayer";
 import BaseLayerBuilder from "sas/ArcGISWebMapProvider/layerBuilder/BaseLayerBuilder";
-
+import ProviderUtil from "sas/ArcGISWebMapProvider/ProviderUtil";
 
 /**
  * Responsible for consuming incoming data from SAS Visual Analytics to create a 
@@ -50,10 +50,10 @@ class ScatterLayerBuilder extends BaseLayerBuilder {
             visualVariables.push(this.buildAnimationVisualVariable(columns, this._options.animation));
         }
 
-        if (this._util.hasColorCategory(this._options.color, columns)) {
+        if (ProviderUtil.hasColorCategory(this._options.color, columns)) {
             renderer =  {
                 type: "unique-value",
-                field: this._util.getNameWithLabel(this._options.color, columns),
+                field: ProviderUtil.getNameWithLabel(this._options.color, columns),
                 defaultSymbol: {
                     type: "simple-marker",  // autocasts as new SimpleMarkerSymbol()
                     color: "green",
@@ -63,7 +63,7 @@ class ScatterLayerBuilder extends BaseLayerBuilder {
                         color: this._options.outline
                     }
                 },
-                uniqueValueInfos: this._util.generateUniqueVals(columns, rows, this._options),
+                uniqueValueInfos: ProviderUtil.generateUniqueVals(columns, rows, this._options),
                 visualVariables
             };
         } else {

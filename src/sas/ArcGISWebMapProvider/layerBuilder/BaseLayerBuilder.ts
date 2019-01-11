@@ -34,13 +34,11 @@ abstract class BaseLayerBuilder {
     protected _options:any;
     protected _rows:any[];
     protected _columns:any[];
-    protected _util:any;
 
     constructor(options:any, rows:any[], columns:any[]) {
         this._options = options;
         this._rows = rows;
         this._columns = columns;
-        this._util = new ProviderUtil();
     }
 
     buildFeatureLayer():any {
@@ -80,13 +78,13 @@ abstract class BaseLayerBuilder {
     protected createGraphics():Graphic[] {
 
         const rowObjects = this.convertRowsToObjects(this._columns, this._rows);
-        const latitudeColumnName = this._util.getNameWithLabel(this._options.y, this._columns);
-        const longitudeColumnName = this._util.getNameWithLabel(this._options.x, this._columns);
+        const latitudeColumnName = ProviderUtil.getNameWithLabel(this._options.y, this._columns);
+        const longitudeColumnName = ProviderUtil.getNameWithLabel(this._options.x, this._columns);
         return rowObjects.map((row:any) => {
             return new Graphic({
                 geometry: new Point({
-                    x: !this._util.isValidCoordinate(row[longitudeColumnName]) ? 0 : row[longitudeColumnName], 
-                    y: !this._util.isValidCoordinate(row[latitudeColumnName]) ? 0 : row[latitudeColumnName]
+                    x: !ProviderUtil.isValidCoordinate(row[longitudeColumnName]) ? 0 : row[longitudeColumnName], 
+                    y: !ProviderUtil.isValidCoordinate(row[latitudeColumnName]) ? 0 : row[latitudeColumnName]
                 }), // Assumes wkid 102100.
                 attributes: row
             });
@@ -97,7 +95,7 @@ abstract class BaseLayerBuilder {
     protected createFields():Field[] {
 
         // Feature layer's "fields" property expects objects of {name, alias, type}.
-        const fields = [new Field({name: this._util.getObjectIdFieldName(), alias: this._util.getObjectIdFieldName(), type: "oid"})];
+        const fields = [new Field({name: ProviderUtil.FIELD_NAME_OBJECT_ID, alias: ProviderUtil.FIELD_NAME_OBJECT_ID, type: "oid"})];
         this._columns.forEach((column:any) => {
             fields.push(new Field({name: column.name, alias: column.label, type: ((column.type === "number") ? "double" : column.type)}));
         });
@@ -106,7 +104,7 @@ abstract class BaseLayerBuilder {
     } 
 
     protected convertRowsToObjects(columns:any[], rows:any[]):any[] {
-        const objectIDFieldName = this._util.getObjectIdFieldName();
+        const objectIDFieldName = ProviderUtil.FIELD_NAME_OBJECT_ID;
         return rows.map((row:any, i:number) => {
             const object = {};
             object[objectIDFieldName] = i; // Adding the object ID.
@@ -122,7 +120,7 @@ abstract class BaseLayerBuilder {
     protected createGenericUnformattedPopupTemplate(fields:any[]):PopupTemplate {
         const fieldInfos:any[] = [];
         fields.forEach((field:any) => {
-            if (field.name !== this._util.getObjectIdFieldName() && field.label !== this._options.x && field.label !== this._options.y) {
+            if (field.name !== ProviderUtil.FIELD_NAME_OBJECT_ID && field.label !== this._options.x && field.label !== this._options.y) {
                 const fieldInfo = {fieldName: field.name, label: field.label, visible: true, format: {}}
                 if (field.type === "number" || field.type === "double") {
                     fieldInfo.format = {digitSeparator: true};
@@ -134,7 +132,7 @@ abstract class BaseLayerBuilder {
     }
 
     protected buildAnimationVisualVariable(columns:any[], animationColumnLabel:string):any {
-        const animationColumnName = this._util.getNameWithLabel(animationColumnLabel, columns);
+        const animationColumnName = ProviderUtil.getNameWithLabel(animationColumnLabel, columns);
         return {
             type: "opacity",
             field: animationColumnName
@@ -165,11 +163,11 @@ abstract class BaseLayerBuilder {
     // Build simple layer (for scatter and bubble).
     protected buildSimpleFeatureLayer(renderer:any):FeatureLayer {
         return new FeatureLayer({
-            id: this._util.getSASFeatureLayerId(),
+            id: ProviderUtil.SAS_FEATURE_LAYER_ID,
             title: this._options.title,
             source: this.createGraphics(), 
             fields: this.createFields(), 
-            objectIdField: this._util.getObjectIdFieldName(), 
+            objectIdField: ProviderUtil.FIELD_NAME_OBJECT_ID, 
             renderer, 
             spatialReference: {
                 wkid: 4326
@@ -184,8 +182,8 @@ abstract class BaseLayerBuilder {
 
         let warning;
         let invalidCount = 0;
-        const latitudeColumnIndex = this._util.getIndexWithLabel(this._options.y, columns);
-        const longitudeColumnIndex = this._util.getIndexWithLabel(this._options.x, columns);
+        const latitudeColumnIndex = ProviderUtil.getIndexWithLabel(this._options.y, columns);
+        const longitudeColumnIndex = ProviderUtil.getIndexWithLabel(this._options.x, columns);
 
         // TODO: Localize warnings.  
 
@@ -193,8 +191,8 @@ abstract class BaseLayerBuilder {
             warning = "Data for 'x' or 'y' coordinates could not be identified.";
         } else {
             rows.forEach((row:any) => {
-                if (!this._util.isValidCoordinate(row[latitudeColumnIndex]) || 
-                    !this._util.isValidCoordinate(row[longitudeColumnIndex]) ||
+                if (!ProviderUtil.isValidCoordinate(row[latitudeColumnIndex]) || 
+                    !ProviderUtil.isValidCoordinate(row[longitudeColumnIndex]) ||
                     Math.abs(Math.round(row[latitudeColumnIndex])) > 90 || 
                     Math.abs(Math.round(row[longitudeColumnIndex])) > 180) {
                     ++invalidCount;
