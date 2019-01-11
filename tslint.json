@@ -17,13 +17,8 @@
     "trailing-comma": [false],
     "no-implicit-dependencies": false,
 
-    // MAP TODO: Remove following rules:
-    "no-console": false,
-    "variable-name": false,
-    "no-any": false,
-    "curly": false,
-    "no-angle-bracket-type-assertion": false,
-    "no-var-keyword": false,
-    "prefer-conditional-expression": false
+    // Geowebmap additions: 
+    "no-console": {"severity": "warning"},
+    "variable-name": false
   }
 }

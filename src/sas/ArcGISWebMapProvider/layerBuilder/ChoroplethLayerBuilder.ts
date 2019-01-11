@@ -38,7 +38,7 @@ class ChoroplethLayerBuilder extends BaseLayerBuilder {
 
     validateResults():any {
 
-        var warning;
+        let warning;
 
         // TODO: Localize warnings. 
 
@@ -72,8 +72,8 @@ class ChoroplethLayerBuilder extends BaseLayerBuilder {
     private createRenderer(rows:any[], columns:any) {
 
         const visualVariables:any[] = [];
-        var minMax:any;
-        var renderer:any;
+        let minMax:any;
+        let renderer:any;
 
         if (this._util.hasColorCategory(this._options.color, columns)) {
             renderer = {
@@ -123,8 +123,9 @@ class ChoroplethLayerBuilder extends BaseLayerBuilder {
                   color: this._options.colorMax
                 }]
             });
-            if (this._options.useSmartLegends)
+            if (this._options.useSmartLegends) {
                 new SmartLegendHelper().expandTwoPartColorRange(visualVariables[visualVariables.length - 1].stops);
+            }
         }
 
         return renderer;
@@ -165,7 +166,7 @@ class ChoroplethLayerBuilder extends BaseLayerBuilder {
         // necessary to join the rows to the IDs.  Potential optimizations: 
         // Cache geometries.  Implement paging.
 
-        var queryLayer:any;
+        let queryLayer:any;
         if (this._queryServiceLayerOverride) {
             queryLayer = this._queryServiceLayerOverride;
         } else {
@@ -181,12 +182,15 @@ class ChoroplethLayerBuilder extends BaseLayerBuilder {
         const query:any = queryLayer.createQuery();
         query.outFields = [this._options.featureServiceGeoId]; // Note: ["*"] Gets _all_ attributes, which noticeably slows performance.
         query.outSpatialReference = {wkid: 4326};
-        if (this._options.featureServiceWhere)
+        if (this._options.featureServiceWhere) {
             query.where = this._options.featureServiceWhere;
-        else if (this._geoIdFilter)
+        }
+        else if (this._geoIdFilter) {
             query.where = this._geoIdFilter;
-        if (!isNaN(this._options.featureServiceMaxAllowableOffset))
+        }
+        if (!isNaN(this._options.featureServiceMaxAllowableOffset)) {
             query.maxAllowableOffset = this._options.featureServiceMaxAllowableOffset;
+        }
 
         queryLayer.queryFeatures(query).then((results:any) => {
 
@@ -202,8 +206,9 @@ class ChoroplethLayerBuilder extends BaseLayerBuilder {
 
                 if (dataMatch) {
                     for (const key in dataMatch) {
-                        if (dataMatch.hasOwnProperty(key))
+                        if (dataMatch.hasOwnProperty(key)) {
                             feature.attributes[key] = dataMatch[key];
+                        }
                     }
                     joinedFeatures.push(feature);
                     delete this._geoIdAttributeMap[feature.attributes[this._options.featureServiceGeoId]]

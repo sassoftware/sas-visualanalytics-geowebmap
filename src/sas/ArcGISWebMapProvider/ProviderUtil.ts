@@ -51,8 +51,9 @@ class ProviderUtil {
     findMinMax(items: any[], field?: string): any[] {  
         return items.reduce((acc: any, val: any) => {
             val = (field !== undefined) ? val[field] : val;
-            if (val === null) 
+            if (val === null) { 
                 val = undefined;
+            }
             acc[0] = (acc[0] === undefined || val < acc[0]) ? val : acc[0];
             acc[1] = (acc[1] === undefined || val > acc[1]) ? val : acc[1];
             return acc;
@@ -61,14 +62,14 @@ class ProviderUtil {
 
     // Credit to: http://axonflux.com/handy-rgb-to-hsl-and-rgb-to-hsv-color-model-c
     generateColors(numColors: number):any[] {
-        var h = Math.floor(Math.random() * Math.floor(360));
+        let h = Math.floor(Math.random() * Math.floor(360));
         const goldenRatioConjugate = 0.618033988749895;
         const colors = [];
 
         const hsvToRgb = (s:number, v:number) => {
-            var r:number;
-            var g:number;
-            var b:number;
+            let r:number;
+            let g:number;
+            let b:number;
             r = g = b = 0;
 
             const i = Math.floor(h * 6);
@@ -118,7 +119,7 @@ class ProviderUtil {
             };
         }
 
-        for (var j = 0; j < numColors; j++) {
+        for (let j = 0; j < numColors; j++) {
             h += goldenRatioConjugate;
             h %= 1;
             colors.push(hsvToRgb(0.7, 0.95))
@@ -134,14 +135,15 @@ class ProviderUtil {
         const isChoropleth = options.visualizationType === this.getChoroplethValue();
 
         rows.forEach((row: any) => {
-            if (!categoryVals.hasOwnProperty(row[categoryColumnIndex]))
+            if (!categoryVals.hasOwnProperty(row[categoryColumnIndex])) {
                 categoryVals[row[categoryColumnIndex]] = true;
+            }
         });
 
         const keys = Object.keys(categoryVals);
         const colors = this.generateColors(keys.length);
 
-        for (var i = 0; i < keys.length; i++) {
+        for (let i = 0; i < keys.length; i++) {
             uniqueVals.push({
                 value: keys[i],
                 symbol: {
@@ -162,8 +164,9 @@ class ProviderUtil {
     }
 
     hasColorCategory(label: string, columns: any[]): boolean {
-        if (!label)
+        if (!label) {
             return false;
+        }
         const colorIndex = this.getIndexWithLabel(label, columns);
         return (columns[colorIndex].usage === "categorical" || columns[colorIndex].type === "string")
     }
@@ -189,15 +192,15 @@ class ProviderUtil {
     }
 
     logError(error: any) {
-        if (console && console.error)
-            console.error(error);
+        if (console && console.error) { console.error(error) };
     }
 
     publishMessage(msg: any) {
         const target = window.parent || window;
         const targetOrigin = this._selectionPublicationTargetOrigin();
-        if (target)
+        if (target) {
             target.postMessage(msg, targetOrigin);
+        }
     }
 
     sqlEscape(values: any): any {
@@ -206,14 +209,16 @@ class ProviderUtil {
             return "'" + this._sqlEscape(v) + "'";
         };
 
-        if (!Array.isArray(values))
+        if (!Array.isArray(values)) {
             return quoteAndEscape(values);
-        else
+        }
+        else {
             return values.map(quoteAndEscape, this);
+        }
 
     }
 
-    private getObjectIdFieldName(): string {
+    getObjectIdFieldName(): string {
         return this._objectIDFieldName;
     }
 
@@ -231,8 +236,9 @@ class ProviderUtil {
     // Following is a variation from sql-escape (https://github.com/packagestats/sql-escape).
     private _sqlEscape(value: any): any {
 
-        if (typeof value !== 'string')
+        if (typeof value !== 'string') {
             return value;
+        }
 
         return value.replace(/[\0\x08\x09\x1a\n\r"'\\%]/g,  (char:string):string => { // eslint-disable-line no-control-regex
             switch (char) {

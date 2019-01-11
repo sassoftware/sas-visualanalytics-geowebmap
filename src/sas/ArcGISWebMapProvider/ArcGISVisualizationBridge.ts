@@ -63,23 +63,29 @@ class ArcGISVisualizationBridge {
         if (this._options.visualizationType !== this._util.getScatterValue() &&
             this._options.visualizationType !== this._util.getBubbleValue() &&
             this._options.visualizationType !== this._util.getChoroplethValue()) {
-            if (this._options.geoId)
+            if (this._options.geoId) {
                 this._options.visualizationType = this._util.getChoroplethValue();
-            else if (this._options.size)
+            }
+            else if (this._options.size) {
                 this._options.visualizationType = this._util.getBubbleValue();
-            else
+            }
+            else {
                 this._options.visualizationType = this._util.getScatterValue();
+            }
         }
 
         this._options.x = this._options.x || "Longitude";
         this._options.y = this._options.y || "Latitude";
 
-        if (this._options.colorMin === undefined || this._options.colorMin === null)
-            this._options.colorMin = "#bfe4e7"; // Or a named color, e.g., "blue".
-        if (this._options.colorMax === undefined || this._options.colorMax === null)
+        if (this._options.colorMin === undefined || this._options.colorMin === null) {
+            this._options.colorMin = "#bfe4e7";
+        } // Or a named color, e.g., "blue".
+        if (this._options.colorMax === undefined || this._options.colorMax === null) {
             this._options.colorMax = "#00929f";
-        if (this._options.outline === undefined || this._options.outline === null)
+        }
+        if (this._options.outline === undefined || this._options.outline === null) {
             this._options.outline = "#007E88";
+        }
 
         this._options.title = this._options.title || this._options.geoId || "SAS VA Layer";
 
@@ -87,8 +93,9 @@ class ArcGISVisualizationBridge {
 
         this._options.useSmartLegends = (this._options.useSmartLegends && this._options.useSmartLegends.toUpperCase() === "TRUE");
 
-        if (this._options.featureServiceWhere && this._options.featureServiceWhere.length < 1)
+        if (this._options.featureServiceWhere && this._options.featureServiceWhere.length < 1) {
             this._options.featureServiceWhere = null;
+        }
 
         this._options.zIndex = Math.max(parseInt(this._options.zIndex, undefined), 0); // Resolves to NaN or a whole number.
         this._options.featureServiceMaxAllowableOffset = parseFloat(this._options.featureServiceMaxAllowableOffset);
@@ -97,16 +104,19 @@ class ArcGISVisualizationBridge {
 
         // If not using sample data, listen for data-driven content.
 
-        if (!this._options.useSampleData)
-            window.addEventListener("message", (msg)=>this.onMessage(msg)); 
+        if (!this._options.useSampleData) {
+            window.addEventListener("message", (msg)=>this.onMessage(msg));
+        } 
 
         // Other tasks.
 
-        if (this._options.animation)
+        if (this._options.animation) {
             this._animationHelper = new AnimationHelper(this._options.period);
+        }
 
-        if (this._options.useSmartLegends)
+        if (this._options.useSmartLegends) {
             this._smartLegendHelper = new SmartLegendHelper();
+        }
 
     }
 
@@ -132,8 +142,9 @@ class ArcGISVisualizationBridge {
 
         if (this._options.useSampleData) {
             import("sas/ArcGISWebMapProvider/SampleData.json").then((result) => {
-                if (this._options.useSampleData && this._options.animation)
+                if (this._options.useSampleData && this._options.animation) {
                     this._animationHelper.generateSampleAnimationData(result, this._options.color, this._options.size, this._options.animation);
+                }
                 this.onMessage({
                     data: result,
                     origin: window.location.origin
@@ -150,12 +161,13 @@ class ArcGISVisualizationBridge {
             this._lastMessageReceivedBeforeMapViewRegistered = null;
         }
 
-        ( < any > this._mapView).on("drag", (e: any) => {
+        (this._mapView as any).on("drag", (e: any) => {
             this._hasUserPanned = true;
         });
 
-        if (this._options.use3D)
-            ( < any > this._mapView).highlightOptions.color = this._options.outline;
+        if (this._options.use3D) {
+            (this._mapView as any).highlightOptions.color = this._options.outline;
+        }
 
         this._selectionHelper.registerMapView(this._mapView, this._util.getSASFeatureLayerId());
 
@@ -166,10 +178,12 @@ class ArcGISVisualizationBridge {
     }
 
     private onMessage(event: any) {
-        if (!this.getMapView())
+        if (!this.getMapView()) {
             this._lastMessageReceivedBeforeMapViewRegistered = event;
-        else
+        }
+        else {
             this.processMessageEvent(event);
+        }
     }
 
     /**
@@ -194,8 +208,9 @@ class ArcGISVisualizationBridge {
             this.purgeSasIdiom(event.data.data, event.data.columns);
             this.convertDates(event.data.data, event.data.columns);  // MAP TODO: Do I need this?
 
-            if (this._options.animation)
+            if (this._options.animation) {
                 this._animationHelper.initializeAnimationData(event, this._options.animation);
+            }
 
             const builder:BaseLayerBuilder = FeatureLayerFactory.getInstance().createLayerBuilder(this._options, event.data.data, event.data.columns);
 
@@ -206,8 +221,9 @@ class ArcGISVisualizationBridge {
 
                 if (this._options.filterToFeatureServiceGeoId) {
                     const whereClause = builder.getGeoIdFilter();
-                    if (whereClause && whereClause.length > 0)
+                    if (whereClause && whereClause.length > 0) {
                         this.applyFilterToAllLayersWithGeoIDs(whereClause);
+                    }
                 }
 
             }, (e: any) => {
@@ -225,12 +241,16 @@ class ArcGISVisualizationBridge {
         if (map) {
 
             const oldLayer = map.findLayerById(this._util.getSASFeatureLayerId());
-            if (oldLayer)
+            if (oldLayer) {
                 map.remove(oldLayer);
-            if (isNaN(this._options.zIndex))
+            }
+            
+            if (isNaN(this._options.zIndex)) {
                 map.add(sasLayer);
-            else
+            }
+            else {
                 map.add(sasLayer, this._options.zIndex);
+            }
 
             sasLayer.when((sasLayerReadied: any) => {
 
@@ -241,21 +261,25 @@ class ArcGISVisualizationBridge {
                 // TODO: VA has a "Reset Zoom" feature that would move the extent
                 // back to the last goTo (see the Home widget) and that would
                 // essentially reset _hasUserPanned to false.
-                if (!this._hasUserPanned || this._options.visualizationType === this._util.getChoroplethValue())
+                if (!this._hasUserPanned || this._options.visualizationType === this._util.getChoroplethValue()) {
                     this.goToDataExtent(sasLayerReadied);
+                }
 
-                if (this._options.animation)
+                if (this._options.animation) {
                     this._animationHelper.initializeAnimation(sasLayerReadied);
+                }
 
                 sasLayerReadied.layerEnabled = false; // (this._sasLegend);
-                if (this._sasLegend)
+                if (this._sasLegend) {
                     sasLayerReadied.layerInfos = [{
                         layer: sasLayerReadied,
                         title: this._options.title
                     }];
+                }
 
-                if (this._options.useSmartLegends)
+                if (this._options.useSmartLegends) {
                     this._smartLegendHelper.addSmartLegends(sasLayerReadied, this.getMapView());
+                }
 
             });
 
@@ -270,8 +294,9 @@ class ArcGISVisualizationBridge {
         if (map) {
 
             const oldLayer = map.findLayerById(this._util.getSASFeatureLayerId());
-            if (oldLayer)
+            if (oldLayer) {
                 map.remove(oldLayer);
+            }
 
         }
     }
@@ -280,17 +305,19 @@ class ArcGISVisualizationBridge {
 
         // Coerce SAS numeric "Missing" signifiers (".") to "null".  // MAP TODO: _Really_ use nulls instead of undefined?
 
-        var i:number;
-        var j:number;
+        let i:number;
+        let j:number;
         const numericColumnIndicies:number[] = [];
         for (i = 0; i < columns.length; ++i) {
-            if (columns[i].type.toUpperCase() !== "STRING")
+            if (columns[i].type.toUpperCase() !== "STRING") {
                 numericColumnIndicies.push(i);
+            }
         }
         for (i = 0; i < rows.length; ++i) {
             for (j = 0; j < numericColumnIndicies.length; ++j) {
-                if (rows[i][numericColumnIndicies[j]] === ".")
-                    rows[i][numericColumnIndicies[j]] = null; // MAP TODO: _Really_ use nulls instead of undefined?
+                if (rows[i][numericColumnIndicies[j]] === ".") {
+                    rows[i][numericColumnIndicies[j]] = null;
+                } // MAP TODO: _Really_ use nulls instead of undefined?
             }
         }
 
@@ -298,12 +325,13 @@ class ArcGISVisualizationBridge {
 
     private convertDates(rows: any, columns: any) {
 
-        var i:number;
-        var j:number;
+        let i:number;
+        let j:number;
         const dateColumnIndices:number[] = [];
         for (i = 0; i < columns.length; ++i) {
-            if (columns[i].type.toUpperCase() === "DATE" && columns[i].format && columns[i].format.name.toUpperCase() === "DATE")
+            if (columns[i].type.toUpperCase() === "DATE" && columns[i].format && columns[i].format.name.toUpperCase() === "DATE") {
                 dateColumnIndices.push(i);
+            }
         }
         for (i = 0; i < rows.length; ++i) {
             for (j = 0; j < dateColumnIndices.length; ++j) { 
@@ -333,11 +361,7 @@ class ArcGISVisualizationBridge {
                         return f.name === this._options.featureServiceGeoId
                     });
 
-                    if (layerHasGeoId)
-                        layer.definitionExpression = whereClause;
-                    else
-                        layer.definitionExpression = "";
-
+                    layer.definitionExpression = (layerHasGeoId)? whereClause : "";
                 }
 
             });
@@ -346,12 +370,13 @@ class ArcGISVisualizationBridge {
 
     private validateFeaturesMax(graphics: any, maximum: any) {
 
-        var warning = "";
+        let warning = "";
 
         // TODO: Localize warnings.
 
-        if (graphics.length > maximum)
+        if (graphics.length > maximum) {
             warning = "Feature count (" + graphics.length + ") exceeds maximum allowed (" + maximum + ").  Please filter your results.";
+        }
 
         this.appendWarning(warning);
 
@@ -359,7 +384,7 @@ class ArcGISVisualizationBridge {
     }
 
     private validateOptions() {
-        const builder = FeatureLayerFactory.getInstance().createLayerBuilder(this._options, null, null);
+        const builder = FeatureLayerFactory.getInstance().createLayerBuilder(this._options, [], []);
         const warning = builder.validateOptions();
         this.appendWarning(warning);
         return !warning || warning.length === 0;
@@ -401,8 +426,9 @@ class ArcGISVisualizationBridge {
     private displayWarning(warning: any) {
         const control = this.getWarningControl();
         if (warning && warning.length > 0) {
-            if (control.content && control.content instanceof Element)
-                (<Element>control.content).innerHTML = warning;
+            if (control.content && control.content instanceof Element) {
+                (control.content as Element).innerHTML = warning;
+            }
             this._mapView.ui.add(control, "bottom-right");
             this._util.logError(warning);
         } else {
@@ -415,7 +441,7 @@ class ArcGISVisualizationBridge {
      */
     private goToDataExtent(sasLayer: FeatureLayer) {
         this.forDataExtent(sasLayer, (results: any) => {
-            (<any>this.getMapView()).goTo(results.extent, {
+            (this.getMapView() as any).goTo(results.extent, {
                 animate: false
             }); // go to the extent of all the graphics in the layer view
         });

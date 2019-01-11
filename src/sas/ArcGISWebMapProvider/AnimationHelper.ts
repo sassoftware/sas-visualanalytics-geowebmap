@@ -22,13 +22,13 @@ limitations under the License.
 class AnimationHelper {
     constructor(animationPeriod:any) {
     }
-    initializeAnimation(sasLayer) {
+    initializeAnimation(sasLayer:any) {
     }
-    initializeAnimationData(event, animationColumnLabel) {
+    initializeAnimationData(event:any, animationColumnLabel:any) {
         // MAP TODO
         return;
     }
-    generateSampleAnimationData(result, colorColumnLabel, sizeColumnLabel, animationColumnLabel):void {
+    generateSampleAnimationData(result:any, colorColumnLabel:any, sizeColumnLabel:any, animationColumnLabel:any):void {
         // MAP TODO
         return;
     }

@@ -21,13 +21,13 @@ import View from "esri/views/View";
  */
 class SelectionHelper {
 
-    public registerMapView(view:View, sasFeatureLayerId:any) {
+    registerMapView(view:View, sasFeatureLayerId:any) {
     }
 
-    public registerMapData(dataResultName:any, selectionColumnName:any, use3D:any) {
+    registerMapData(dataResultName:any, selectionColumnName:any, use3D:any) {
     }
 
-    public applySelectionsFromData(sasLayer:any) {
+    applySelectionsFromData(sasLayer:any) {
     }
 
 }

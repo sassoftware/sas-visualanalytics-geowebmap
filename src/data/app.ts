@@ -3,14 +3,14 @@ import WebMap from "esri/WebMap";
 import ArcGISVisualizationBridge from 'sas/ArcGISWebMapProvider/ArcGISVisualizationBridge'; 
 
 export const options = (()=>{
-  var urlUtils2 = require("esri/core/urlUtils");
-  var url = urlUtils2.urlToObject(window.location.href);
-  var options = url.query || {};
+  const urlUtils2 = require("esri/core/urlUtils");
+  const url = urlUtils2.urlToObject(window.location.href);
+  const _options = url.query || {};
   // MAP TODO: Old method -> var options = IOQuery.queryToObject(searchString.substring(searchString.indexOf("?") + 1, searchString.length));
   // MAP TODO: Move this option-parsing logic to a more central area.
-  options.basemap = options.basemap || "osm";
-  options.use3D = (options.use3D && options.use3D.toUpperCase() === "TRUE");
-  return options;
+  _options.basemap = _options.basemap || "osm";
+  _options.use3D = (_options.use3D && _options.use3D.toUpperCase() === "TRUE");
+  return _options;
 })();
 
 export const visualizationBridge = new ArcGISVisualizationBridge(options);
@@ -18,18 +18,18 @@ export const visualizationBridge = new ArcGISVisualizationBridge(options);
 export const featureLayer = null; 
 
 export const map = (()=>{
-    var map;
+    let _map;
     if (options.portalItemId) {
-        map = new WebMap({
+        _map = new WebMap({
             portalItem: {
                 id: options.portalItemId
             }
         });
     } else {
-        map = new EsriMap({
+        _map = new EsriMap({
             basemap: options.basemap,
-            //ground: "world-elevation" // MAP TODO: This is causing a console error.  May no longer need.
+            // ground: "world-elevation" // MAP TODO: This is causing a console error.  May no longer need.
         });
     }
-    return map;
+    return _map;
 })();

@@ -8,7 +8,11 @@ import {
 } from "esri/core/accessorSupport/decorators";
 import { tsx } from "esri/widgets/support/widget";
 
+// import "esri/layers/graphics/sources/support/MemorySourceWorker";
+
+/* tslint:disable: no-unused-expression */
 import __forceLoad = require("esri/layers/graphics/sources/support/MemorySourceWorker"); __forceLoad; // See https://github.com/Esri/arcgis-webpack-plugin/issues/26, 12/19/18.
+/* tslint:enable */
 import FeatureLayer from "esri/layers/FeatureLayer";
 import EsriMap from "esri/Map";
 import MapView from "esri/views/MapView";
@@ -16,6 +20,7 @@ import SceneView from "esri/views/SceneView";
 import View from "esri/views/View";
 import Widget from "esri/widgets/Widget";
 import ArcGISVisualizationBridge from "sas/ArcGISWebMapProvider/ArcGISVisualizationBridge";
+import ProviderUtil from "sas/ArcGISWebMapProvider/ProviderUtil";
 
 import AppViewModel, { AppParams } from "./App/AppViewModel";
 
@@ -76,7 +81,7 @@ export default class App extends declared(Widget) {
       this.view.when((view:View)=>{
         visualizationBridge.registerMapView(view);
       }, (error:any)=>{
-        console.error(error); // MAP TODO: new ProviderUtil().logError(error); 
+        new ProviderUtil().logError(error);
       });
 
     });

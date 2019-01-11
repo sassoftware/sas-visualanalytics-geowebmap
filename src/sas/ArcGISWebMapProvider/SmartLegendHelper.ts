@@ -19,9 +19,9 @@ limitations under the License.
  */
 class SmartLegendHelper {
 
-    public expandTwoPartColorRange(stops:any) {
+    expandTwoPartColorRange(stops:any) {
     }
-    addSmartLegends(readiedFeatureLayer, mapView)  {
+    addSmartLegends(readiedFeatureLayer:any, mapView:any)  {
     }
 
 }

@@ -26,8 +26,9 @@ import ProviderUtil from "sas/ArcGISWebMapProvider/ProviderUtil";
 class FeatureLayerFactory {
 
     static getInstance() {
-        if (!FeatureLayerFactory._instance)
+        if (!FeatureLayerFactory._instance) {
             FeatureLayerFactory._instance = new FeatureLayerFactory();
+        }
         return FeatureLayerFactory._instance;
     }
 
@@ -35,12 +36,11 @@ class FeatureLayerFactory {
 
     private constructor() {}
 
-    createLayerBuilder(options: any, rows: any, columns: any): BaseLayerBuilder {
+    createLayerBuilder(options: any, rows: any[], columns: any[]): BaseLayerBuilder {
 
         const util = new ProviderUtil();
 
         switch (options.visualizationType) {
-
             case util.getBubbleValue():
                 return new BubbleLayerBuilder(options, rows, columns);
             case util.getChoroplethValue():

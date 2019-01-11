@@ -47,7 +47,7 @@ abstract class BaseLayerBuilder {
 
         const result = this.buildFeatureLayerImpl();
 
-        var promise:any;
+        let promise:any;
 
         if (result instanceof Promise) {
             promise = result;
@@ -110,7 +110,7 @@ abstract class BaseLayerBuilder {
         return rows.map((row:any, i:number) => {
             const object = {};
             object[objectIDFieldName] = i; // Adding the object ID.
-            var index = 0;
+            let index = 0;
             columns.forEach((column:any) => {
                 object[column.name] = (index < row.length) ? row[index] : null;
                 ++index;
@@ -124,8 +124,9 @@ abstract class BaseLayerBuilder {
         fields.forEach((field:any) => {
             if (field.name !== this._util.getObjectIdFieldName() && field.label !== this._options.x && field.label !== this._options.y) {
                 const fieldInfo = {fieldName: field.name, label: field.label, visible: true, format: {}}
-                if (field.type === "number" || field.type === "double")
-                    fieldInfo.format = {digitSeparator: true}; // places: 2  
+                if (field.type === "number" || field.type === "double") {
+                    fieldInfo.format = {digitSeparator: true};
+                } // places: 2  
                 fieldInfos.push(fieldInfo);
             }
         });
@@ -142,18 +143,20 @@ abstract class BaseLayerBuilder {
 
     protected validateRequiredOptions(optionNames:string[]):any {
 
-        var message;
+        let message;
         const missingNames:string[] = [];
 
         optionNames.forEach((name:string) =>{
-            if (!(name in this._options) || !this._options[name] || this._options[name].toString().length === 0)
+            if (!(name in this._options) || !this._options[name] || this._options[name].toString().length === 0) {
                 missingNames.push(name);
+            }
         });
 
         // TODO: Localize warnings.
 
-        if (missingNames.length > 0) 
+        if (missingNames.length > 0) { 
            message = "The following required options were not identified: " + missingNames.join(", ") + ".";
+        }
         
         return message;
 
@@ -179,8 +182,8 @@ abstract class BaseLayerBuilder {
     // Validates lat/long data (for scatter and bubble).
     protected validateCoordinates(rows:any[], columns:any[]):any {
 
-        var warning;
-        var invalidCount = 0;
+        let warning;
+        let invalidCount = 0;
         const latitudeColumnIndex = this._util.getIndexWithLabel(this._options.y, columns);
         const longitudeColumnIndex = this._util.getIndexWithLabel(this._options.x, columns);
 
@@ -197,8 +200,9 @@ abstract class BaseLayerBuilder {
                     ++invalidCount;
                 }
             });
-            if (invalidCount > 0)
+            if (invalidCount > 0) {
                 warning = "Data contains missing or invalid coordinates (" + invalidCount + ").";
+            }
         }
 
         return warning;

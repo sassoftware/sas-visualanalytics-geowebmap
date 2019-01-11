@@ -40,8 +40,8 @@ class BubbleLayerBuilder extends BaseLayerBuilder {
     private createRenderer(rows:any[], columns:any[]):any {
 
         const visualVariables:any[] = [];
-        var minMax;
-        var renderer;
+        let minMax;
+        let renderer;
 
         // Create either unique-value renderer or simple renderer
         if (this._util.hasColorCategory(this._options.color, columns)) {
@@ -90,8 +90,9 @@ class BubbleLayerBuilder extends BaseLayerBuilder {
             });
         }
 
-        if (this._options.animation)
+        if (this._options.animation) {
             renderer.visualVariables.push(this.buildAnimationVisualVariable(columns, this._options.animation));
+        }
 
         if (!this._util.hasColorCategory(this._options.color, columns)) {
             const colorColumnName = this._util.getNameWithLabel(this._options.color, columns);
@@ -111,8 +112,9 @@ class BubbleLayerBuilder extends BaseLayerBuilder {
                   color: this._options.colorMax
                 }]
             });
-            if (this._options.useSmartLegends)
+            if (this._options.useSmartLegends) {
                 new SmartLegendHelper().expandTwoPartColorRange(visualVariables[visualVariables.length - 1].stops);
+            }
         }
 
         // This 3D render requires the symbol to be measured in meters, and the correct
