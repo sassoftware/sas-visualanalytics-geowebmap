@@ -14,7 +14,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+import Graphic from "esri/Graphic";
 import FeatureLayer from "esri/layers/FeatureLayer";
+import FeatureSet from "esri/tasks/support/FeatureSet";
+import FeatureLayerView from "esri/views/layers/FeatureLayerView";
 import View from "esri/views/View";
 import ProviderUtil from "sas/ArcGISWebMapProvider/ProviderUtil";
 
@@ -25,10 +28,9 @@ class SelectionHelper {
 
     private _mapView:View;
     private _sasFeatureLayerId:string;
-    private _use3D:boolean;
-    private _3DHighlights:any;             // Map token identifying a highlighted feature set.
     private _dataResultName:string;        // Name of incoming dataset (from VA)
     private _selectionColumnName:string;   // Column of incoming dataset that is used to brush data
+    private _highlights:any;
 
     registerMapView(mapView:View, sasFeatureLayerId:string) {
 
@@ -57,7 +59,6 @@ class SelectionHelper {
     registerMapData(dataResultName:string, selectionColumnName:string, use3D:boolean) {
         this._dataResultName = dataResultName;
         this._selectionColumnName = selectionColumnName;
-        this._use3D = use3D;
     }
 
     /**
@@ -67,19 +68,19 @@ class SelectionHelper {
 
         const view = this.getMapView();
 
-        view.graphics.removeAll();
+        this.clearSelections();
 
         const drawSelection = (args:any) => { this.drawSelection(args[0], args[1]); };
-        const fetchGraphics = (lyrView:any) => {
-            lyrView.queryFeatures().then((graphics:any) => {
+        const fetchGraphics = (lyrView:FeatureLayerView) => {
+            lyrView.queryFeatures().then((graphics:FeatureSet) => {
                 // Filter to the ones that are selected, and draw the selection graphics for them.
-                const selectedGraphics = graphics
-                    .filter((graphic:any) => graphic.attributes[this._selectionColumnName] === 1);
+                const selectedGraphics = graphics.features
+                    .filter((graphic:Graphic) => graphic.attributes[this._selectionColumnName] === 1);
                 drawSelection([selectedGraphics, lyrView]); 
             });
         };
 
-        view.whenLayerView(sasLayer).then((lyrView:any) => {
+        view.whenLayerView(sasLayer).then((lyrView:FeatureLayerView) => {
             if (!lyrView.updating) {
                 fetchGraphics(lyrView);
             } else {
@@ -95,7 +96,7 @@ class SelectionHelper {
 
     }
 
-    private getMapView() { 
+    private getMapView():View { 
         return this._mapView; 
     }
 
@@ -123,120 +124,33 @@ class SelectionHelper {
 
         // Only 2D requires custom work.  3D is managed automatically by API (highlight).
         if (isSasFeature) {
-            if (!this._use3D) { 
-                this.drawSelection(graphic);
-            }
+            this.drawSelection(graphic);
         }
 
     }
 
     private clearSelections() {
-        // 2D:
-        this.getMapView().graphics.removeAll();
-        // 3D:
-        if (this._3DHighlights) {
-            this._3DHighlights.remove();
-            this._3DHighlights = null;
-        } 
+        this.clearHighlights();
     }
 
     private drawSelection(graphics:any, layerView?:any) {
         if (!graphics) { return; }
         graphics = (Array.isArray(graphics)) ? graphics : [graphics];
-        if (this._use3D) { 
-            this.draw3DSelection(graphics, layerView);
-        }
-        else { 
-            this.draw2DSelection(graphics);
+        this.drawHighlights(graphics, layerView);
+    }
+
+    private clearHighlights():void {
+        if (this._highlights) {
+            this._highlights.remove();
+            this._highlights = null;
         }
     }
 
-    private draw2DSelection(graphics:any) {
-
-        graphics.forEach((graphic:any) => {
-
-            const symbol = (graphic && graphic.layer && graphic.layer.renderer && graphic.layer.renderer.getSymbol) ? graphic.layer.renderer.getSymbol(graphic) : null;
-
-            if (symbol) {
-
-                const newGraphic = graphic.clone()
-                newGraphic.symbol = symbol.clone();  
-
-                if (symbol.type === "simple-marker") { // scatter, bubble
-                    if (newGraphic.symbol.outline) {
-                        newGraphic.symbol.outline.width += 1.5;
-                    }
-                    newGraphic.symbol.size = this.getSize(graphic);  
-                    newGraphic.symbol.color = [0,0,0,0]; // Make fill transparent.
-                } else { // choropleth
-                    if (newGraphic.symbol.outline) {
-                        newGraphic.symbol.outline.width += 1;
-                    }
-                    newGraphic.symbol.style = "backward-diagonal";
-                }
-
-                this.getMapView().graphics.add(newGraphic);
-
-            }
-
-        });
-
-    }
-
-    private draw3DSelection(graphics:any, layerView:any) {
-        if (this._3DHighlights) {
-            this._3DHighlights.remove();
-            this._3DHighlights = null;
-        }
+    private drawHighlights(graphics:Graphic[], layerView:FeatureLayerView):void {
+        this.clearHighlights();
         if (layerView && graphics && graphics.length > 0) {
-            this._3DHighlights = layerView.highlight(graphics);
+            this._highlights = layerView.highlight(graphics);
         }
-    }
-
-    /**
-     * Returns the size of the graphic, calculating from a SizeVisualVariable if one
-     * is available.  This calculation works well enough for 2D, but it doesn't account
-     * for an additional scale factor applied in SceneView that reduces the size
-     * of graphics as they approach the edge of the sphere.
-     */
-    private getSize(graphic:any) {
-
-        const renderer = (graphic && graphic.layer) ? graphic.layer.renderer : null;
-
-        if (!renderer) { return 0; }
-
-        const sizeVariable = (renderer.visualVariables || []).find((vv:any) => vv.type === "size");
-
-        if (!sizeVariable) {
-            const symbol = renderer.getSymbol(graphic);
-            return (symbol) ? symbol.size : 0;
-        } else {
-
-            let value;
-            let valueMin;
-            let valueMax; 
-            let displayMin;
-            let displayMax;
-
-            if (sizeVariable.stops && sizeVariable.stops.length > 0) {
-                valueMin   = sizeVariable.stops[0].value;
-                displayMin = sizeVariable.stops[0].size;
-                valueMax   = sizeVariable.stops[sizeVariable.stops.length - 1].value;
-                displayMax = sizeVariable.stops[sizeVariable.stops.length - 1].size;
-            }
-            else {
-                valueMin   = sizeVariable.valueMin;
-                displayMin = sizeVariable.displayMin;
-                valueMax   = sizeVariable.valueMax;
-                displayMax = sizeVariable.displayMax;
-            }
-
-            value = (graphic.attributes) ? graphic.attributes[sizeVariable.field] : undefined;
-
-            return ((value - valueMin) / (valueMax - valueMin)) * (displayMax - displayMin) + displayMin;
-
-        }
-
     }
 
 }
