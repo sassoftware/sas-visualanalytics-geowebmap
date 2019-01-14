@@ -14,6 +14,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+import moment from "moment/moment";
+
 /**
  * Encapsulates utility features required by more than one class.
  */
@@ -128,6 +130,25 @@ class ProviderUtil {
         else {
             return values.map(quoteAndEscape);
         }
+
+    }
+
+    // See also https://github.com/sassoftware/sas-visualanalytics-thirdpartyvisualizations.
+    static convertToEpochMS(value:any, sasFormat?:string) {
+
+        let date:moment.Moment;
+
+        if (sasFormat === "DDMMYY8" && typeof value === "string") {
+            date = moment(value, "DD/MM/YYYY");
+        }
+        else if (sasFormat === "DATE9" && typeof value === "string") { 
+            date = moment(value, "DDMMMYYYY");
+        }
+        else {
+            date = moment(value);
+        }
+
+        return date.valueOf(); 
 
     }
 

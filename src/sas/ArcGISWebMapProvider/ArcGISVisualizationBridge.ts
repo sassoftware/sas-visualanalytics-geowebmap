@@ -23,7 +23,6 @@ import FeatureLayer from "esri/layers/FeatureLayer";
 import View from "esri/views/View";
 import Expand from "esri/widgets/Expand";
 import Legend from "esri/widgets/Legend";
-import moment from "moment/moment";
 import AnimationHelper from "sas/ArcGISWebMapProvider/AnimationHelper";
 import BaseLayerBuilder from "sas/ArcGISWebMapProvider/layerBuilder/BaseLayerBuilder";
 import FeatureLayerFactory from "sas/ArcGISWebMapProvider/layerBuilder/FeatureLayerFactory";
@@ -327,13 +326,13 @@ class ArcGISVisualizationBridge {
         let j:number;
         const dateColumnIndices:number[] = [];
         for (i = 0; i < columns.length; ++i) {
-            if (columns[i].type.toUpperCase() === "DATE" && columns[i].format && columns[i].format.name.toUpperCase() === "DATE") {
+            if (columns[i].type === "date" && columns[i].format && columns[i].format.name.toUpperCase() === "DATE") {
                 dateColumnIndices.push(i);
             }
         }
         for (i = 0; i < rows.length; ++i) {
             for (j = 0; j < dateColumnIndices.length; ++j) { 
-                    rows[i][dateColumnIndices[j]] = moment(rows[i][dateColumnIndices[j]]).toDate().valueOf();
+                    rows[i][dateColumnIndices[j]] = ProviderUtil.convertToEpochMS(rows[i][dateColumnIndices[j]], columns[dateColumnIndices[j]].format.formatString);
             }
         }
 
