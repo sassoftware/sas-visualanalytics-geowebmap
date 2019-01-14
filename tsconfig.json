@@ -24,7 +24,7 @@
     "importHelpers": true,
     "skipLibCheck": true,
 
-    "baseUrl": "./src",  // MAP TODO: Apparently required only for VSC intellisense.
+    "baseUrl": "./src",  // Apparently required only for VSC intellisense.
     "resolveJsonModule": true  // Must include SampleData.json.
   },
   "types": [

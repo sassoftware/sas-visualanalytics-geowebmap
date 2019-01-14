@@ -77,7 +77,7 @@ class BubbleLayerBuilder extends BaseLayerBuilder {
                 type: "simple",
                 symbol: {
                     type: "simple-marker",
-                    size: 2, // 0,  // MAP TODO: The 4.6 "0" setting automatically suppresses null/undefined values.  "2" leaves a few pixels.
+                    size: 2, // The 4.6 "0" setting automatically suppresses null/undefined values, but suppressess all graphics in 4.10.  A size of "2" leaves a few pixels.
                     outline: {
                         color: this._options.outline,
                         width: 0.5,

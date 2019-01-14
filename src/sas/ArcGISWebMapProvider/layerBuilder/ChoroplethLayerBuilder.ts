@@ -136,8 +136,8 @@ class ChoroplethLayerBuilder extends BaseLayerBuilder {
 
         const featureLayerReady = new Deferred();
 
-        const graphics = this.createGraphics(); // this._createGraphics(columns, rows);  // MAP TODO: Was this cruft?  If so, adjust parent sig?
-        const fields = this.createFields(); // this._createFields(columns);  // MAP TODO: Was this cruft?
+        const graphics = this.createGraphics(); 
+        const fields = this.createFields(); 
                     
         // Build a list of VA-supplied attributes mapped by GeoID.
 
@@ -231,18 +231,6 @@ class ChoroplethLayerBuilder extends BaseLayerBuilder {
                 geometryType: "polygon",
                 popupTemplate: this.createGenericUnformattedPopupTemplate(columns)
             });
-            // viewLayer.then((layer:any)=>{
-            //     // MAP TODO: Is this even needed anymore?
-            //     // See https://community.esri.com/message/693120-re-sceneview-source-polygons-no-popup?commentID=693120#comment-693120
-            //     // To enable popups.
-            //     layer.createQuery = function(){
-            //         var q = layer.__proto__.createQuery.call(layer); // eslint-disable-line no-proto
-            //         q.outFields = null;
-            //         q.where = null;
-            //         return q;
-            //     }
-            //     return layer;
-            // });
 
             // The FeatureLayer is ready to be added to a map.
             featureLayerReady.resolve(viewLayer);

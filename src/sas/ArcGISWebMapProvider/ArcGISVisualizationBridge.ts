@@ -203,7 +203,7 @@ class ArcGISVisualizationBridge {
             );
 
             this.purgeSasIdiom(event.data.data, event.data.columns);
-            this.convertDates(event.data.data, event.data.columns);  // MAP TODO: Do I need this?
+            this.convertDates(event.data.data, event.data.columns);  
 
             if (this._options.animation) {
                 this._animationHelper.initializeAnimationData(event, this._options.animation);
@@ -300,8 +300,6 @@ class ArcGISVisualizationBridge {
 
     private purgeSasIdiom(rows: any, columns: any) {
 
-        // Coerce SAS numeric "Missing" signifiers (".") to "null".  // MAP TODO: _Really_ use nulls instead of undefined?
-
         let i:number;
         let j:number;
         const numericColumnIndicies:number[] = [];
@@ -314,7 +312,7 @@ class ArcGISVisualizationBridge {
             for (j = 0; j < numericColumnIndicies.length; ++j) {
                 if (rows[i][numericColumnIndicies[j]] === ".") {
                     rows[i][numericColumnIndicies[j]] = null;
-                } // MAP TODO: _Really_ use nulls instead of undefined?
+                } 
             }
         }
 
