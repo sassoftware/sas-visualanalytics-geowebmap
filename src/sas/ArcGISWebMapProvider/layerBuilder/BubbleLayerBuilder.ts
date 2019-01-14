@@ -35,7 +35,18 @@ class BubbleLayerBuilder extends BaseLayerBuilder {
 
     protected buildFeatureLayerImpl():FeatureLayer {
         const renderer = this.createRenderer(this._rows, this._columns);
-        return this.buildSimpleFeatureLayer(renderer);
+        const layer = this.buildSimpleFeatureLayer(renderer);
+        this.excludeWhereSizeIsNull(layer);
+        return layer;
+    }
+
+    private excludeWhereSizeIsNull(layer:FeatureLayer):void {
+        if (this._options.size) {
+            const sizeColumnName = ProviderUtil.getNameWithLabel(this._options.size, this._columns);
+            if (sizeColumnName !== null && sizeColumnName.length > 0) {
+                layer.definitionExpression = sizeColumnName + " IS NOT NULL";
+            }
+        }
     }
 
     private createRenderer(rows:any[], columns:any[]):any {
