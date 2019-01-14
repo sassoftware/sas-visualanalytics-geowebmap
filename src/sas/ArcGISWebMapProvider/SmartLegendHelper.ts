@@ -77,7 +77,7 @@ class SmartLegendHelper {
                     maxValue: varStats.max,
                     // values: [varStats.min, varStats.max] // MAP TODO: This isn't on SizeSliderProperties.  Appropriate to comment out?
                 });
-                expand = new Expand({expandIconClass: "esri-icon-question", view: mapView, content: slider.container, group: "bottom-right"}); // MAP TODO: Switched domNode to container.  Correct?
+                expand = new Expand({expandIconClass: "esri-icon-question", view: mapView, content: slider, group: "bottom-right"}); // MAP TODO: Switched domNode to container.  Correct?
                 mapView.ui.add(expand, "bottom-right");
                 this._activeLegends.push(expand);
                 on(
@@ -98,7 +98,7 @@ class SmartLegendHelper {
                     maxValue: varStats.max,
                     numHandles: 3
                 });
-                expand = new Expand({expandIconClass: "esri-icon-question", view: mapView, content: slider.container, group: "bottom-right"}); // MAP TODO: Switched domNode to container.  Correct?
+                expand = new Expand({expandIconClass: "esri-icon-question", view: mapView, content: slider, group: "bottom-right"}); // MAP TODO: Switched domNode to container.  Correct?
                 mapView.ui.add(expand, "bottom-right");
                 this._activeLegends.push(expand);
                 on(
@@ -140,12 +140,6 @@ class SmartLegendHelper {
                 1
             );
             const vv = lang.clone(widget.visualVariable);
-            if (setStops) {
-                if (vv.stops.length === 2) {
-                    vv.stops[0].value = vv.minDataValue;
-                    vv.stops[1].value = vv.maxDataValue;
-                }
-            }
             renderer.visualVariables.push(vv);
             layer.renderer = renderer;
         }

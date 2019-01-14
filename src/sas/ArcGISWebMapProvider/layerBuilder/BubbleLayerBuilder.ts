@@ -97,7 +97,7 @@ class BubbleLayerBuilder extends BaseLayerBuilder {
                 field: sizeColumnName,
                 minDataValue: minMax[0],
                 maxDataValue: minMax[1],
-                minSize: 16,
+                minSize: 6,
                 maxSize: 30
             });
         }
