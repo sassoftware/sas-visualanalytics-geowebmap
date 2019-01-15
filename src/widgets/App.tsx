@@ -81,7 +81,7 @@ export default class App extends declared(Widget) {
       this.view.when((view:View)=>{
         visualizationBridge.registerMapView(view);
       }, (error:any)=>{
-        new ProviderUtil().logError(error);
+        ProviderUtil.logError(error);
       });
 
     });
