@@ -148,7 +148,7 @@ class ProviderUtil {
             date = moment(value);
         }
 
-        return date.valueOf(); 
+        return date.valueOf(); // Milliseconds since Jan. 1, 1970, UTC.
 
     }
 

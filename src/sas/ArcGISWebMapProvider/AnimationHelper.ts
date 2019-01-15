@@ -125,7 +125,7 @@ class AnimationHelper {
         for (let x = 0; x < initialLength; ++x) {
             for (let y = 1; y < 11; ++y) {  // Add ten years of sample data.
                 const clone = result.data[x].slice();
-                clone[animationIndex] = moment(clone[animationIndex]).startOf(this._period).add(y,this._period);
+                clone[animationIndex] = moment(ProviderUtil.convertToEpochMS(clone[animationIndex],result.columns[animationIndex].format.formatString)).startOf(this._period).add(y,this._period).valueOf();
                 if (colorIndex > -1) {
                     clone[colorIndex] = clone[colorIndex] * y;
                 }  // Progressively approach color max.
@@ -145,8 +145,8 @@ class AnimationHelper {
         const animationIndex = ProviderUtil.getIndexWithLabel(animationColumnLabel, event.data.columns);
         this.convertDateColumn(event.data.data,animationIndex);
         const minMax = ProviderUtil.findMinMax(event.data.data,animationIndex);  
-        this._animationMin = moment(minMax[0]).startOf(this._period);
-        this._animationMax = moment(minMax[1]).endOf(this._period); 
+        this._animationMin = moment(minMax[0]).startOf(this._period).valueOf();
+        this._animationMax = moment(minMax[1]).endOf(this._period).valueOf(); 
     }
 
     initializeAnimation(sasLayer:FeatureLayer) {
@@ -178,7 +178,7 @@ class AnimationHelper {
 
     private initializeAnimationControls() {
 
-        const viewDiv = document.getElementById("viewDiv");
+        const viewDiv = document.getElementById("app");
         const animationControls = document.getElementById("animationControls");
 
         if (viewDiv) {
@@ -210,8 +210,8 @@ class AnimationHelper {
     }
 
     private convertDateColumn(rows:any[], dateColumnIndex:number) {
-        rows.forEach(function(row){
-            row[dateColumnIndex] = moment(row[dateColumnIndex]).startOf(this._period);
+        rows.forEach((row) => {
+            row[dateColumnIndex] = moment(row[dateColumnIndex]).startOf(this._period).valueOf();
         });
     }
 
@@ -257,9 +257,9 @@ class AnimationHelper {
             const opacityVV = clonedRenderer.visualVariables.find((vv:any) => vv.type === "opacity");
             if (opacityVV) {
                 opacityVV.stops = [
-                    {opacity: 0, value: animationValueBefore}, 
-                    {opacity: 1, value: animationValue},
-                    {opacity: 0, value: animationValueAfter} 
+                    {opacity: 0, value: animationValueBefore.valueOf()}, 
+                    {opacity: 1, value: animationValue.valueOf()},
+                    {opacity: 0, value: animationValueAfter.valueOf()} 
                 ];
             } 
             // In testing, it was determined that visualVariables array assignment

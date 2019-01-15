@@ -278,6 +278,8 @@ class ArcGISVisualizationBridge {
                     this._smartLegendHelper.addSmartLegends(sasLayerReadied, this.getMapView());
                 }
 
+            }, (e: any) => {
+                ProviderUtil.logError(e);
             });
 
         }

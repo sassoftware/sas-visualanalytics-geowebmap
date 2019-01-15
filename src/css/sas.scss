@@ -1,9 +1,64 @@
-      
-      .warning {
-        font-family: "system-ui";
-        padding: 5px;
-        background: lightgoldenrodyellow;
-        border: 1px goldenrod solid;
-        min-width: 200px;
-      }
-      
+#app {
+  position: absolute;
+  right: 0;
+  left: 0;
+  top: 0;
+  bottom: 0;
+}
+
+#app.animating {
+  bottom: 30px;
+}
+
+#animationControls {
+  position: absolute;
+  right: 0;
+  left: 0;
+  bottom: 0;    
+  display: flex;
+  flex-direction: row;   
+  align-items: center;
+  justify-content: center;
+  background: lightgray; 
+  border: 1px gray solid;
+  height: 30px;
+  visibility: hidden;
+}
+
+#animationControls.animating {
+  visibility: visible;
+}
+
+#animationLabel {
+  flex: initial;
+  width: 200px;
+  order: 1;
+  text-align: center;
+  font-family: "system-ui";
+}
+
+#animationPlayButton {
+  flex: initial;
+  width: 100px;
+  order: 3;
+  margin: 0 5px 0 5px;
+}
+
+#animationSlider {
+  flex: auto;
+  order: 2;
+}
+
+.warning {
+  font-family: "system-ui";
+  padding: 5px;
+  background: lightgoldenrodyellow;
+  border: 1px goldenrod solid;
+  min-width: 200px;
+}
+
+.smartMappingSlider {
+  background-color: white;
+  padding: 10px;
+  text-align: center;
+}
