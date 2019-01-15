@@ -1,32 +1,21 @@
-#app {
-  position: absolute;
-  right: 0;
-  left: 0;
-  top: 0;
-  bottom: 0;
-}
-
-#app.animating {
+.webmap-animating {
   bottom: 30px;
 }
 
-#animationControls {
-  position: absolute;
-  right: 0;
-  left: 0;
-  bottom: 0;    
-  display: flex;
+.animationControls {
+  display: none;
+  box-sizing: border-box;
+  padding: 0.5rem;
+  width: 100%;
   flex-direction: row;   
   align-items: center;
   justify-content: center;
   background: lightgray; 
   border: 1px gray solid;
-  height: 30px;
-  visibility: hidden;
 }
 
-#animationControls.animating {
-  visibility: visible;
+.animationControls-animating {
+  display: flex;
 }
 
 #animationLabel {

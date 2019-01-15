@@ -6,7 +6,7 @@ import {
   property,
   subclass
 } from "esri/core/accessorSupport/decorators";
-import { tsx } from "esri/widgets/support/widget";
+import { renderable, tsx } from "esri/widgets/support/widget";
 
 // import "esri/layers/graphics/sources/support/MemorySourceWorker";
 
@@ -28,7 +28,10 @@ interface AppViewParams extends AppParams, esri.WidgetProperties {}
 
 const CSS = {
   base: "main",
-  webmap: "webmap"
+  webmap: "webmap",
+  webmapAnimated: "webmap-animating",
+  animationControls: "animationControls",
+  animationControlsAnimated: "animationControls-animating"
 };
 
 @subclass("app.widgets.webmapview")
@@ -47,20 +50,41 @@ export default class App extends declared(Widget) {
 
   @aliasOf("viewModel.options") options:any;
 
+  @property()
+  @renderable()
+  animation:boolean = false;
+
   constructor(params: Partial<AppViewParams>) {
     super(params);
   }
 
   render() {
+
+    const dynamicClassesWebmap = {
+      [CSS.webmapAnimated]: this.animation
+    };
+    const dynamicClassesAnimationControls = {
+      [CSS.animationControlsAnimated]: this.animation
+    }
+
     return (
       <div class={CSS.base}>
-        <div class={CSS.webmap} bind={this} afterCreate={this.onAfterCreate} />
+        <div class={this.classes(CSS.webmap, dynamicClassesWebmap)} bind={this} afterCreate={this.onAfterCreate} />
+        <footer id="animationControls" class={this.classes(CSS.animationControls, dynamicClassesAnimationControls)}>
+          <div id="animationLabel"></div>
+          <input id="animationPlayButton" type="button" value=">>"/>
+          <input id="animationSlider" type="range" min="0" max="100" step="0.001" value="0" style="width: 100%;"/>
+        </footer>
       </div>
     );
   }
 
   private onAfterCreate(element: HTMLDivElement) {
     import("./../data/app").then(({ options, visualizationBridge, map }) => {
+
+      if (options.animation) {
+        this.animation = true;
+      }
 
       this.visualizationBridge = visualizationBridge;
       this.map = map;
