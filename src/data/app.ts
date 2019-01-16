@@ -28,7 +28,7 @@ export const map = (()=>{
     } else {
         _map = new EsriMap({
             basemap: options.basemap,
-            // ground: "world-elevation" // MAP TODO: This is causing a console error.  May no longer need.
+            // ground: "world-elevation" // May no longer need.
         });
     }
     return _map;

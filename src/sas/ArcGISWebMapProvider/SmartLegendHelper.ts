@@ -75,9 +75,8 @@ class SmartLegendHelper {
                     container: this.createLegendDiv(),
                     minValue: varStats.min,
                     maxValue: varStats.max,
-                    // values: [varStats.min, varStats.max] // MAP TODO: This isn't on SizeSliderProperties.  Appropriate to comment out?
                 });
-                expand = new Expand({expandIconClass: "esri-icon-question", view: mapView, content: slider, group: "bottom-right"}); // MAP TODO: Switched domNode to container.  Correct?
+                expand = new Expand({expandIconClass: "esri-icon-question", view: mapView, content: slider, group: "bottom-right"}); 
                 mapView.ui.add(expand, "bottom-right");
                 this._activeLegends.push(expand);
                 on(
@@ -98,8 +97,7 @@ class SmartLegendHelper {
                     maxValue: varStats.max,
                     numHandles: 3
                 });
-                expand = new Expand({expandIconClass: "esri-icon-question", view: mapView, content: slider, group: "bottom-right"}); // MAP TODO: Switched domNode to container.  Correct?
-                mapView.ui.add(expand, "bottom-right");
+                expand = new Expand({expandIconClass: "esri-icon-question", view: mapView, content: slider, group: "bottom-right"}); 
                 this._activeLegends.push(expand);
                 on(
                     slider, 
