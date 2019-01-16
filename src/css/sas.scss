@@ -51,3 +51,8 @@
   padding: 10px;
   text-align: center;
 }
+
+/* Turn off the blue focus ring on map focus.  See "main.css" in the SDK themes. */
+.esri-view .esri-view-surface--inset-outline:focus::after {
+  outline: none;
+}
