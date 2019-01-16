@@ -16,6 +16,7 @@ limitations under the License.
 
 // http://.../util/doh/runner.html?testModule=sasTest/sasTests
 
-dojo.require("sasTest/ArcGISWebMapProvider/layerBuilder/TestScatterLayerBuilder");
-dojo.require("sasTest/ArcGISWebMapProvider/layerBuilder/TestBubbleLayerBuilder");
-dojo.require("sasTest/ArcGISWebMapProvider/layerBuilder/TestChoroplethLayerBuilder");
+import "./ArcGISWebMapProvider/layerBuilder/TestBubbleLayerBuilder";
+import "./ArcGISWebMapProvider/layerBuilder/TestChoroplethLayerBuilder";
+import "./ArcGISWebMapProvider/layerBuilder/TestScatterLayerBuilder";
+
