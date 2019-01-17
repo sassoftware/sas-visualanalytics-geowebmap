@@ -72,7 +72,6 @@ class SmartLegendHelper {
                 slider = new SizeSlider({
                     statistics: varStats,
                     visualVariable: lang.clone(visualVariable),
-                    container: this.createLegendDiv(),
                     minValue: varStats.min,
                     maxValue: varStats.max,
                 });
@@ -92,12 +91,12 @@ class SmartLegendHelper {
                 slider = new ColorSlider({
                     statistics: varStats,
                     visualVariable: lang.clone(visualVariable),
-                    container: this.createLegendDiv(),
                     minValue: varStats.min,
                     maxValue: varStats.max,
                     numHandles: 3
                 });
                 expand = new Expand({expandIconClass: "esri-icon-question", view: mapView, content: slider, group: "bottom-right"}); 
+                mapView.ui.add(expand, "bottom-right");
                 this._activeLegends.push(expand);
                 on(
                     slider, 
@@ -187,13 +186,6 @@ class SmartLegendHelper {
             g: mid(minColor.g, maxColor.g)
         });
     }
-
-    private createLegendDiv() {
-        const div = document.createElement("div");
-        div.classList.add("smartMappingSlider");
-        document.body.appendChild(div);
-        return div;
-    } 
 
     private removeSmartLegends(mapView:any) {
         this._activeLegends.forEach((legend:Legend) => { mapView.ui.remove(legend); });
