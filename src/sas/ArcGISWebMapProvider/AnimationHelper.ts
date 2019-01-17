@@ -128,9 +128,15 @@ class AnimationHelper {
                 clone[animationIndex] = moment(ProviderUtil.convertToEpochMS(clone[animationIndex],result.columns[animationIndex].format.formatString)).startOf(this._period).add(y,this._period).valueOf();
                 if (colorIndex > -1) {
                     clone[colorIndex] = clone[colorIndex] * y;
+                    if (isNaN(clone[colorIndex])) {
+                        clone[colorIndex] = y;
+                    }
                 }  // Progressively approach color max.
                 if (sizeIndex > -1) {
                     clone[sizeIndex] = clone[sizeIndex] * 2 * Math.random();
+                    if (isNaN(clone[sizeIndex])) {
+                        clone[sizeIndex] = 2 * Math.random();
+                    }
                 } // Randomize size.
                 // Note: if neither size nor color vary, make the sample data randomly omit 25% of the rows (for testing scatter plots).
                 if (colorIndex > -1 || sizeIndex > -1 || Math.random() > 0.75) {
