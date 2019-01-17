@@ -178,16 +178,6 @@ class AnimationHelper {
 
     private initializeAnimationControls() {
 
-        const viewDiv = document.getElementById("app");
-        const animationControls = document.getElementById("animationControls");
-
-        if (viewDiv) {
-            viewDiv.classList.add("animating");
-        }
-        if (animationControls) {
-            animationControls.classList.add("animating");
-        }
-
         const sliderChangeHandler = (event:any) => { 
             this.stopAnimation();
             this.processAnimationSliderValue(event.target.value) 
