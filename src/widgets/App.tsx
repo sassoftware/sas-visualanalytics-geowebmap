@@ -1,3 +1,12 @@
+// import "esri/layers/graphics/sources/support/MemorySourceWorker";
+// /// <amd-dependency path="esri/layers/graphics/sources/support/MemorySourceWorker" name="MemorySourceWorker" />
+// /* tslint:disable: no-any no-unused-expression */
+// declare const MemorySourceWorker: any;
+// /* tslint:enable */
+/* tslint:disable: no-unused-expression */
+import __forceLoad = require("esri/layers/graphics/sources/support/MemorySourceWorker"); __forceLoad; // See https://github.com/Esri/arcgis-webpack-plugin/issues/26, 12/19/18.
+/* tslint:enable */
+
 import esri = __esri;
 
 import {
@@ -8,13 +17,7 @@ import {
 } from "esri/core/accessorSupport/decorators";
 import { renderable, tsx } from "esri/widgets/support/widget";
 
-// import "esri/layers/graphics/sources/support/MemorySourceWorker";
 
-/// <amd-dependency path="esri/layers/graphics/sources/support/MemorySourceWorker" name="MemorySourceWorker" />
-/* tslint:disable: no-any no-unused-expression */
-declare const MemorySourceWorker: any;
-/* tslint:enable */
-// import __forceLoad = require("esri/layers/graphics/sources/support/MemorySourceWorker"); __forceLoad; // See https://github.com/Esri/arcgis-webpack-plugin/issues/26, 12/19/18.
 
 import FeatureLayer from "esri/layers/FeatureLayer";
 import EsriMap from "esri/Map";
