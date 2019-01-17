@@ -6,16 +6,9 @@ For an overview of this project from the perspective of a user, see the document
 
 ## Project
 
-This project presents a web page with an ArcGIS map designed to serve as a data-driven content for reports built with SAS Visual Analytics. The majority of the code is a fork of [jsapi-resources](https://github.com/Esri/jsapi-resources), Esri's template for JS apps. Uses DOJO and ArcGIS for JS 4.6.
+This project presents a web page with an ArcGIS map designed to serve as a data-driven content for reports built with SAS Visual Analytics. It is a fork of [jsapi-resources](https://github.com/Esri/jsapi-resources), Esri's template for JS applications, using Dojo and ArcGIS for JavaScript 4.x.
 
-A "copy:debug" task has been added to the normal build which will copy an `ArcGISVisualizationBridgeCDN.html` file into the "dist" directory.  This file accomplishes the main tasks that the built application will do, without requiring a full build; however, it may not be as performant as the main application (served by index.html).  *(This file is composited manually, and it is not always up-to-date with the latest changes.)*
-
-The task also adds an `.htaccess` file, which, if configured, will allow an Apache server to cache the built project
-for a minute.
-
-* `npm run buildDebug` - runs the build, leaving the uncompressed js in the `dist` directory.
-
-**Normal installation follows these steps:**
+### Usage
 
 * Download the project.
 * Open a command-line context at the project directory.
@@ -77,7 +70,7 @@ An "animated" scatter plot:
 
 http://&lt;server&gt;/ArcGisWebMapProvider/?useSampleData=true&animation=Date
 
-Other examples can be found in the file examples.html.
+Other examples appear in the file `examples.html`.
 
 ### Some useful Esri feature layers
 
@@ -114,32 +107,6 @@ See [SampleData.json](src/sas/ArcGISWebMapProvider/SampleData.json) for a more c
 
 Use of Esri's ArcGIS SDK is subject to their [licensing requirements](https://developers.arcgis.com/arcgis-runtime/licensing).
 
-Subsequent notes are from Esri's (dojo-based) [build project](https://github.com/Esri/jsapi-resources).
+### Notes from Esri's jsapi-resources projects
 
-# Bower Sample application
-
-This is a sample application showing how to use [Bower](http://bower.io/) to build your [ArcGIS API for JavaScript](https://developers.arcgis.com/javascript/) application.
-It provides a Gruntfile for build scenario using Dojo.
-
-# Requirements
-* [node & npm](https://nodejs.org/)
-* [bower](http://bower.io/)
-* [java 7 or greater](https://java.com/en/download/) - for [Closure Compiler](https://github.com/google/closure-compiler) used during build
-
-# Usage
-* `npm install -g bower` - installs bower
-* `npm install` - installs required node and bower packages
-* `npm run clean` - removes built files from `dist` directory
-* `npm run build` - run the Dojo build on application
-
-If you are interested in building the [Sass](http://sass-lang.com/) files included in the Bower release of the API, please refer to this [document](SASS.md).
-
-## Additional tools
-We have also included a `gulpfile` if that is your build tool of choice. Just run `gulp` to start the build.
-
-And just to demonstrate that it can be done, we've included a `makefile` so you can build the demo application using the `make` command.
-
-If you have [Python](https://www.python.org/) you can run `python -m SimpleHTTPServer` in same folder as application to run it in a browser.
-
-# Notes
-For details on the Dojo build system, [review the Dojo documentation](http://dojotoolkit.org/documentation/tutorials/1.10/build/index.html).
+Please refer to  Esri's (dojo-based) [sample project](https://github.com/Esri/jsapi-resources) for information regarding [Webpack](https://webpack.js.org), the [arcgis-js-api](https://github.com/Esri/arcgis-js-api), and the [@arcgis/webpack-plugin](https://github.com/Esri/arcgis-webpack-plugin).
