@@ -1,3 +1,12 @@
+// import "esri/layers/graphics/sources/support/MemorySourceWorker";
+// /// <amd-dependency path="esri/layers/graphics/sources/support/MemorySourceWorker" name="MemorySourceWorker" />
+// /* tslint:disable: no-any no-unused-expression */
+// declare const MemorySourceWorker: any;
+// /* tslint:enable */
+/* tslint:disable: no-unused-expression */
+import __forceLoad = require("esri/layers/graphics/sources/support/MemorySourceWorker"); __forceLoad; // See https://github.com/Esri/arcgis-webpack-plugin/issues/26, 12/19/18.
+/* tslint:enable */
+
 import esriConfig from "esri/config";
 
 const DEFAULT_WORKER_URL = "https://js.arcgis.com/4.10/";
