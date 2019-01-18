@@ -6,5 +6,5 @@
       "fixSessionCapabilities": "no-detect"
     }
   ],
-  "suites": "~tmpUnitTests/tests.js"
+  "suites": "~tmpTests/tests.js"
 }

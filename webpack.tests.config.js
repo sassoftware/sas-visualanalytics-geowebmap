@@ -8,11 +8,11 @@ const path = require("path");
 module.exports = {
   entry: {
     init: "./src/index.ts",
-    tests: "./test/sasTest/sasTests.ts"
+    tests: "./tests/sas/tests.ts"
   },
   output: {
     filename: "[name].js",
-    path: path.resolve(__dirname, "./~tmpUnitTests")
+    path: path.resolve(__dirname, "./~tmpTests")
   },
 
   resolve: {
@@ -40,7 +40,7 @@ module.exports = {
     ]
   },
 
-  plugins: [new CleanWebpackPlugin(["~tmpUnitTests"]), new ArcGISPlugin()],
+  plugins: [new CleanWebpackPlugin(["~tmpTests"]), new ArcGISPlugin()],
 
   node: {
     process: false,

@@ -14,8 +14,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-// http://.../util/doh/runner.html?testModule=sasTest/sasTests
-
 import "./ArcGISWebMapProvider/layerBuilder/TestBubbleLayerBuilder";
 import "./ArcGISWebMapProvider/layerBuilder/TestChoroplethLayerBuilder";
 import "./ArcGISWebMapProvider/layerBuilder/TestScatterLayerBuilder";
