@@ -1,3 +1,7 @@
+/* tslint:disable: no-unused-expression */
+import __forceLoad = require("esri/layers/graphics/sources/support/MemorySourceWorker"); __forceLoad; // See https://github.com/Esri/arcgis-webpack-plugin/issues/26, 12/19/18.
+/* tslint:enable */
+
 import esri = __esri;
 
 import {
@@ -77,34 +81,36 @@ export default class App extends declared(Widget) {
   }
 
   private onAfterCreate(element: HTMLDivElement) {
-    import("./../data/app").then(({ options, visualizationBridge, map }) => {
+    import("esri/layers/graphics/sources/support/MemorySourceWorker").then(({MemorySourceWorker}) => { // See https://github.com/Esri/arcgis-webpack-plugin/issues/26, 12/19/18.
+      import("./../data/app").then(({ options, visualizationBridge, map }) => {
 
-      if (options.animation) {
-        this.animation = true;
-      }
+        if (options.animation) {
+          this.animation = true;
+        }
 
-      this.visualizationBridge = visualizationBridge;
-      this.map = map;
+        this.visualizationBridge = visualizationBridge;
+        this.map = map;
 
-      if (options.use3D) {
-        this.view = new SceneView({
-          map,
-          container: element
+        if (options.use3D) {
+          this.view = new SceneView({
+            map,
+            container: element
+          });
+        }
+        else {
+          this.view = new MapView({
+            map,
+            container: element
+          });
+        }
+
+        this.view.when((view:View)=>{
+          visualizationBridge.registerMapView(view);
+        }, (error:any)=>{
+          ProviderUtil.logError(error);
         });
-      }
-      else {
-        this.view = new MapView({
-          map,
-          container: element
-        });
-      }
 
-      this.view.when((view:View)=>{
-        visualizationBridge.registerMapView(view);
-      }, (error:any)=>{
-        ProviderUtil.logError(error);
       });
-
     });
   }
 }
