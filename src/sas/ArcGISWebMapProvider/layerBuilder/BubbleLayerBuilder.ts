@@ -15,6 +15,7 @@ limitations under the License.
 */
 
 import FeatureLayer from "esri/layers/FeatureLayer";
+import AnimationHelper from "sas/ArcGISWebMapProvider/AnimationHelper";
 import BaseLayerBuilder from "sas/ArcGISWebMapProvider/layerBuilder/BaseLayerBuilder";
 import ProviderUtil from "sas/ArcGISWebMapProvider/ProviderUtil";
 import SmartLegendHelper from "sas/ArcGISWebMapProvider/SmartLegendHelper";
@@ -103,7 +104,7 @@ class BubbleLayerBuilder extends BaseLayerBuilder {
         }
 
         if (this._options.animation) {
-            renderer.visualVariables.push(this.buildAnimationVisualVariable(columns, this._options.animation));
+            renderer.visualVariables.push(AnimationHelper.buildAnimationVisualVariable(columns, this._options.animation));
         }
 
         if (!ProviderUtil.hasColorCategory(this._options.color, columns)) {

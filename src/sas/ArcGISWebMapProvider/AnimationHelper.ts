@@ -26,6 +26,14 @@ import ProviderUtil from "sas/ArcGISWebMapProvider/ProviderUtil";
  */
 class AnimationHelper {
 
+    static buildAnimationVisualVariable(columns:any[], animationColumnLabel:string) {
+        const animationColumnName = ProviderUtil.getNameWithLabel(animationColumnLabel, columns);
+        return {
+            type: "opacity",
+            field: animationColumnName
+        };     
+    }
+
     // See https://momentjs.com/docs/#/manipulating/add/ and/or moment.d.ts unitOfTime.
     private static _periodsAndFormats = [
         {period: "YEAR", format: "YYYY"},
@@ -101,13 +109,6 @@ class AnimationHelper {
         this.initializeAnimationControls();
     }
 
-    buildAnimationVisualVariable(columns:any[], animationColumnLabel:string) {
-        const animationColumnName = ProviderUtil.getNameWithLabel(animationColumnLabel, columns);
-        return {
-            type: "opacity",
-            field: animationColumnName
-        };     
-    }
 
     generateSampleAnimationData(result:any, colorColumnLabel:string, sizeColumnLabel:string, animationColumnLabel:string) {
         let colorIndex;

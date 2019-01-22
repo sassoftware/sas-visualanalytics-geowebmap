@@ -20,6 +20,7 @@ limitations under the License.
  */
 
 import FeatureLayer from "esri/layers/FeatureLayer";
+import AnimationHelper from "sas/ArcGISWebMapProvider/AnimationHelper";
 import BaseLayerBuilder from "sas/ArcGISWebMapProvider/layerBuilder/BaseLayerBuilder";
 import ProviderUtil from "sas/ArcGISWebMapProvider/ProviderUtil";
 
@@ -47,7 +48,7 @@ class ScatterLayerBuilder extends BaseLayerBuilder {
         let renderer;
 
         if (this._options.animation) { 
-            visualVariables.push(this.buildAnimationVisualVariable(columns, this._options.animation));
+            visualVariables.push(AnimationHelper.buildAnimationVisualVariable(columns, this._options.animation));
         }
 
         if (ProviderUtil.hasColorCategory(this._options.color, columns)) {

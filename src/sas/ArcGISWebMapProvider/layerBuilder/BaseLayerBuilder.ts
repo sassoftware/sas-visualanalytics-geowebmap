@@ -131,14 +131,6 @@ abstract class BaseLayerBuilder {
         return new PopupTemplate({title: this._options.title, content: [{type: "fields", fieldInfos}], fieldInfos: []}); 
     }
 
-    protected buildAnimationVisualVariable(columns:any[], animationColumnLabel:string):any {
-        const animationColumnName = ProviderUtil.getNameWithLabel(animationColumnLabel, columns);
-        return {
-            type: "opacity",
-            field: animationColumnName
-        };     
-    }
-
     protected validateRequiredOptions(optionNames:string[]):any {
 
         let message;
