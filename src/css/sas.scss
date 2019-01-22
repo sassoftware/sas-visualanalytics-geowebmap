@@ -1,4 +1,10 @@
+/* Note: flex params and auto height added solely to address Chrome Canary
+ * issue (73.0.3680.0) on 1/22/19 (re. .webmap-animating).
+ */
 .webmap-animating {
+  flex-grow: 1;     
+  flex-basis: 100%;
+  height: auto;
 }
 
 .animationControls {
