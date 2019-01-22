@@ -53,7 +53,7 @@ class SmartLegendHelper {
      * https://developers.arcgis.com/javascript/latest/sample-code/visualization-sm-color/index.html
      */
 
-    addSmartLegends(readiedFeatureLayer:FeatureLayer, mapView:View) {
+    addSmartLegends(readiedFeatureLayer:FeatureLayer, mapView:View):void {
 
         this.removeSmartLegends(mapView);
 
@@ -75,14 +75,6 @@ class SmartLegendHelper {
                     minValue: varStats.min,
                     maxValue: varStats.max,
                 });
-                expand = new Expand({expandIconClass: "esri-icon-question", view: mapView, content: slider, group: "bottom-right"}); 
-                mapView.ui.add(expand, "bottom-right");
-                this._activeLegends.push(expand);
-                on(
-                    slider, 
-                    "data-change", 
-                    this.buildOnSmartWidgetDataChangeSizeFunction(readiedFeatureLayer, slider)
-                );
 
             } else if (visualVariable.type === "color") {
 
@@ -95,21 +87,25 @@ class SmartLegendHelper {
                     maxValue: varStats.max,
                     numHandles: 3
                 });
+
+            }
+            
+            if (slider) {
                 expand = new Expand({expandIconClass: "esri-icon-question", view: mapView, content: slider, group: "bottom-right"}); 
                 mapView.ui.add(expand, "bottom-right");
                 this._activeLegends.push(expand);
                 on(
                     slider, 
                     "data-change", 
-                    this.buildOnSmartWidgetDataChangeColorFunction(readiedFeatureLayer, slider)
+                    this.buildOnSmartWidgetDataChangeFunction(readiedFeatureLayer, slider)
                 );
             }
 
-        }, this);
+        });
 
     }
 
-    expandTwoPartColorRange(stops:any[]) {
+    expandTwoPartColorRange(stops:any[]):void {
             if (stops && stops.length === 2) {
             const middleStop = {
                 value: (stops[1].value - stops[0].value) / 2 + stops[0].value,
@@ -119,15 +115,7 @@ class SmartLegendHelper {
         }
     }
 
-    private buildOnSmartWidgetDataChangeSizeFunction(layer:any, widget:any) {
-        return this.buildOnSmartWidgetDataChangeFunction(layer, widget, true);
-    }
-
-    private buildOnSmartWidgetDataChangeColorFunction(layer:any, widget:any) {
-        return this.buildOnSmartWidgetDataChangeFunction(layer, widget, false);
-    }
-
-    private buildOnSmartWidgetDataChangeFunction(layer:any, widget:any, setStops:any) {
+    private buildOnSmartWidgetDataChangeFunction(layer:any, widget:any):() => void {
         return () => {
             const renderer = layer.renderer.clone();
             renderer.visualVariables.splice(
@@ -156,7 +144,7 @@ class SmartLegendHelper {
         };
     }
 
-    private midColor(minColor:any, maxColor:any) {
+    private midColor(minColor:any, maxColor:any):Color {
 
         // Following yields a tri-part blend with white as the middle color:
         // Color.blendColors(new Color(minColor), new Color(maxColor));
@@ -187,7 +175,7 @@ class SmartLegendHelper {
         });
     }
 
-    private removeSmartLegends(mapView:any) {
+    private removeSmartLegends(mapView:any):void {
         this._activeLegends.forEach((legend:Legend) => { mapView.ui.remove(legend); });
         this._activeLegends = [];
     }

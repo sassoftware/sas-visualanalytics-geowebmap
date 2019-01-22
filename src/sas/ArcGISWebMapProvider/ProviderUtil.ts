@@ -106,11 +106,11 @@ class ProviderUtil {
         return (match) ? match.name : null;
     }
 
-    static logError(error: any) {
+    static logError(error: any):void {
         if (console && console.error) { console.error(error) };
     }
 
-    static publishMessage(msg: any) {
+    static publishMessage(msg: any):void {
         const target = window.parent || window;
         const targetOrigin = ProviderUtil.selectionPublicationTargetOrigin();
         if (target) {
@@ -134,7 +134,7 @@ class ProviderUtil {
     }
 
     // See also https://github.com/sassoftware/sas-visualanalytics-thirdpartyvisualizations.
-    static convertToEpochMS(value:any, sasFormat?:string) {
+    static convertToEpochMS(value:any, sasFormat?:string):number {
 
         let date:moment.Moment;
 

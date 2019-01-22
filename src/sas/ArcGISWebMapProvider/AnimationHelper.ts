@@ -26,7 +26,7 @@ import ProviderUtil from "sas/ArcGISWebMapProvider/ProviderUtil";
  */
 class AnimationHelper {
 
-    static buildAnimationVisualVariable(columns:any[], animationColumnLabel:string) {
+    static buildAnimationVisualVariable(columns:any[], animationColumnLabel:string):{type:string, field:string} {
         const animationColumnName = ProviderUtil.getNameWithLabel(animationColumnLabel, columns);
         return {
             type: "opacity",
@@ -65,13 +65,13 @@ class AnimationHelper {
         {period: "MS", format: "x"}
     ];
 
-    private static hasClonableRenderer(renderer:Renderer) {
+    private static hasClonableRenderer(renderer:Renderer):boolean {
         /* tslint:disable no-string-literal */
         return renderer && typeof renderer["clone"] === "function";
         /* tslint:enable */
     }
 
-    private static buildAnimationContext(updateAnimationValueFunction:any) {
+    private static buildAnimationContext(updateAnimationValueFunction:any):{remove: ()=>void} {
 
         let animating = true;
 
@@ -96,12 +96,12 @@ class AnimationHelper {
     private _sasLayer:FeatureLayer;
     private _period:any;
     private _periodFormat:any;
-    private _animationLabel:any;
-    private _animationPlayButton:any;
-    private _animationSlider:any;   
-    private _animationMin:any;
-    private _animationMax:any;
-    private _lastAnimationSliderValue:any;
+    private _animationLabel: HTMLElement | null;
+    private _animationPlayButton: HTMLInputElement | null;
+    private _animationSlider: HTMLInputElement | null;   
+    private _animationMin:number;
+    private _animationMax:number;
+    private _lastAnimationSliderValue:moment.Moment | null;
     private _animation:any;
 
     constructor(animationPeriod:any) {
@@ -109,8 +109,7 @@ class AnimationHelper {
         this.initializeAnimationControls();
     }
 
-
-    generateSampleAnimationData(result:any, colorColumnLabel:string, sizeColumnLabel:string, animationColumnLabel:string) {
+    generateSampleAnimationData(result:any, colorColumnLabel:string, sizeColumnLabel:string, animationColumnLabel:string):void {
         let colorIndex;
         /* tslint:disable prefer-conditional-expression */
         if (ProviderUtil.hasColorCategory(colorColumnLabel, result.columns)) { 
@@ -147,7 +146,7 @@ class AnimationHelper {
         }
     }
 
-    initializeAnimationData(event:any, animationColumnLabel:string) {
+    initializeAnimationData(event:any, animationColumnLabel:string):void {
         this._lastAnimationSliderValue = null;
         const animationIndex = ProviderUtil.getIndexWithLabel(animationColumnLabel, event.data.columns);
         this.convertDateColumn(event.data.data,animationIndex);
@@ -156,34 +155,34 @@ class AnimationHelper {
         this._animationMax = moment.utc(minMax[1]).endOf(this._period).valueOf(); 
     }
 
-    initializeAnimation(sasLayer:FeatureLayer) {
+    initializeAnimation(sasLayer:FeatureLayer):void {
         this._sasLayer = sasLayer;
         const slider = this.getAnimationSlider();
         this.processAnimationSliderValue((slider) ? slider.value : 0);
     }
 
-    private getAnimationSlider() { 
+    private getAnimationSlider(): HTMLInputElement | null { 
         if (!this._animationSlider) {
-            this._animationSlider = document.getElementById("animationSlider");
+            this._animationSlider = document.getElementById("animationSlider") as HTMLInputElement;
         }
         return this._animationSlider; 
     }
 
-    private getAnimationPlayButton() { 
+    private getAnimationPlayButton(): HTMLInputElement | null { 
         if (!this._animationPlayButton) {
-            this._animationPlayButton = document.getElementById("animationPlayButton");
+            this._animationPlayButton = document.getElementById("animationPlayButton") as HTMLInputElement;
         }
         return this._animationPlayButton; 
     }
 
-    private getAnimationLabel() {
+    private getAnimationLabel(): HTMLElement | null {
         if (!this._animationLabel) {
             this._animationLabel = document.getElementById("animationLabel");
         }
         return this._animationLabel;
     }
 
-    private initializeAnimationControls() {
+    private initializeAnimationControls():void {
 
         const sliderChangeHandler = (event:any) => { 
             this.stopAnimation();
@@ -191,28 +190,32 @@ class AnimationHelper {
         };
 
         const slider = this.getAnimationSlider();
-        slider.addEventListener("input", sliderChangeHandler);
-        slider.addEventListener("change", sliderChangeHandler);
+        if (slider) {
+            slider.addEventListener("input", sliderChangeHandler);
+            slider.addEventListener("change", sliderChangeHandler);
+        }
 
         const playButton = this.getAnimationPlayButton();
-        playButton.addEventListener("click", (e:any) => {
-            if (!this._animation) { 
-                this.startAnimation();
-            }
-            else {
-                this.stopAnimation();
-            }
-         });
+        if (playButton) {
+            playButton.addEventListener("click", (e:any) => {
+                if (!this._animation) { 
+                    this.startAnimation();
+                }
+                else {
+                    this.stopAnimation();
+                }
+            });
+        }
 
     }
 
-    private convertDateColumn(rows:any[], dateColumnIndex:number) {
+    private convertDateColumn(rows:any[], dateColumnIndex:number):void {
         rows.forEach((row) => {
             row[dateColumnIndex] = moment.utc(row[dateColumnIndex]).startOf(this._period).valueOf();
         });
     }
 
-    private resolvePeriodAndFormat(period:any) {
+    private resolvePeriodAndFormat(period:any):void {
         let found;
         if (period) {
             const option = period.toUpperCase();
@@ -222,17 +225,20 @@ class AnimationHelper {
         this._periodFormat = (found) ? found.format : "YYYY";
     }
 
-    private updateAnimationLabel(value:any) {
-        this.getAnimationLabel().innerHTML = (typeof value === "object" && "format" in value) ? value.format(this._periodFormat) : value;
+    private updateAnimationLabel(value:any):void {
+        const label = this.getAnimationLabel();
+        if (label) {
+            label.innerHTML = (typeof value === "object" && "format" in value) ? value.format(this._periodFormat) : value;
+        }
     }
 
-    private processAnimationSliderValue(animationSliderValue:any) {
+    private processAnimationSliderValue(animationSliderValue:any):void {
 
-        let animationValue = animationSliderValue / 100 * (this._animationMax - this._animationMin) + this._animationMin;
+        const animationEpochValue:number = animationSliderValue / 100 * (this._animationMax - this._animationMin) + this._animationMin;
 
-        animationValue = moment.utc(animationValue).startOf(this._period);
+        const animationValue:moment.Moment = moment.utc(animationEpochValue).startOf(this._period);
 
-        if (animationValue.isSame(this._lastAnimationSliderValue)) { 
+        if (this._lastAnimationSliderValue !== null && animationValue.isSame(this._lastAnimationSliderValue)) { 
              return;
         }
         
@@ -268,31 +274,40 @@ class AnimationHelper {
         
     }
 
-    private updateAnimationValue() {
+    private updateAnimationValue():void {
 
         const slider = this.getAnimationSlider();
+        if (!slider) {
+            return;
+        }
 
         const sliderMax = parseInt(slider.max, undefined);
         const sliderMin = parseInt(slider.min, undefined);
        
         const newValue = parseFloat(slider.value) + (sliderMax - sliderMin) / 1000.0;
-        slider.value = (newValue > sliderMax) ? sliderMin : newValue;
+        slider.value = (newValue > sliderMax) ? sliderMin.toString() : newValue.toString();
         
         this.processAnimationSliderValue(slider.value);
 
     }
 
-    private startAnimation() {
+    private startAnimation():void {
         this.stopAnimation();
-        this.getAnimationPlayButton().value = "||";
+        const button = this.getAnimationPlayButton();
+        if (button) {
+            button.value = "||";
+        }
         this._animation = AnimationHelper.buildAnimationContext(()=>{this.updateAnimationValue();});
     }
 
-    private stopAnimation() {
+    private stopAnimation():void {
         if (this._animation) {
             this._animation.remove();
             this._animation = null;
-            this.getAnimationPlayButton().value = ">>";
+            const button = this.getAnimationPlayButton();
+            if (button) {
+                button.value = ">>";
+            }
         }
     }
 

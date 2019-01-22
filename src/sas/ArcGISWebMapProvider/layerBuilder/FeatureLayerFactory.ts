@@ -25,7 +25,7 @@ import ProviderUtil from "sas/ArcGISWebMapProvider/ProviderUtil";
  */
 class FeatureLayerFactory {
 
-    static getInstance() {
+    static getInstance():FeatureLayerFactory {
         if (!FeatureLayerFactory._instance) {
             FeatureLayerFactory._instance = new FeatureLayerFactory();
         }

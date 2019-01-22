@@ -32,7 +32,7 @@ class SelectionHelper {
     private _selectionColumnName:string;   // Column of incoming dataset that is used to brush data
     private _highlights:any;
 
-    registerMapView(mapView:View, sasFeatureLayerId:string) {
+    registerMapView(mapView:View, sasFeatureLayerId:string):void {
 
         this._mapView = mapView;
         this._sasFeatureLayerId = sasFeatureLayerId;
@@ -56,7 +56,7 @@ class SelectionHelper {
 
     }
 
-    registerMapData(dataResultName:string, selectionColumnName:string, use3D:boolean) {
+    registerMapData(dataResultName:string, selectionColumnName:string):void {
         this._dataResultName = dataResultName;
         this._selectionColumnName = selectionColumnName;
     }
@@ -64,7 +64,7 @@ class SelectionHelper {
     /**
      * Processes selection state embedded in data incoming from VA.
      */
-    applySelectionsFromData(sasLayer:FeatureLayer) {
+    applySelectionsFromData(sasLayer:FeatureLayer):void {
 
         const view = this.getMapView();
 
@@ -103,7 +103,7 @@ class SelectionHelper {
     /**
      * Processes selection actions made on the map by the user.
      */
-    private onSelection(graphic:any) {
+    private onSelection(graphic:any):void {
 
         const isSasFeature = (graphic && graphic.layer && graphic.layer.id === this._sasFeatureLayerId);
 
@@ -129,11 +129,11 @@ class SelectionHelper {
 
     }
 
-    private clearSelections() {
+    private clearSelections():void {
         this.clearHighlights();
     }
 
-    private drawSelection(graphics:any, layerView?:any) {
+    private drawSelection(graphics:any, layerView?:FeatureLayerView):void {
         if (!graphics) { return; }
         graphics = (Array.isArray(graphics)) ? graphics : [graphics];
         this.drawHighlights(graphics, layerView);
@@ -146,7 +146,7 @@ class SelectionHelper {
         }
     }
 
-    private drawHighlights(graphics:Graphic[], layerView:FeatureLayerView):void {
+    private drawHighlights(graphics:Graphic[], layerView?:FeatureLayerView):void {
         this.clearHighlights();
         if (layerView && graphics && graphics.length > 0) {
             this._highlights = layerView.highlight(graphics);

@@ -43,8 +43,8 @@ class ArcGISVisualizationBridge {
     private _selectionHelper: SelectionHelper;
     private _smartLegendHelper: SmartLegendHelper;
     private _lastMessageReceivedBeforeMapViewRegistered: object | null;
-    private _hasUserPanned: boolean = false; // Tagged to allow automatically fitting extent to data 
-    // unless the user has manually panned.
+    /* Allows automatically fitting extent to data unless user manually panned. */
+    private _hasUserPanned: boolean = false;  
     private _warningControl: Expand;
     private _warning: string;
 
@@ -117,7 +117,7 @@ class ArcGISVisualizationBridge {
 
     }
 
-    registerMapView(mapView: View) {
+    registerMapView(mapView: View):void {
 
         this._mapView = mapView;
 
@@ -174,7 +174,7 @@ class ArcGISVisualizationBridge {
         return this._mapView;
     }
 
-    private onMessage(event: any) {
+    private onMessage(event: any):void {
         if (!this.getMapView()) {
             this._lastMessageReceivedBeforeMapViewRegistered = event;
         }
@@ -186,7 +186,7 @@ class ArcGISVisualizationBridge {
     /**
      * Builds a SAS feature layer from the incoming data.
      */
-    private processMessageEvent(event: any) {
+    private processMessageEvent(event: any):void {
         if (event.data && event.data.columns && event.data.data) {
 
             this.setWarning(null);
@@ -198,8 +198,7 @@ class ArcGISVisualizationBridge {
 
             this._selectionHelper.registerMapData(
                 event.data.resultName, // Identifier for incoming data set.
-                ProviderUtil.getNameWithUsage("brush", event.data.columns), // Name of column with selection brushing boolean.
-                this._options.use3D
+                ProviderUtil.getNameWithUsage("brush", event.data.columns) // Name of column with selection brushing boolean.
             );
 
             this.purgeSasIdiom(event.data.data, event.data.columns);
@@ -230,7 +229,7 @@ class ArcGISVisualizationBridge {
         }
     }
 
-    private addOrReplaceSasLayer(sasLayer: any) {
+    private addOrReplaceSasLayer(sasLayer: FeatureLayer):void {
 
         const view = this.getMapView();
         const map = (view) ? view.map : null;
@@ -285,7 +284,7 @@ class ArcGISVisualizationBridge {
         }
     }
 
-    private removeSasLayer() {
+    private removeSasLayer():void {
 
         const view = this.getMapView();
         const map = (view) ? view.map : null;
@@ -300,7 +299,7 @@ class ArcGISVisualizationBridge {
         }
     }
 
-    private purgeSasIdiom(rows: any, columns: any) {
+    private purgeSasIdiom(rows: any[], columns: any[]):void {
 
         let i:number;
         let j:number;
@@ -320,7 +319,7 @@ class ArcGISVisualizationBridge {
 
     }
 
-    private convertDates(rows: any, columns: any) {
+    private convertDates(rows: any[], columns: any[]):void {
 
         let i:number;
         let j:number;
@@ -346,7 +345,7 @@ class ArcGISVisualizationBridge {
      * So you display only the single feature and anything that intersects it
      * (by attribute, not geometry).
      */
-    private applyFilterToAllLayersWithGeoIDs(whereClause: any) {
+    private applyFilterToAllLayersWithGeoIDs(whereClause:string|null|undefined):void {
         if (whereClause && whereClause.length > 0) {
             this.getMapView().map.allLayers.forEach((layer: any) => {
 
@@ -365,7 +364,7 @@ class ArcGISVisualizationBridge {
         }
     }
 
-    private validateFeaturesMax(graphics: any, maximum: any) {
+    private validateFeaturesMax(graphics: any[], maximum: any):boolean {
 
         let warning = "";
 
@@ -380,7 +379,7 @@ class ArcGISVisualizationBridge {
         return warning.length === 0;
     }
 
-    private validateOptions() {
+    private validateOptions():boolean {
         const builder = FeatureLayerFactory.getInstance().createLayerBuilder(this._options, [], []);
         const warning = builder.validateOptions();
         this.appendWarning(warning);
@@ -402,25 +401,25 @@ class ArcGISVisualizationBridge {
         return this._warningControl;
     }
 
-    private setWarning(warning: any) {
+    private setWarning(warning: any):void {
         if (this._warning !== warning) {
             this._warning = warning;
             this.displayWarning(this._warning);
         }
     }
 
-    private getWarning() {
+    private getWarning():any {
         return this._warning;
     }
 
-    private appendWarning(warning: any) {
+    private appendWarning(warning: any):void {
         if (warning && warning.length > 0) {
             const current = this.getWarning();
             this.setWarning(((current && current.length > 0) ? " " : "") + warning);
         }
     }
 
-    private displayWarning(warning: any) {
+    private displayWarning(warning: any):void {
         const control = this.getWarningControl();
         if (warning && warning.length > 0) {
             if (control.content && control.content instanceof Element) {
@@ -436,7 +435,7 @@ class ArcGISVisualizationBridge {
     /**
      * Adapted from ArcGIS examples.
      */
-    private goToDataExtent(sasLayer: FeatureLayer) {
+    private goToDataExtent(sasLayer: FeatureLayer):void {
         this.forDataExtent(sasLayer, (results: any) => {
             (this.getMapView() as any).goTo(results.extent, {
                 animate: false
@@ -444,7 +443,7 @@ class ArcGISVisualizationBridge {
         });
     }
 
-    private forDataExtent(sasLayer: FeatureLayer, queryExtentResultsHandler: any) {
+    private forDataExtent(sasLayer: FeatureLayer, queryExtentResultsHandler: any):void {
         const goToLayer = (layer: any) => {
             layer.queryExtent().then((results: any) => {
                 queryExtentResultsHandler(results);
