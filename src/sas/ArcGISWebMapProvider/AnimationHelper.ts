@@ -125,7 +125,7 @@ class AnimationHelper {
         for (let x = 0; x < initialLength; ++x) {
             for (let y = 1; y < 11; ++y) {  // Add ten years of sample data.
                 const clone = result.data[x].slice();
-                clone[animationIndex] = moment(ProviderUtil.convertToEpochMS(clone[animationIndex],result.columns[animationIndex].format.formatString)).startOf(this._period).add(y,this._period).valueOf();
+                clone[animationIndex] = moment.utc(ProviderUtil.convertToEpochMS(clone[animationIndex],result.columns[animationIndex].format.formatString)).startOf(this._period).add(y,this._period).valueOf();
                 if (colorIndex > -1) {
                     clone[colorIndex] = clone[colorIndex] * y;
                     if (isNaN(clone[colorIndex])) {
@@ -151,8 +151,8 @@ class AnimationHelper {
         const animationIndex = ProviderUtil.getIndexWithLabel(animationColumnLabel, event.data.columns);
         this.convertDateColumn(event.data.data,animationIndex);
         const minMax = ProviderUtil.findMinMax(event.data.data,animationIndex);  
-        this._animationMin = moment(minMax[0]).startOf(this._period).valueOf();
-        this._animationMax = moment(minMax[1]).endOf(this._period).valueOf(); 
+        this._animationMin = moment.utc(minMax[0]).startOf(this._period).valueOf();
+        this._animationMax = moment.utc(minMax[1]).endOf(this._period).valueOf(); 
     }
 
     initializeAnimation(sasLayer:FeatureLayer) {
@@ -207,7 +207,7 @@ class AnimationHelper {
 
     private convertDateColumn(rows:any[], dateColumnIndex:number) {
         rows.forEach((row) => {
-            row[dateColumnIndex] = moment(row[dateColumnIndex]).startOf(this._period).valueOf();
+            row[dateColumnIndex] = moment.utc(row[dateColumnIndex]).startOf(this._period).valueOf();
         });
     }
 
@@ -229,7 +229,7 @@ class AnimationHelper {
 
         let animationValue = animationSliderValue / 100 * (this._animationMax - this._animationMin) + this._animationMin;
 
-        animationValue = moment(animationValue).startOf(this._period);
+        animationValue = moment.utc(animationValue).startOf(this._period);
 
         if (animationValue.isSame(this._lastAnimationSliderValue)) { 
              return;

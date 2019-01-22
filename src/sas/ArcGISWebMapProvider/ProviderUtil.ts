@@ -139,13 +139,13 @@ class ProviderUtil {
         let date:moment.Moment;
 
         if (sasFormat === "DDMMYY8" && typeof value === "string") {
-            date = moment(value, "DD/MM/YYYY");
+            date = moment.utc(value, "DD/MM/YYYY");
         }
         else if (sasFormat === "DATE9" && typeof value === "string") { 
-            date = moment(value, "DDMMMYYYY");
+            date = moment.utc(value, "DDMMMYYYY");
         }
         else {
-            date = moment(value);
+            date = moment.utc(value);
         }
 
         return date.valueOf(); // Milliseconds since Jan. 1, 1970, UTC.
