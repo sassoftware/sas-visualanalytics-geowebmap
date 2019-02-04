@@ -87,9 +87,14 @@ class ProviderUtil {
     }
 
     static getNameWithLabel(label: string, columns: any[]): string {
-        const match = columns.find((column: any) => {
-            return column && column.label === label;
+        let match = columns.find((column: any) => { 
+            return column && column.name === label;
         });
+        if (!match) {
+            match = columns.find((column: any) => {
+                return column && column.label === label;
+            });
+        }
         return (match) ? match.name : null;
     }
 
