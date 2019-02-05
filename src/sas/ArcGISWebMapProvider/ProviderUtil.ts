@@ -26,6 +26,7 @@ class ProviderUtil {
     static VISUALIZATION_TYPE_CHOROPLETH:string = "CHOROPLETH";
     static FIELD_NAME_OBJECT_ID:string = "ObjectId";
     static SAS_FEATURE_LAYER_ID:string = "_sasFeatureLayerId";
+    static DEFAULT_PORTAL_URL:string = "http://www.arcgis.com";
 
     static isValidCoordinate(n: any): boolean {
         return !isNaN(n) && n !== null;

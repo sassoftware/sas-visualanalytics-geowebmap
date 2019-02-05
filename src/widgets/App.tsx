@@ -30,6 +30,7 @@ import { renderable, tsx } from "esri/widgets/support/widget";
 
 
 
+import IdentityManager from "esri/identity/IdentityManager";
 import FeatureLayer from "esri/layers/FeatureLayer";
 import EsriMap from "esri/Map";
 import MapView from "esri/views/MapView";
@@ -100,33 +101,46 @@ export default class App extends declared(Widget) {
     import("esri/layers/graphics/sources/support/MemorySourceWorker").then(({MemorySourceWorker}) => { // See https://github.com/Esri/arcgis-webpack-plugin/issues/26, 12/19/18.
       import("./../data/app").then(({ options, visualizationBridge, map }) => {
 
-        if (options.animation) {
-          this.animation = true;
-        }
-
-        this.visualizationBridge = visualizationBridge;
-        this.map = map;
-
-        if (options.use3D) {
-          this.view = new SceneView({
-            map,
-            container: element
-          });
-        }
-        else {
-          this.view = new MapView({
-            map,
-            container: element
+        if (options.portalToken) {
+          IdentityManager.registerToken({
+            token: options.portalToken,
+            server: (options.portalUrl) ? options.portalUrl : ProviderUtil.DEFAULT_PORTAL_URL
           });
         }
 
-        this.view.when((view:View)=>{
-          visualizationBridge.registerMapView(view);
-        }, (error:any)=>{
-          ProviderUtil.logError(error);
-        });
+        this.buildMap(element, options, visualizationBridge, map);
 
       });
     });
+  }
+
+  private buildMap(element: HTMLDivElement, options:any, visualizationBridge:ArcGISVisualizationBridge, map:EsriMap) {
+
+    if (options.animation) {
+      this.animation = true;
+    }
+
+    this.visualizationBridge = visualizationBridge;
+    this.map = map;
+
+    if (options.use3D) {
+      this.view = new SceneView({
+        map,
+        container: element
+      });
+    }
+    else {
+      this.view = new MapView({
+        map,
+        container: element
+      });
+    }
+
+    this.view.when((view:View)=>{
+      visualizationBridge.registerMapView(view);
+    }, (error:any)=>{
+      ProviderUtil.logError(error);
+    });
+
   }
 }

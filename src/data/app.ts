@@ -36,7 +36,8 @@ export const map = (()=>{
     if (options.portalItemId) {
         _map = new WebMap({
             portalItem: {
-                id: options.portalItemId
+                id: options.portalItemId,
+                url: (options.portalUrl) ? options.portalUrl : null
             }
         });
     } else {
