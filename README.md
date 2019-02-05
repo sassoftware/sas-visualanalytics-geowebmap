@@ -16,6 +16,14 @@ This project presents a web page with an ArcGIS map designed to serve as a data-
 * `npm run build`
 * Copy the built application from the `dist` directory to your web server's directory.
 
+#### Prerequisites
+
+* Installation requires [node](http://nodejs.org) version 8.x.x or higher.  You can check your current version with `node --version`.
+
+#### Other options
+
+* Run `npm run start` to compile and then kick off a webpack-dev-server to host the results locally for immediate testing.
+
 ## Application
 
 ### Overview
