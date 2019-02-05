@@ -18,11 +18,11 @@ This project presents a web page with an ArcGIS map designed to serve as a data-
 
 #### Prerequisites
 
-* Installation requires [node](http://nodejs.org) version 8.x.x or higher.  You can check your current version with `node --version`.
+Installation requires [node](http://nodejs.org) version 8.x.x or higher.  You can check your current version with `node --version`.
 
 #### Other options
 
-* Run `npm run start` to compile and then kick off a webpack-dev-server to host the results locally for immediate testing.
+Run `npm run start` to compile and then kick off a webpack-dev-server to host the results locally for immediate testing.
 
 ## Application
 
