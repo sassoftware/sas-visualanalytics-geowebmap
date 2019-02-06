@@ -66,9 +66,13 @@ class AppViewModel extends declared(Accessor) {
     const basemapExpand = new Expand({expandIconClass: "esri-icon-basemap", view: this.view, content: basemapGallery, group: "top-right"});
     this.view.ui.add(basemapExpand, "top-right");
 
+    this.view.ui.move("zoom", "top-right");
+    this.view.ui.move("navigation-toggle", "top-right");
+    this.view.ui.move("compass", "top-right");
+
     const search = new Search({view, container: document.createElement("div")});
     const searchExpand = new Expand({expandIconClass: "esri-icon-search", view: this.view, content: search});
-    this.view.ui.add(searchExpand, "bottom-left");
+    this.view.ui.add(searchExpand, "top-left");
 
   }
 

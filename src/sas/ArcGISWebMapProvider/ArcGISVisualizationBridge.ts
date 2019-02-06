@@ -130,9 +130,9 @@ class ArcGISVisualizationBridge {
                 expandIconClass: "esri-icon-question",
                 view: this._mapView,
                 content: this._sasLegend,
-                group: "bottom-right"
+                group: "bottom-left"
             });
-            this._mapView.ui.add(legendExpand, "bottom-right");
+            this._mapView.ui.add(legendExpand, "bottom-left");
         }
 
         // If using sample data, load it.

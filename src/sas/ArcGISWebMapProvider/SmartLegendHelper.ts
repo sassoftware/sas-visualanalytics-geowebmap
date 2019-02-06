@@ -91,8 +91,8 @@ class SmartLegendHelper {
             }
             
             if (slider) {
-                expand = new Expand({expandIconClass: "esri-icon-question", view: mapView, content: slider, group: "bottom-right"}); 
-                mapView.ui.add(expand, "bottom-right");
+                expand = new Expand({expandIconClass: "esri-icon-question", view: mapView, content: slider, group: "bottom-left"}); 
+                mapView.ui.add(expand, "bottom-left");
                 this._activeLegends.push(expand);
                 on(
                     slider, 
