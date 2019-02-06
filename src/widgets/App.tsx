@@ -97,6 +97,10 @@ export default class App extends declared(Widget) {
     );
   }
 
+  private getPortalUrl(options:any):string {
+    return (options.portalUrl) ? options.portalUrl : ProviderUtil.DEFAULT_PORTAL_URL;
+  }
+
   private onAfterCreate(element: HTMLDivElement) {
     import("esri/layers/graphics/sources/support/MemorySourceWorker").then(({MemorySourceWorker}) => { // See https://github.com/Esri/arcgis-webpack-plugin/issues/26, 12/19/18.
       import("./../data/app").then(({ options, visualizationBridge, map }) => {
@@ -104,11 +108,38 @@ export default class App extends declared(Widget) {
         if (options.portalToken) {
           IdentityManager.registerToken({
             token: options.portalToken,
-            server: (options.portalUrl) ? options.portalUrl : ProviderUtil.DEFAULT_PORTAL_URL
+            server: this.getPortalUrl(options)
           });
+          this.buildMap(element, options, visualizationBridge, map);
         }
-
-        this.buildMap(element, options, visualizationBridge, map);
+        // The following branch is useful for testing, but not 
+        // recommended for deployment.  Commented out.
+        // else if (options.username && options.password) {
+        //   const server = this.getPortalUrl(options);
+        //   IdentityManager.checkSignInStatus(server).then((success)=>{
+        //     this.buildMap(element, options, visualizationBridge, map);
+        //   },(failure)=>{
+        //     const serverInfo = IdentityManager.findServerInfo(server);
+        //     IdentityManager.generateToken(
+        //         serverInfo,
+        //         {
+        //             username: options.username,
+        //             password: options.password
+        //         } 
+        //     ).then((token: any) => {
+        //         if (token && !token.server) {
+        //             token.server = serverInfo.server; 
+        //         } 
+        //         IdentityManager.registerToken(token); 
+        //         this.buildMap(element, options, visualizationBridge, map); 
+        //     }, (error) => {
+        //       ProviderUtil.logError(error);
+        //     }); 
+        //   });
+        // }
+        else {
+          this.buildMap(element, options, visualizationBridge, map);
+        }
 
       });
     });
