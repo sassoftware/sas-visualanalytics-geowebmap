@@ -100,9 +100,15 @@ class ProviderUtil {
     }
 
     static getIndexWithLabel(label: string, columns: any[]): number {
-        return columns.findIndex((column: any) => {
-            return column && column.label === label;
+        let index:number = columns.findIndex((column: any) => {
+            return column && column.name === label;
         });
+        if (index === -1) {
+            index = columns.findIndex((column: any) => {
+                return column && column.label === label;
+            });
+        }
+        return index;
     }
 
     static getNameWithUsage(usage: string, columns: any[]): string {
