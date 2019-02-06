@@ -47,6 +47,7 @@ class ArcGISVisualizationBridge {
     private _hasUserPanned: boolean = false;  
     private _warningControl: Expand;
     private _warning: string;
+    private _dataResultName:string;
 
     constructor(visualizationOptions: any) {
 
@@ -189,6 +190,7 @@ class ArcGISVisualizationBridge {
     private processMessageEvent(event: any):void {
         if (event.data && event.data.columns && event.data.data) {
 
+            this._dataResultName = event.data.resultName;
             this.setWarning(null);
 
             if (!this.validateOptions() || !this.validateFeaturesMax(event.data.data, this._options.featuresMax)) {
@@ -197,7 +199,7 @@ class ArcGISVisualizationBridge {
             }
 
             this._selectionHelper.registerMapData(
-                event.data.resultName, // Identifier for incoming data set.
+                this._dataResultName, // Identifier for incoming data set.
                 ProviderUtil.getNameWithUsage("brush", event.data.columns) // Name of column with selection brushing boolean.
             );
 
