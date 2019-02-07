@@ -60,7 +60,8 @@ class ArcGISVisualizationBridge {
         this._options.visualizationType = (this._options.visualizationType) ? this._options.visualizationType.toUpperCase() : null;
         if (this._options.visualizationType !== ProviderUtil.VISUALIZATION_TYPE_SCATTER &&
             this._options.visualizationType !== ProviderUtil.VISUALIZATION_TYPE_BUBBLE &&
-            this._options.visualizationType !== ProviderUtil.VISUALIZATION_TYPE_CHOROPLETH) {
+            this._options.visualizationType !== ProviderUtil.VISUALIZATION_TYPE_CHOROPLETH &&
+            this._options.visualizationType !== ProviderUtil.VISUALIZATION_TYPE_FILTERED) {
             if (this._options.geoId) {
                 this._options.visualizationType = ProviderUtil.VISUALIZATION_TYPE_CHOROPLETH;
             }

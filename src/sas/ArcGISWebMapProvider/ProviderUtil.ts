@@ -24,6 +24,7 @@ class ProviderUtil {
     static VISUALIZATION_TYPE_SCATTER:string = "SCATTER";
     static VISUALIZATION_TYPE_BUBBLE:string = "BUBBLE";
     static VISUALIZATION_TYPE_CHOROPLETH:string = "CHOROPLETH";
+    static VISUALIZATION_TYPE_FILTERED:string = "FILTERED";
     static FIELD_NAME_OBJECT_ID:string = "ObjectId";
     static SAS_FEATURE_LAYER_ID:string = "_sasFeatureLayerId";
     static DEFAULT_PORTAL_URL:string = "http://www.arcgis.com";
@@ -132,15 +133,11 @@ class ProviderUtil {
 
     static sqlEscape(values: any): any {
 
-        const quoteAndEscape = (v:any) => {
-            return "'" + ProviderUtil.sqlEscapeImpl(v) + "'";
-        };
-
         if (!Array.isArray(values)) {
-            return quoteAndEscape(values);
+            return ProviderUtil.sqlEscapeImpl(values);
         }
         else {
-            return values.map(quoteAndEscape);
+            return values.map(ProviderUtil.sqlEscapeImpl);
         }
 
     }
@@ -182,7 +179,7 @@ class ProviderUtil {
             return value;
         }
 
-        return value.replace(/[\0\x08\x09\x1a\n\r"'\\%]/g,  (char:string):string => { // eslint-disable-line no-control-regex
+        return "'" + value.replace(/[\0\x08\x09\x1a\n\r"'\\%]/g,  (char:string):string => { // eslint-disable-line no-control-regex
             switch (char) {
                 case "\0":
                     return "\\0";
@@ -205,7 +202,7 @@ class ProviderUtil {
                 default:
                     return char;
             }
-        });
+        }) + "'";
     }
 
     // Credit to: http://axonflux.com/handy-rgb-to-hsl-and-rgb-to-hsv-color-model-c

@@ -17,13 +17,14 @@ limitations under the License.
 import BaseLayerBuilder from "sas/ArcGISWebMapProvider/layerBuilder/BaseLayerBuilder";
 import BubbleLayerBuilder from "sas/ArcGISWebMapProvider/layerBuilder/BubbleLayerBuilder";
 import ChoroplethLayerBuilder from "sas/ArcGISWebMapProvider/layerBuilder/ChoroplethLayerBuilder";
+import FilteredLayerBuilder from "sas/ArcGISWebMapProvider/layerBuilder/FilteredLayerBuilder";
 import ScatterLayerBuilder from "sas/ArcGISWebMapProvider/layerBuilder/ScatterLayerBuilder";
 import ProviderUtil from "sas/ArcGISWebMapProvider/ProviderUtil";
 
 /**
  * Builds a feature layer.
  */
-class FeatureLayerFactory {
+class FeatureLayerFactory { 
 
     static getInstance():FeatureLayerFactory {
         if (!FeatureLayerFactory._instance) {
@@ -43,6 +44,8 @@ class FeatureLayerFactory {
                 return new BubbleLayerBuilder(options, rows, columns);
             case ProviderUtil.VISUALIZATION_TYPE_CHOROPLETH:
                 return new ChoroplethLayerBuilder(options, rows, columns);
+            case ProviderUtil.VISUALIZATION_TYPE_FILTERED:
+                return new FilteredLayerBuilder(options, rows, columns);
             default: 
                 return new ScatterLayerBuilder(options, rows, columns);
         }

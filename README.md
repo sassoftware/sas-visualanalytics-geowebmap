@@ -36,7 +36,7 @@ Data-driven content aggregates report data.  Keep this in mind when including lo
 
 | Argument | Description |
 | --- | --- |
-| visualizationType | Optional.  Possible values include "scatter", "bubble", or "choropleth".  If unspecified, the value will be inferred from other arguments or left as "scatter". |
+| visualizationType | Optional.  Possible values include "scatter", "bubble", "choropleth," or "filtered".  If unspecified, the value will be inferred from other arguments or left as "scatter". Scatter plots, bubble plots, and choropleths appear as a SAS layer, capable of participating in filtering, interactions, and selection.  "Filtered" layers simply include a named external feature layer filtered by geoId. |
 | x | The label of the column containing longitude expressed in the same terms as the base map.  Defaults to "Longitude".  Required for scatter and bubble visualizations. |
 | y | The label of the column containing latitude expressed in the same terms as the base map.  Defaults to "Latitude".   Required for scatter and bubble visualizations. |
 | size | The label of the column containing the size measurement.  Required for bubble visualizations. |
@@ -45,9 +45,9 @@ Data-driven content aggregates report data.  Keep this in mind when including lo
 | colorMin | A hex, rgba, or named color for the minimum value of the range.  Defaults to "#bfe4e7" (also expressed, for example, as "rgba(191,228,231,1)", which is somewhat close to "LightCyan"). |
 | colorMax | A hex, rgba, or named color for the minimum value of the range.  Defaults to "#00929f".  Also controls dot color for the scatter plot as well as default color for the choropleth (when no color column is assigned). |
 | outline | A hex, rgba, or named color for an outline on drawn shapes.  Defaults to "#007E88".  Also controls highlight color for 3D views. |
-| geoId | The label of the column containing the geographic identifiers for the areas to be drawn.  Required for choropleth. |
-| featureServiceUrl | The url to the Esri feature service containing the shapes of the geographies identified by the geoId.  Required for choropleth. |
-| featureServiceGeoId | The name of the attribute in the Esri feature service that will match values found in the geoId column of the VA data.  Required for choropleth. |
+| geoId | The label of the column containing the geographic identifiers for the areas to be drawn.  Required for choropleth and "filtered". |
+| featureServiceUrl | The url to the Esri feature service containing the shapes of the geographies identified by the geoId.  Required for choropleth and "filtered". |
+| featureServiceGeoId | The name of the attribute in the Esri feature service that will match values found in the geoId column of the VA data.  Required for choropleth and "filtered". |
 | featureServiceWhere | A where clause to be provided to the Esri feature service that filters results.  Optional. |
 | featureServiceMaxAllowableOffset | The optional maxAllowableOffset provided to the feature service.  Can be used to restrict the amount of detail (and thus transmission size) of the geographic shapes it returns. |
 | portalItemId | The ID for a web map served at arcgis.com.  Optional.  Defaults to basemap "osm" (OpenStreetMap). |
