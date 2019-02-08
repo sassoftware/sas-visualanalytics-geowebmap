@@ -32,7 +32,7 @@ import { renderable, tsx } from "esri/widgets/support/widget";
 
 import IdentityManager from "esri/identity/IdentityManager";
 import FeatureLayer from "esri/layers/FeatureLayer";
-import EsriMap from "esri/Map";
+import Map from "esri/Map";
 import MapView from "esri/views/MapView";
 import SceneView from "esri/views/SceneView";
 import View from "esri/views/View";
@@ -60,7 +60,7 @@ export default class App extends declared(Widget) {
 
   @aliasOf("viewModel.featureLayer") featureLayer: FeatureLayer;
 
-  @aliasOf("viewModel.map") map: EsriMap;
+  @aliasOf("viewModel.map") map: Map;
 
   @aliasOf("viewModel.view") view: View;
 
@@ -145,7 +145,7 @@ export default class App extends declared(Widget) {
     });
   }
 
-  private buildMap(element: HTMLDivElement, options:any, visualizationBridge:ArcGISVisualizationBridge, map:EsriMap) {
+  private buildMap(element: HTMLDivElement, options:any, visualizationBridge:ArcGISVisualizationBridge, map:Map) {
 
     if (options.animation) {
       this.animation = true;
@@ -154,7 +154,7 @@ export default class App extends declared(Widget) {
     this.visualizationBridge = visualizationBridge;
     this.map = map;
 
-    if (options.use3D) {
+    if (options.use3D || options.useWebScene) {
       this.view = new SceneView({
         map,
         container: element

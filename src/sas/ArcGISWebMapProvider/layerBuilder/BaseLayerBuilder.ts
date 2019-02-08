@@ -164,9 +164,14 @@ abstract class BaseLayerBuilder {
             spatialReference: {
                 wkid: 4326
             },
+            elevationInfo: this.buildElevationInfo(),
             geometryType: "point", 
             popupTemplate: this.createGenericUnformattedPopupTemplate(this._columns)
         });
+    }
+
+    protected buildElevationInfo():{mode:string} {
+        return {mode: (this._options.useWebScene || this._options.use3D)?"on-the-ground":"relative-to-ground"};
     }
 
     // Validates lat/long data (for scatter and bubble).
