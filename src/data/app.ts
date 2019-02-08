@@ -14,9 +14,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import EsriMap from "esri/Map";
-import WebMap from "esri/WebMap";
-import WebScene from "esri/WebScene";
 import ArcGISVisualizationBridge from 'sas/ArcGISWebMapProvider/ArcGISVisualizationBridge'; 
 
 export const options = (()=>{
@@ -25,35 +22,10 @@ export const options = (()=>{
   const _options = url.query || {};
   _options.basemap = _options.basemap || "osm";
   _options.use3D = (_options.use3D && _options.use3D.toUpperCase() === "TRUE");
-  _options.useWebScene = (_options.useWebScene && _options.useWebScene.toUpperCase() === "TRUE");
+  _options.useWebScene = false;
   return _options;
 })();
 
 export const visualizationBridge = new ArcGISVisualizationBridge(options);
 
 export const featureLayer = null; 
-
-export const map = (()=>{
-    let _map;
-    if (options.useWebScene && options.portalItemId) {
-        _map = new WebScene({
-            portalItem: {
-                id: options.portalItemId,
-                url: (options.portalUrl) ? options.portalUrl : null
-            }
-        });
-    } else if (options.portalItemId) {
-        _map = new WebMap({
-            portalItem: {
-                id: options.portalItemId,
-                url: (options.portalUrl) ? options.portalUrl : null
-            }
-        });
-    } else {
-        _map = new EsriMap({
-            basemap: options.basemap,
-            // ground: "world-elevation" // May no longer need.
-        });
-    }
-    return _map;
-})();

@@ -14,6 +14,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+/// <amd-dependency path="dojo/Deferred" name="Deferred" />
+declare const Deferred:any;
+
 /* tslint:disable: no-unused-expression */
 import __forceLoad = require("esri/layers/graphics/sources/support/MemorySourceWorker"); __forceLoad; // See https://github.com/Esri/arcgis-webpack-plugin/issues/26, 12/19/18.
 /* tslint:enable */
@@ -28,14 +31,15 @@ import {
 } from "esri/core/accessorSupport/decorators";
 import { renderable, tsx } from "esri/widgets/support/widget";
 
-
-
 import IdentityManager from "esri/identity/IdentityManager";
 import FeatureLayer from "esri/layers/FeatureLayer";
 import Map from "esri/Map";
+import PortalItem from "esri/portal/PortalItem";
 import MapView from "esri/views/MapView";
 import SceneView from "esri/views/SceneView";
 import View from "esri/views/View";
+import WebMap from "esri/WebMap";
+import WebScene from "esri/WebScene";
 import Widget from "esri/widgets/Widget";
 import ArcGISVisualizationBridge from "sas/ArcGISWebMapProvider/ArcGISVisualizationBridge";
 import ProviderUtil from "sas/ArcGISWebMapProvider/ProviderUtil";
@@ -103,14 +107,20 @@ export default class App extends declared(Widget) {
 
   private onAfterCreate(element: HTMLDivElement) {
     import("esri/layers/graphics/sources/support/MemorySourceWorker").then(({MemorySourceWorker}) => { // See https://github.com/Esri/arcgis-webpack-plugin/issues/26, 12/19/18.
-      import("./../data/app").then(({ options, visualizationBridge, map }) => {
+      import("./../data/app").then(({ options, visualizationBridge }) => {
+
+        if (options.animation) {
+          this.animation = true;
+        }
+        this.options = options;
+        this.visualizationBridge = visualizationBridge;
 
         if (options.portalToken) {
           IdentityManager.registerToken({
             token: options.portalToken,
             server: this.getPortalUrl(options)
           });
-          this.buildMap(element, options, visualizationBridge, map);
+          this.buildMap(element);
         }
         // The following branch is useful for testing, but not 
         // recommended for deployment.  Commented out.
@@ -138,37 +148,74 @@ export default class App extends declared(Widget) {
         //   });
         // }
         else {
-          this.buildMap(element, options, visualizationBridge, map);
+          this.buildMap(element);
         }
 
       });
     });
   }
 
-  private buildMap(element: HTMLDivElement, options:any, visualizationBridge:ArcGISVisualizationBridge, map:Map) {
+  private loadPortalItem(portalItemId?:string, portalUrl?:string):IPromise<PortalItem|null> {
 
-    if (options.animation) {
-      this.animation = true;
+    if (portalItemId) {
+      return new PortalItem({
+          id: portalItemId,
+          url: (portalUrl) ? portalUrl : undefined
+      }).load();
+    }
+    else {
+      const portalItem = new Deferred();
+      portalItem.resolve();
+      return portalItem.promise;
     }
 
-    this.visualizationBridge = visualizationBridge;
-    this.map = map;
+  }
 
-    if (options.use3D || options.useWebScene) {
+  private buildMap(element: HTMLDivElement) {
+
+    this.loadPortalItem(this.options.portalItemId, this.options.portalUrl).then(
+      
+      (portalItem:PortalItem) => {
+
+        if (portalItem && (portalItem.type === "Web Scene" || portalItem.type === "CityEngine Web Scene")) { 
+            this.options.useWebScene = true;
+            this.map = new WebScene({portalItem});
+        } else if (portalItem) {
+            this.map = new WebMap({portalItem});
+        } else {
+            this.map = new Map({
+                basemap: this.options.basemap,
+                // ground: "world-elevation" // May no longer need.
+            });
+        }
+
+        this.buildMapView(element);
+
+      },
+
+      (error:any) => {ProviderUtil.logError(error);}
+
+    );
+
+  }
+
+  private buildMapView(element: HTMLDivElement) {
+
+    if (this.options.use3D || this.map instanceof WebScene) {
       this.view = new SceneView({
-        map,
-        container: element
+        map: this.map,
+        container: element // Bound to Html.
       });
     }
     else {
       this.view = new MapView({
-        map,
-        container: element
+        map: this.map,
+        container: element // Bound to Html.
       });
     }
 
     this.view.when((view:View)=>{
-      visualizationBridge.registerMapView(view);
+      this.visualizationBridge.registerMapView(view);
     }, (error:any)=>{
       ProviderUtil.logError(error);
     });
