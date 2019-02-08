@@ -54,7 +54,7 @@ Data-driven content aggregates report data.  Keep this in mind when including lo
 | portalToken | The Esri token string that can be presented to the portal for access. |
 | portalUrl | The full URL to the portal hosting the portal item and validating the portalToken, if one is presented.  Defaults to "http://www.arcgis.com".
 | baseMap | The ID for a basemap from arcgis.com (e.g., "streets", "satellite", "hybrid").  Optional.  Defaults to basemap "osm" (OpenStreetMap).  Ignored if portalItemId is set. |
-| use3D | Set to "true" to display the map in a 3D SceneView.  Defaults to false. |
+| use3D | Set to "true" to display the map in a 3D SceneView.  Defaults to false.  Note that some portal item types will display in a SceneView automatically. |
 | title | The title of the layer that includes VA data.  Optional.  Defaults to the geoId, if available, or to "SAS VA Layer", if not. |
 | zIndex | The index of the layer that includes VA data.  Optional.  Use "0" to insert the layer below all others.  Defaults to the top-most level. |
 | featuresMax | The maximum number of features allowed in the SAS layer.  Optional.  If set, the user will receive a warning when the data's row count exceeds this number, and the SAS layer will be cleared. |
