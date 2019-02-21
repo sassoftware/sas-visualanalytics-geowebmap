@@ -136,6 +136,8 @@ class ChoroplethLayerBuilder extends BaseLayerBuilder {
 
         const featureLayerReady = new Deferred();
 
+        const layerSource:any[] = [];
+
         const graphics = this.createGraphics(); 
         const fields = this.createFields(); 
                     
@@ -147,25 +149,24 @@ class ChoroplethLayerBuilder extends BaseLayerBuilder {
             this._geoIdAttributeMap[graphic.attributes[geoIdColumnName]] = graphic.attributes;
         });
 
-        // Add a where clause if requesting only one ID.  This was found to speed
-        // browsing-by-area.  It's not always better, though, since the browser
-        // caches responses; so an unfiltered query is usually never requeried.
-        // On the other hand, unfiltered queries on some feature services can be
-        // punishing.  
+        const viewLayer:any = new FeatureLayer({
+            id: ProviderUtil.SAS_FEATURE_LAYER_ID,
+            title: this._options.title,
+            source: layerSource, 
+            fields, 
+            objectIdField: ProviderUtil.FIELD_NAME_OBJECT_ID, 
+            renderer, 
+            // spatialReference: lang.clone(results.spatialReference),
+            // Note: there are ArcGIS 4.6 hit-test related problems with SceneViews with elevation mode "on-the-ground"
+            geometryType: "polygon",
+            popupTemplate: this.createGenericUnformattedPopupTemplate(columns)
+        });
 
-        if (!this._options.featureServiceWhere && graphics.length === 1) {
-            this._geoIdFilter = 
-                this._options.featureServiceGeoId + 
-                " IN (" + 
-                ProviderUtil.sqlEscape(Object.keys(this._geoIdAttributeMap)).join() + 
-                ")";
-        } else {
-            this._geoIdFilter = null;
+        if (graphics.length < 1) {
+            featureLayerReady.resolve(viewLayer);
         }
 
-        // Fetch _all_ the choropleth geometries, requesting only the attributes 
-        // necessary to join the rows to the IDs.  Potential optimizations: 
-        // Cache geometries.  Implement paging.
+        const MAX_FEATURES = 500;
 
         let queryLayer:any;
         if (this._queryServiceLayerOverride) {
@@ -179,70 +180,80 @@ class ChoroplethLayerBuilder extends BaseLayerBuilder {
                     }
             });
         }
-        
-        const query:any = queryLayer.createQuery();
-        query.outFields = [this._options.featureServiceGeoId]; // Note: ["*"] Gets _all_ attributes, which noticeably slows performance.
-        query.outSpatialReference = {wkid: 4326};
-        if (this._options.featureServiceWhere) {
-            query.where = this._options.featureServiceWhere;
-        }
-        else if (this._geoIdFilter) {
-            query.where = this._geoIdFilter;
-        }
-        if (!isNaN(this._options.featureServiceMaxAllowableOffset)) {
-            query.maxAllowableOffset = this._options.featureServiceMaxAllowableOffset;
-        }
 
-        queryLayer.queryFeatures(query).then((results:any) => {
+        let queryCount = 0;
+        const attributes = Object.keys(this._geoIdAttributeMap);
+        while (attributes.length > 0) {
 
-            // Join the data to the geometries.
+            ++queryCount;
 
-            const joinedFeatures:any[] = [];
-            results.features.forEach((feature:any) => {
+            const attributeBlock = attributes.splice(0, MAX_FEATURES);
+            const filterBlock = this._options.featureServiceGeoId + 
+                " IN (" + 
+                ProviderUtil.sqlEscape(attributeBlock).join() + 
+                ")";
 
-                // VA attributes, mapped by _options.geoId, are joined to the feature layer geometries 
-                // by _options.featureLayerGeoId.
+            const query:any = queryLayer.createQuery();
 
-                const dataMatch = this._geoIdAttributeMap[feature.attributes[this._options.featureServiceGeoId]];  
+            query.outFields = [this._options.featureServiceGeoId]; // Note: ["*"] Gets _all_ attributes, which noticeably slows performance.
+            query.outSpatialReference = {wkid: 4326};
 
-                if (dataMatch) {
-                    for (const key in dataMatch) {
-                        if (dataMatch.hasOwnProperty(key)) {
-                            feature.attributes[key] = dataMatch[key];
+            query.where = "";
+            if (this._options.featureServiceWhere) {
+                query.where = "(" + this._options.featureServiceWhere + ") AND ";
+            }
+            query.where += filterBlock;
+
+            if (!isNaN(this._options.featureServiceMaxAllowableOffset)) {
+                query.maxAllowableOffset = this._options.featureServiceMaxAllowableOffset;
+            }
+
+            queryLayer.queryFeatures(query).then((results:any) => {
+
+                // Join the data to the geometries.
+
+                const joinedFeatures:any[] = [];
+                results.features.forEach((feature:any) => {
+
+                    // VA attributes, mapped by _options.geoId, are joined to the feature layer geometries 
+                    // by _options.featureLayerGeoId.
+
+                    const dataMatch = this._geoIdAttributeMap[feature.attributes[this._options.featureServiceGeoId]];  
+
+                    if (dataMatch) {
+                        for (const key in dataMatch) {
+                            if (dataMatch.hasOwnProperty(key)) {
+                                feature.attributes[key] = dataMatch[key];
+                            }
                         }
+                        joinedFeatures.push(feature);
+                        delete this._geoIdAttributeMap[feature.attributes[this._options.featureServiceGeoId]]
                     }
-                    joinedFeatures.push(feature);
-                    delete this._geoIdAttributeMap[feature.attributes[this._options.featureServiceGeoId]]
-                }
 
+                });
+
+                // console.info ("Adding features ", joinedFeatures);
+
+                viewLayer.applyEdits({
+                    addFeatures: joinedFeatures
+                }).then(()=>{
+                    // viewLayer.emit("editsApplied");
+                    if (--queryCount < 1) {
+                        featureLayerReady.resolve(viewLayer);
+                    }
+                }, (error:any)=>{
+                    ProviderUtil.logError(error);
+                    featureLayerReady.resolve(viewLayer);
+                });
+
+            }, (error:any)=>{
+                ProviderUtil.logError(error)
+                featureLayerReady.resolve(viewLayer);
             });
 
-            // Build the feature layer from the geometries joined with the data.
+        }
 
-            const viewLayer:any = new FeatureLayer({
-                id: ProviderUtil.SAS_FEATURE_LAYER_ID,
-                title: this._options.title,
-                source: joinedFeatures, 
-                fields, 
-                objectIdField: ProviderUtil.FIELD_NAME_OBJECT_ID, 
-                renderer, 
-                spatialReference: lang.clone(results.spatialReference),
-                // Note: there are ArcGIS 4.6 hit-test related problems with SceneViews with elevation mode "on-the-ground"
-                geometryType: "polygon",
-                popupTemplate: this.createGenericUnformattedPopupTemplate(columns)
-            });
-
-            // The FeatureLayer is ready to be added to a map.
-            featureLayerReady.resolve(viewLayer);
-
-            return viewLayer;
-
-        }, (e:any)=>{ featureLayerReady.reject(e); });
-
-        // Note: We cannot return the FeatureLayer directly for two reasons:
-        // (1) It is not yet built.  (2) It is itself a promise--a promise
-        // that does not resolve before we add it to the map.
-        // Instead, we return a promise that the feature layer is _ready_
+        // We return a promise that the feature layer is _ready_
         // to be added to a map.
 
         return featureLayerReady.promise;
