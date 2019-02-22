@@ -152,7 +152,7 @@ abstract class BaseLayerBuilder {
         // TODO: Localize warnings.
 
         if (missingNames.length > 0) { 
-           message = "The following required options were not identified: " + missingNames.join(", ") + ".";
+           message = ProviderUtil.getResource("optionsNotIdentified") + " " + missingNames.join(", ") + ".";
         }
         
         return message;
@@ -192,7 +192,7 @@ abstract class BaseLayerBuilder {
         // TODO: Localize warnings.  
 
         if (latitudeColumnIndex < 0 || longitudeColumnIndex < 0) {
-            warning = "Data for 'x' or 'y' coordinates could not be identified.";
+            warning = ProviderUtil.getResource("dataNotIdentified");
         } else {
             rows.forEach((row:any) => {
                 if (!ProviderUtil.isValidCoordinate(row[latitudeColumnIndex]) || 

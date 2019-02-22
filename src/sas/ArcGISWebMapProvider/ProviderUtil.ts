@@ -14,6 +14,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+/// <amd-dependency path="dojo/i18n" name="i18n" />
+/// <amd-dependency path="dojo/i18n!sas/nls/resources" name="resources" />
+declare const i18n:any
+
 import moment from "moment/moment";
 
 /**
@@ -28,6 +32,11 @@ class ProviderUtil {
     static FIELD_NAME_OBJECT_ID:string = "ObjectId";
     static SAS_FEATURE_LAYER_ID:string = "_sasFeatureLayerId";
     static DEFAULT_PORTAL_URL:string = "http://www.arcgis.com";
+
+    static getResource(key:string):string {
+        const resource = i18n.getLocalization("sas", "resources");
+        return resource[key];
+    }
 
     static isValidCoordinate(n: any): boolean {
         return !isNaN(n) && n !== null;
