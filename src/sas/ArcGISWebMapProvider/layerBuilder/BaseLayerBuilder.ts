@@ -31,6 +31,9 @@ import ProviderUtil from "sas/ArcGISWebMapProvider/ProviderUtil";
  */
 abstract class BaseLayerBuilder {
 
+    static EDITS_COMPLETED:string = "editsCompleted";
+    static EDITS_APPLIED:string = "editsApplied";
+
     protected _options:any;
     protected _rows:any[];
     protected _columns:any[];
@@ -39,6 +42,10 @@ abstract class BaseLayerBuilder {
         this._options = options;
         this._rows = rows;
         this._columns = columns;
+    }
+
+    supportsEdits():boolean {
+        return false;
     }
 
     buildFeatureLayer():any {

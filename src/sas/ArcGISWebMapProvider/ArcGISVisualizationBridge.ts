@@ -216,7 +216,19 @@ class ArcGISVisualizationBridge {
             builder.buildFeatureLayer().then((layer: FeatureLayer) => {
 
                 this.addOrReplaceSasLayer(layer);
-                this.appendWarning(builder.validateResults());
+
+                if (!builder.supportsEdits()) {
+                    this.appendWarning(builder.validateResults());
+                }
+                else {
+                    layer.when((sasLayerReadied:any)=>{
+                        const editsCompleted = sasLayerReadied.on(BaseLayerBuilder.EDITS_COMPLETED, () => {
+                            this.appendWarning(builder.validateResults());
+                            this._selectionHelper.applySelectionsFromData(sasLayerReadied);
+                            editsCompleted.remove();
+                        });
+                    });
+                }
 
                 if (this._options.filterToFeatureServiceGeoId) {
                     const whereClause = builder.getGeoIdFilter();
@@ -439,11 +451,16 @@ class ArcGISVisualizationBridge {
      * Adapted from ArcGIS examples.
      */
     private goToDataExtent(sasLayer: FeatureLayer):void {
-        this.forDataExtent(sasLayer, (results: any) => {
-            (this.getMapView() as any).goTo(results.extent, {
-                animate: false
-            }); // go to the extent of all the graphics in the layer view
-        });
+        if (sasLayer.fullExtent) {
+            (this.getMapView() as any).goTo(sasLayer.fullExtent, {animate: false});
+        }
+        else {
+            this.forDataExtent(sasLayer, (results: any) => {
+                (this.getMapView() as any).goTo(results.extent, {
+                    animate: false
+                }); // go to the extent of all the graphics in the layer view
+            });
+        }
     }
 
     private forDataExtent(sasLayer: FeatureLayer, queryExtentResultsHandler: any):void {

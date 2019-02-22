@@ -19,6 +19,7 @@ declare const Deferred:any;
 
 import lang from "esri/core/lang";
 import FeatureLayer from "esri/layers/FeatureLayer";
+import Query from "esri/tasks/support/Query";
 import BaseLayerBuilder from "sas/ArcGISWebMapProvider/layerBuilder/BaseLayerBuilder";
 import ProviderUtil from "sas/ArcGISWebMapProvider/ProviderUtil";
 import SmartLegendHelper from "sas/ArcGISWebMapProvider/SmartLegendHelper";
@@ -32,6 +33,10 @@ class ChoroplethLayerBuilder extends BaseLayerBuilder {
     private _geoIdAttributeMap:any;
     private _geoIdFilter:any;
     private _queryServiceLayerOverride:any;
+
+    supportsEdits():boolean {
+        return true;
+    }
 
     validateOptions():any {
         return this.validateRequiredOptions(['geoId', 'featureServiceUrl', 'featureServiceGeoId']);
@@ -132,6 +137,105 @@ class ChoroplethLayerBuilder extends BaseLayerBuilder {
         return renderer;
     }
 
+    private buildFilter(values:any[]):string {
+
+        let where:string = "";
+
+        if (this._options.featureServiceWhere) {
+            where = "(" + this._options.featureServiceWhere + ") AND ";
+        }
+
+        where += "(" + this._options.featureServiceGeoId + 
+            " IN (" + 
+            values.join() + 
+            "))";
+
+        return where;
+    }
+
+    private buildQuery(queryLayer:FeatureLayer, values:any[]):Query {
+
+        const query:any = queryLayer.createQuery();
+
+        query.outFields = [this._options.featureServiceGeoId]; // Note: ["*"] Gets _all_ attributes, which noticeably slows performance.
+        query.outSpatialReference = {wkid: 4326};
+        query.where = this.buildFilter(values);
+        if (!isNaN(this._options.featureServiceMaxAllowableOffset)) {
+            query.maxAllowableOffset = this._options.featureServiceMaxAllowableOffset;
+        }
+
+        return query;
+    }
+
+    private calculateMaxAllowableOffset(mapWidth:number, mapHeight:number):number {
+        const pixelScale:number = window.innerHeight / window.innerWidth; // screen.height / screen.width;
+        const mapScale:number = mapHeight / mapWidth;
+        return (pixelScale > mapScale) ? mapWidth / window.innerWidth : mapHeight / window.innerHeight;
+    }
+
+    private queryExtent(queryLayer:FeatureLayer, values:any[]):any {
+        return queryLayer.queryExtent(this.buildQuery(queryLayer, values));
+    }
+
+    private queryFeatures(queryLayer:FeatureLayer, values:any[], viewLayer:FeatureLayer):any {
+
+        let queryCount = 0;
+
+        const MAX_FEATURES = 500;
+
+        while (values.length > 0) {
+
+            ++queryCount;
+
+            const attributeBlock = values.splice(0, MAX_FEATURES);
+
+            const query:any = this.buildQuery(queryLayer, attributeBlock);
+
+            queryLayer.queryFeatures(query).then((results:any) => {
+
+                // Join the data to the geometries.
+
+                const joinedFeatures:any[] = [];
+                results.features.forEach((feature:any) => {
+
+                    // VA attributes, mapped by _options.geoId, are joined to the feature layer geometries 
+                    // by _options.featureLayerGeoId.
+
+                    const dataMatch = this._geoIdAttributeMap[feature.attributes[this._options.featureServiceGeoId]];  
+
+                    if (dataMatch) {
+                        for (const key in dataMatch) {
+                            if (dataMatch.hasOwnProperty(key)) {
+                                feature.attributes[key] = dataMatch[key];
+                            }
+                        }
+                        joinedFeatures.push(feature);
+                        delete this._geoIdAttributeMap[feature.attributes[this._options.featureServiceGeoId]]
+                    }
+
+                });
+
+                // console.info ("Adding features ", joinedFeatures);
+
+                viewLayer.applyEdits({
+                    addFeatures: joinedFeatures
+                }).then(()=>{
+                    viewLayer.emit(BaseLayerBuilder.EDITS_APPLIED);
+                    if (--queryCount < 1) {
+                        viewLayer.emit(BaseLayerBuilder.EDITS_COMPLETED);
+                    }
+                }, (error:any)=>{
+                    ProviderUtil.logError(error);
+                });
+
+            }, (error:any)=>{
+                ProviderUtil.logError(error)
+            });
+
+        }
+
+    }
+
     private buildChoroplethFeatureLayer(renderer:any, rows:any[], columns:any[]) {
 
         const featureLayerReady = new Deferred();
@@ -164,9 +268,9 @@ class ChoroplethLayerBuilder extends BaseLayerBuilder {
 
         if (graphics.length < 1) {
             featureLayerReady.resolve(viewLayer);
+            setTimeout(()=>{viewLayer.emit(BaseLayerBuilder.EDITS_COMPLETED);}, 10);
+            return featureLayerReady.promise; // RETURN immediately.
         }
-
-        const MAX_FEATURES = 500;
 
         let queryLayer:any;
         if (this._queryServiceLayerOverride) {
@@ -181,77 +285,21 @@ class ChoroplethLayerBuilder extends BaseLayerBuilder {
             });
         }
 
-        let queryCount = 0;
-        const attributes = Object.keys(this._geoIdAttributeMap);
-        while (attributes.length > 0) {
+        const attributes = ProviderUtil.sqlEscape(Object.keys(this._geoIdAttributeMap));
 
-            ++queryCount;
-
-            const attributeBlock = attributes.splice(0, MAX_FEATURES);
-            const filterBlock = this._options.featureServiceGeoId + 
-                " IN (" + 
-                ProviderUtil.sqlEscape(attributeBlock).join() + 
-                ")";
-
-            const query:any = queryLayer.createQuery();
-
-            query.outFields = [this._options.featureServiceGeoId]; // Note: ["*"] Gets _all_ attributes, which noticeably slows performance.
-            query.outSpatialReference = {wkid: 4326};
-
-            query.where = "";
-            if (this._options.featureServiceWhere) {
-                query.where = "(" + this._options.featureServiceWhere + ") AND ";
-            }
-            query.where += filterBlock;
-
-            if (!isNaN(this._options.featureServiceMaxAllowableOffset)) {
-                query.maxAllowableOffset = this._options.featureServiceMaxAllowableOffset;
-            }
-
-            queryLayer.queryFeatures(query).then((results:any) => {
-
-                // Join the data to the geometries.
-
-                const joinedFeatures:any[] = [];
-                results.features.forEach((feature:any) => {
-
-                    // VA attributes, mapped by _options.geoId, are joined to the feature layer geometries 
-                    // by _options.featureLayerGeoId.
-
-                    const dataMatch = this._geoIdAttributeMap[feature.attributes[this._options.featureServiceGeoId]];  
-
-                    if (dataMatch) {
-                        for (const key in dataMatch) {
-                            if (dataMatch.hasOwnProperty(key)) {
-                                feature.attributes[key] = dataMatch[key];
-                            }
-                        }
-                        joinedFeatures.push(feature);
-                        delete this._geoIdAttributeMap[feature.attributes[this._options.featureServiceGeoId]]
-                    }
-
-                });
-
-                // console.info ("Adding features ", joinedFeatures);
-
-                viewLayer.applyEdits({
-                    addFeatures: joinedFeatures
-                }).then(()=>{
-                    // viewLayer.emit("editsApplied");
-                    if (--queryCount < 1) {
-                        featureLayerReady.resolve(viewLayer);
-                    }
-                }, (error:any)=>{
-                    ProviderUtil.logError(error);
-                    featureLayerReady.resolve(viewLayer);
-                });
-
-            }, (error:any)=>{
-                ProviderUtil.logError(error)
+        this.queryExtent(queryLayer, attributes).then((success:any)=>{
+                viewLayer.fullExtent = success.extent;
+                featureLayerReady.resolve(viewLayer);
+                if (isNaN(this._options.featureServiceMaxAllowableOffset)) {
+                    this._options.featureServiceMaxAllowableOffset = this.calculateMaxAllowableOffset(success.extent.width, success.extent.height);
+                }
+                this.queryFeatures(queryLayer, attributes, viewLayer);
+            },
+            (error:any) => {
+                ProviderUtil.logError(error);
                 featureLayerReady.resolve(viewLayer);
             });
 
-        }
 
         // We return a promise that the feature layer is _ready_
         // to be added to a map.
