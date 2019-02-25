@@ -86,7 +86,7 @@ class ArcGISVisualizationBridge {
             this._options.outline = "#007E88";
         }
 
-        this._options.title = this._options.title || this._options.geoId || "SAS VA Layer";
+        this._options.title = this._options.title || ProviderUtil.getResource("defaultLayerTitle");
 
         this._options.useSampleData = (this._options.useSampleData && this._options.useSampleData.toUpperCase() === "TRUE");
 

@@ -7,4 +7,5 @@ define({
     regionsNotFoundMany: "Some geoIds could not be found with the feature service: {0} ...", // Lists no more than 5 regions.
     tooManyFeatures: "Feature count ({0}) exceeds maximum allowed ({1}).  Please filter your results.", // Feature count, max allowed.
     tooManyFilteredValues: "Filter value count exceeded maximum allowed ({0}).", // Max filter values allowed.
+    defaultLayerTitle: "SAS VA Layer",
 });
