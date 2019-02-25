@@ -46,15 +46,15 @@ class ChoroplethLayerBuilder extends BaseLayerBuilder {
 
         let warning;
 
-        // TODO: Localize warnings. 
-
         if (ProviderUtil.getIndexWithLabel(this._options.geoId, this._columns) < 0) {
-            warning = "Data for 'geoId' could not be identified.";
+            warning = ProviderUtil.getResource("dataNotIdentifiedGeoId");
         } else {
             const missingIds = Object.keys(this._geoIdAttributeMap);
-            if (missingIds.length > 0) {
-                warning = "Some geoIds could not be found with the feature service: " +
-                    missingIds.slice(0,5).join(", ") + ((missingIds.length > 5) ? " ..." : ".");
+            if (missingIds.length > 0 && missingIds.length < 6) {
+                warning = ProviderUtil.getResource("regionsNotFoundFew", missingIds.join(", "));
+            }
+            else if (missingIds.length > 6) {
+                warning = ProviderUtil.getResource("regionsNotFoundMany", missingIds.slice(0,5).join(", "));
             }
         }
 

@@ -33,9 +33,13 @@ class ProviderUtil {
     static SAS_FEATURE_LAYER_ID:string = "_sasFeatureLayerId";
     static DEFAULT_PORTAL_URL:string = "http://www.arcgis.com";
 
-    static getResource(key:string):string {
-        const resource = i18n.getLocalization("sas", "resources");
-        return resource[key];
+    static getResource(key:string, ...substitutionArguments:string[]):string {
+        const resourceBundle = i18n.getLocalization("sas", "resources");
+        let resource = resourceBundle[key] || "";
+        (substitutionArguments || []).forEach((argument:string, i:number)=>{
+            resource = resource.replace(new RegExp("\\{" + i + "\\}","gi"), argument);
+        });
+        return resource;
     }
 
     static isValidCoordinate(n: any): boolean {

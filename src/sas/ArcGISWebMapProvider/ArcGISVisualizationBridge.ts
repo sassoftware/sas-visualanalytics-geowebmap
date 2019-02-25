@@ -383,10 +383,8 @@ class ArcGISVisualizationBridge {
 
         let warning = "";
 
-        // TODO: Localize warnings.
-
         if (graphics.length > maximum) {
-            warning = "Feature count (" + graphics.length + ") exceeds maximum allowed (" + maximum + ").  Please filter your results.";
+            warning = ProviderUtil.getResource("tooManyFeatures", graphics.length.toString(), maximum.toString());
         }
 
         this.appendWarning(warning);

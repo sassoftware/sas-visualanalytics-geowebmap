@@ -149,10 +149,8 @@ abstract class BaseLayerBuilder {
             }
         });
 
-        // TODO: Localize warnings.
-
         if (missingNames.length > 0) { 
-           message = ProviderUtil.getResource("optionsNotIdentified") + " " + missingNames.join(", ") + ".";
+            message = ProviderUtil.getResource("optionsNotIdentified", missingNames.join(", "));
         }
         
         return message;
@@ -189,8 +187,6 @@ abstract class BaseLayerBuilder {
         const latitudeColumnIndex = ProviderUtil.getIndexWithLabel(this._options.y, columns);
         const longitudeColumnIndex = ProviderUtil.getIndexWithLabel(this._options.x, columns);
 
-        // TODO: Localize warnings.  
-
         if (latitudeColumnIndex < 0 || longitudeColumnIndex < 0) {
             warning = ProviderUtil.getResource("dataNotIdentified");
         } else {
@@ -203,7 +199,7 @@ abstract class BaseLayerBuilder {
                 }
             });
             if (invalidCount > 0) {
-                warning = "Data contains missing or invalid coordinates (" + invalidCount + ").";
+                warning = ProviderUtil.getResource("invalidCoordinates", invalidCount.toString()); 
             }
         }
 

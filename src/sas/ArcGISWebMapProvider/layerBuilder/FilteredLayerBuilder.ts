@@ -40,13 +40,11 @@ class FilteredLayerBuilder extends BaseLayerBuilder {
 
         let warning;
 
-        // TODO: Localize warnings. 
-
         if (ProviderUtil.getIndexWithLabel(this._options.geoId, this._columns) < 0) {
-            warning = "Data for 'geoId' could not be identified.";
+            warning = ProviderUtil.getResource("dataNotIdentifiedGeoId");
         } 
         else if (this._rows.length > FilteredLayerBuilder.MAX_FILTER_VALUES) {
-            warning = "Filter value count exceeded maximum allowed (" + FilteredLayerBuilder.MAX_FILTER_VALUES + ").";
+            warning = ProviderUtil.getResource("tooManyFilteredValues", FilteredLayerBuilder.MAX_FILTER_VALUES.toString());
         }
 
         return warning;
