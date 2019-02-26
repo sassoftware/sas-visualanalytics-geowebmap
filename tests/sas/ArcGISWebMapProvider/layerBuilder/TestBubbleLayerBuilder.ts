@@ -30,19 +30,19 @@ suite("BubbleLayerBuilder", () => {
             size: null
         } as any;
 
-        assert.notEqual(undefined, new BubbleLayerBuilder(options, null, null).validateOptions());
+        assert.notEqual(0, new BubbleLayerBuilder(options, null, null).validateOptions().length);
 
         options.x = "someValue";
 
-        assert.notEqual(undefined, new BubbleLayerBuilder(options, null, null).validateOptions());
+        assert.notEqual(0, new BubbleLayerBuilder(options, null, null).validateOptions().length);
 
         options.y = "someValue";
 
-        assert.notEqual(undefined, new BubbleLayerBuilder(options, null, null).validateOptions());
+        assert.notEqual(0, new BubbleLayerBuilder(options, null, null).validateOptions().length);
 
         options.size = "someValue";
 
-        assert.equal(undefined, new BubbleLayerBuilder(options, null, null).validateOptions());
+        assert.equal(0, new BubbleLayerBuilder(options, null, null).validateOptions());
     });
 
     // This test provided to illustrate how to write tests to validate the returned feature layer.

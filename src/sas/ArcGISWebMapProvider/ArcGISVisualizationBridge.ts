@@ -24,6 +24,7 @@ import View from "esri/views/View";
 import Expand from "esri/widgets/Expand";
 import Legend from "esri/widgets/Legend";
 import AnimationHelper from "sas/ArcGISWebMapProvider/AnimationHelper";
+import Error, {Severity} from "sas/ArcGISWebMapProvider/Error";
 import BaseLayerBuilder from "sas/ArcGISWebMapProvider/layerBuilder/BaseLayerBuilder";
 import FeatureLayerFactory from "sas/ArcGISWebMapProvider/layerBuilder/FeatureLayerFactory";
 import ProviderUtil from "sas/ArcGISWebMapProvider/ProviderUtil";
@@ -380,23 +381,20 @@ class ArcGISVisualizationBridge {
     }
 
     private validateFeaturesMax(graphics: any[], maximum: any):boolean {
-
-        let warning = "";
-
         if (graphics.length > maximum) {
-            warning = ProviderUtil.getResource("tooManyFeatures", graphics.length.toString(), maximum.toString());
+            this.appendWarning(Error.error("tooManyFeatures", graphics.length.toString(), maximum.toString()));
+            return false;
         }
-
-        this.appendWarning(warning);
-
-        return warning.length === 0;
+        else {
+            return true;
+        }
     }
 
     private validateOptions():boolean {
-        const builder = FeatureLayerFactory.getInstance().createLayerBuilder(this._options, [], []);
-        const warning = builder.validateOptions();
-        this.appendWarning(warning);
-        return !warning || warning.length === 0;
+        const builder:BaseLayerBuilder = FeatureLayerFactory.getInstance().createLayerBuilder(this._options, [], []);
+        const warnings:Error[] = builder.validateOptions();
+        this.appendWarning(warnings);
+        return warnings.length === 0;
     }
 
     private getWarningControl():Expand {
@@ -418,6 +416,9 @@ class ArcGISVisualizationBridge {
         if (this._warning !== warning) {
             this._warning = warning;
             this.displayWarning(this._warning);
+            // if (!warning || warning.length === 0) {
+            //    this.clearVAError();
+            // }
         }
     }
 
@@ -425,11 +426,20 @@ class ArcGISVisualizationBridge {
         return this._warning;
     }
 
-    private appendWarning(warning: any):void {
-        if (warning && warning.length > 0) {
-            const current = this.getWarning();
-            this.setWarning(((current && current.length > 0) ? " " : "") + warning);
+    private appendWarning(warnings:Error|Error[]):void {
+        if (!Array.isArray(warnings)) {
+            warnings = [warnings];
         }
+        warnings.forEach((item:Error)=>this.appendWarningImpl(item));
+    }
+
+    private appendWarningImpl(warning:Error):void {
+        const current = this.getWarning();
+        const cumulativeWarning = ((current && current.length > 0) ? " " : "") + warning.message
+        this.setWarning(cumulativeWarning);
+        // if (warning.severity === Severity.error) {
+        //     this.publishVAError(cumulativeWarning);
+        // }
     }
 
     private displayWarning(warning: any):void {
@@ -444,6 +454,17 @@ class ArcGISVisualizationBridge {
             this._mapView.ui.remove(control);
         }
     }
+
+    // private publishVAError(message:string|null):void {
+    //     ProviderUtil.publishMessage({
+    //         resultName: this._dataResultName,
+    //         message
+    //     });
+    // }
+
+    // private clearVAError():void {
+    //     this.publishVAError(null);
+    // }
 
     /**
      * Adapted from ArcGIS examples.

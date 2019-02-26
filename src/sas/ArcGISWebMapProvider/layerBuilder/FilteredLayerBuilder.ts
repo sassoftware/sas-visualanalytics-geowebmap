@@ -18,6 +18,7 @@ limitations under the License.
 declare const Deferred:any;
 
 import FeatureLayer from "esri/layers/FeatureLayer";
+import Error from "sas/ArcGISWebMapProvider/Error";
 import BaseLayerBuilder from "sas/ArcGISWebMapProvider/layerBuilder/BaseLayerBuilder";
 import ProviderUtil from "sas/ArcGISWebMapProvider/ProviderUtil";
 
@@ -32,22 +33,22 @@ class FilteredLayerBuilder extends BaseLayerBuilder {
     private static MAX_FILTER_VALUES:number = 500; 
     private _geoIdFilter:any;
 
-    validateOptions():any {
+    validateOptions():Error[] {
         return this.validateRequiredOptions(['geoId', 'featureServiceUrl', 'featureServiceGeoId']);
     }
 
-    validateResults():any {
+    validateResults():Error[] {
 
-        let warning;
+        let error:Error|null = null;
 
         if (ProviderUtil.getIndexWithLabel(this._options.geoId, this._columns) < 0) {
-            warning = ProviderUtil.getResource("dataNotIdentifiedGeoId");
+            error = Error.error("dataNotIdentifiedGeoId");
         } 
         else if (this._rows.length > FilteredLayerBuilder.MAX_FILTER_VALUES) {
-            warning = ProviderUtil.getResource("tooManyFilteredValues", FilteredLayerBuilder.MAX_FILTER_VALUES.toString());
+            error = Error.error("tooManyFilteredValues", FilteredLayerBuilder.MAX_FILTER_VALUES.toString());
         }
 
-        return warning;
+        return (error)?[error]:[];
     }
 
     getGeoIdFilter():any {

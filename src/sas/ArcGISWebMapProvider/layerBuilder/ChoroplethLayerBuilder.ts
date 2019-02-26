@@ -20,6 +20,7 @@ declare const Deferred:any;
 import lang from "esri/core/lang";
 import FeatureLayer from "esri/layers/FeatureLayer";
 import Query from "esri/tasks/support/Query";
+import Error from "sas/ArcGISWebMapProvider/Error";
 import BaseLayerBuilder from "sas/ArcGISWebMapProvider/layerBuilder/BaseLayerBuilder";
 import ProviderUtil from "sas/ArcGISWebMapProvider/ProviderUtil";
 import SmartLegendHelper from "sas/ArcGISWebMapProvider/SmartLegendHelper";
@@ -38,27 +39,27 @@ class ChoroplethLayerBuilder extends BaseLayerBuilder {
         return true;
     }
 
-    validateOptions():any {
+    validateOptions():Error[] {
         return this.validateRequiredOptions(['geoId', 'featureServiceUrl', 'featureServiceGeoId']);
     }
 
-    validateResults():any {
+    validateResults():Error[] {
 
-        let warning;
+        let error:Error|null = null;
 
         if (ProviderUtil.getIndexWithLabel(this._options.geoId, this._columns) < 0) {
-            warning = ProviderUtil.getResource("dataNotIdentifiedGeoId");
+            error = Error.error("dataNotIdentifiedGeoId");
         } else {
             const missingIds = Object.keys(this._geoIdAttributeMap);
             if (missingIds.length > 0 && missingIds.length < 6) {
-                warning = ProviderUtil.getResource("regionsNotFoundFew", missingIds.join(", "));
+                error = Error.warning("regionsNotFoundFew", missingIds.join(", "));
             }
             else if (missingIds.length > 6) {
-                warning = ProviderUtil.getResource("regionsNotFoundMany", missingIds.slice(0,5).join(", "));
+                error = Error.warning("regionsNotFoundMany", missingIds.slice(0,5).join(", "));
             }
         }
 
-        return warning;
+        return error?[error]:[];
     }
 
     getGeoIdFilter():any {

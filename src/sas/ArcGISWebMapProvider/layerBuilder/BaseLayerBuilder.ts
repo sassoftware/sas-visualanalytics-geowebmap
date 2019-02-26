@@ -23,6 +23,7 @@ import Graphic from "esri/Graphic";
 import FeatureLayer from "esri/layers/FeatureLayer";
 import Field from "esri/layers/support/Field";
 import PopupTemplate from "esri/PopupTemplate";
+import Error from "sas/ArcGISWebMapProvider/Error";
 import ProviderUtil from "sas/ArcGISWebMapProvider/ProviderUtil";
 
 /**
@@ -67,11 +68,11 @@ abstract class BaseLayerBuilder {
 
     // Subclasses should override this method.  Return string description of errors
     // for input options.
-    abstract validateOptions():any;
+    abstract validateOptions():Error[];
 
     // Subclasses should override this method.  Return string description of errors
     // for results.
-    abstract validateResults():any;
+    abstract validateResults():Error[];
 
     // Subclasses should override this method.  Return where clause used by 
     // feature service (if any).
@@ -138,7 +139,7 @@ abstract class BaseLayerBuilder {
         return new PopupTemplate({title: this._options.title, content: [{type: "fields", fieldInfos}], fieldInfos: []}); 
     }
 
-    protected validateRequiredOptions(optionNames:string[]):any {
+    protected validateRequiredOptions(optionNames:string[]):Error[] {
 
         let message;
         const missingNames:string[] = [];
@@ -153,7 +154,7 @@ abstract class BaseLayerBuilder {
             message = ProviderUtil.getResource("optionsNotIdentified", missingNames.join(", "));
         }
         
-        return message;
+        return message ? [new Error(message)] : [];
 
     }
 
@@ -180,15 +181,15 @@ abstract class BaseLayerBuilder {
     }
 
     // Validates lat/long data (for scatter and bubble).
-    protected validateCoordinates(rows:any[], columns:any[]):any {
+    protected validateCoordinates(rows:any[], columns:any[]):Error[] {
 
-        let warning;
+        let error:Error|null = null;
         let invalidCount = 0;
         const latitudeColumnIndex = ProviderUtil.getIndexWithLabel(this._options.y, columns);
         const longitudeColumnIndex = ProviderUtil.getIndexWithLabel(this._options.x, columns);
 
         if (latitudeColumnIndex < 0 || longitudeColumnIndex < 0) {
-            warning = ProviderUtil.getResource("dataNotIdentified");
+            error = Error.error("dataNotIdentified");
         } else {
             rows.forEach((row:any) => {
                 if (!ProviderUtil.isValidCoordinate(row[latitudeColumnIndex]) || 
@@ -199,11 +200,11 @@ abstract class BaseLayerBuilder {
                 }
             });
             if (invalidCount > 0) {
-                warning = ProviderUtil.getResource("invalidCoordinates", invalidCount.toString()); 
+                error = Error.warning("invalidCoordinates", invalidCount.toString()); 
             }
         }
 
-        return warning;
+        return error?[error]:[];
 
     }
 }

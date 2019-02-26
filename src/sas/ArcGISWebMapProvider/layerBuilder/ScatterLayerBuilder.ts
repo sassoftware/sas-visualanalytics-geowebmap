@@ -21,6 +21,7 @@ limitations under the License.
 
 import FeatureLayer from "esri/layers/FeatureLayer";
 import AnimationHelper from "sas/ArcGISWebMapProvider/AnimationHelper";
+import Error from "sas/ArcGISWebMapProvider/Error";
 import BaseLayerBuilder from "sas/ArcGISWebMapProvider/layerBuilder/BaseLayerBuilder";
 import ProviderUtil from "sas/ArcGISWebMapProvider/ProviderUtil";
 
@@ -30,11 +31,11 @@ import ProviderUtil from "sas/ArcGISWebMapProvider/ProviderUtil";
  */
 class ScatterLayerBuilder extends BaseLayerBuilder {
 
-    validateOptions():any {
+    validateOptions():Error[] {
         return this.validateRequiredOptions(['x', 'y']);
     }
 
-    validateResults():any {
+    validateResults():Error[] {
         return this.validateCoordinates(this._rows, this._columns);
     }
 

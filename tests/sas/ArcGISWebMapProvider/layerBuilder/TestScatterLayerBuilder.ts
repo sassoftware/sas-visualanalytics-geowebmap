@@ -29,15 +29,15 @@ suite("ScatterLayerBuilder", () => {
             y: null
         } as any;
 
-        assert.notEqual(undefined, new ScatterLayerBuilder(options, null, null).validateOptions());
+        assert.notEqual(0, new ScatterLayerBuilder(options, null, null).validateOptions().length);
 
         options.x = "someValue";
 
-        assert.notEqual(undefined, new ScatterLayerBuilder(options, null, null).validateOptions());
+        assert.notEqual(0, new ScatterLayerBuilder(options, null, null).validateOptions().length);
 
         options.y = "someValue";
 
-        assert.equal(undefined, new ScatterLayerBuilder(options, null, null).validateOptions());
+        assert.equal(0, new ScatterLayerBuilder(options, null, null).validateOptions().length);
 
     });
 

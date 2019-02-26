@@ -33,19 +33,19 @@ suite("ChoroplethLayerBuilder", () => {
             featureServiceGeoId: null
         } as any;
 
-        assert.notEqual(undefined, new ChoroplethLayerBuilder(options, null, null).validateOptions());
+        assert.notEqual(0, new ChoroplethLayerBuilder(options, null, null).validateOptions().length);
 
         options.geoId = "someValue";
 
-        assert.notEqual(undefined, new ChoroplethLayerBuilder(options, null, null).validateOptions());
+        assert.notEqual(0, new ChoroplethLayerBuilder(options, null, null).validateOptions().length);
 
         options.featureServiceUrl = "someValue";
 
-        assert.notEqual(undefined, new ChoroplethLayerBuilder(options, null, null).validateOptions());
+        assert.notEqual(0, new ChoroplethLayerBuilder(options, null, null).validateOptions().length);
 
         options.featureServiceGeoId = "someValue";
 
-        assert.equal(undefined, new ChoroplethLayerBuilder(options, null, null).validateOptions());
+        assert.equal(0, new ChoroplethLayerBuilder(options, null, null).validateOptions().length);
 
     });
 
