@@ -17,9 +17,9 @@ limitations under the License.
 /// <amd-dependency path="dojo/Deferred" name="Deferred" />
 declare const Deferred:any;
 
-/* tslint:disable: no-unused-expression */
-import __forceLoad = require("esri/layers/graphics/sources/support/MemorySourceWorker"); __forceLoad; // See https://github.com/Esri/arcgis-webpack-plugin/issues/26, 12/19/18.
-/* tslint:enable */
+// /* tslint:disable: no-unused-expression */
+// import __forceLoad = require("esri/layers/graphics/sources/support/MemorySourceWorker"); __forceLoad; // See https://github.com/Esri/arcgis-webpack-plugin/issues/26, 12/19/18.
+// /* tslint:enable */
 
 import esri = __esri;
 
@@ -106,53 +106,53 @@ export default class App extends declared(Widget) {
   }
 
   private onAfterCreate(element: HTMLDivElement) {
-    import("esri/layers/graphics/sources/support/MemorySourceWorker").then(({MemorySourceWorker}) => { // See https://github.com/Esri/arcgis-webpack-plugin/issues/26, 12/19/18.
-      import("./../data/app").then(({ options, visualizationBridge }) => {
 
-        if (options.animation) {
-          this.animation = true;
-        }
-        this.options = options;
-        this.visualizationBridge = visualizationBridge;
+    import("./../data/app").then(({ options, visualizationBridge }) => {
 
-        if (options.portalToken) {
-          IdentityManager.registerToken({
-            token: options.portalToken,
-            server: this.getPortalUrl(options)
-          });
-          this.buildMap(element);
-        }
-        // The following branch is useful for testing, but not 
-        // recommended for deployment.  Commented out.
-        // else if (options.username && options.password) {
-        //   const server = this.getPortalUrl(options);
-        //   IdentityManager.checkSignInStatus(server).then((success)=>{
-        //     this.buildMap(element, options, visualizationBridge, map);
-        //   },(failure)=>{
-        //     const serverInfo = IdentityManager.findServerInfo(server);
-        //     IdentityManager.generateToken(
-        //         serverInfo,
-        //         {
-        //             username: options.username,
-        //             password: options.password
-        //         } 
-        //     ).then((token: any) => {
-        //         if (token && !token.server) {
-        //             token.server = serverInfo.server; 
-        //         } 
-        //         IdentityManager.registerToken(token); 
-        //         this.buildMap(element, options, visualizationBridge, map); 
-        //     }, (error) => {
-        //       ProviderUtil.logError(error);
-        //     }); 
-        //   });
-        // }
-        else {
-          this.buildMap(element);
-        }
+      if (options.animation) {
+        this.animation = true;
+      }
+      this.options = options;
+      this.visualizationBridge = visualizationBridge;
 
-      });
+      if (options.portalToken) {
+        IdentityManager.registerToken({
+          token: options.portalToken,
+          server: this.getPortalUrl(options)
+        });
+        this.buildMap(element);
+      }
+      // The following branch is useful for testing, but not 
+      // recommended for deployment.  Commented out.
+      // else if (options.username && options.password) {
+      //   const server = this.getPortalUrl(options);
+      //   IdentityManager.checkSignInStatus(server).then((success)=>{
+      //     this.buildMap(element, options, visualizationBridge, map);
+      //   },(failure)=>{
+      //     const serverInfo = IdentityManager.findServerInfo(server);
+      //     IdentityManager.generateToken(
+      //         serverInfo,
+      //         {
+      //             username: options.username,
+      //             password: options.password
+      //         } 
+      //     ).then((token: any) => {
+      //         if (token && !token.server) {
+      //             token.server = serverInfo.server; 
+      //         } 
+      //         IdentityManager.registerToken(token); 
+      //         this.buildMap(element, options, visualizationBridge, map); 
+      //     }, (error) => {
+      //       ProviderUtil.logError(error);
+      //     }); 
+      //   });
+      // }
+      else {
+        this.buildMap(element);
+      }
+
     });
+
   }
 
   private loadPortalItem(portalItemId?:string, portalUrl?:string):IPromise<PortalItem|null> {
