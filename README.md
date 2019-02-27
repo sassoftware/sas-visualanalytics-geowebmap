@@ -61,6 +61,7 @@ Data-driven content aggregates report data.  Keep this in mind when including lo
 | period | Defines the interval used to subdivide the animation date.  Valid values are units of time accepted by [Moment](http://momentjs.com/) (e.g., "millisecond", "day", "month", "year").  Defaults to "year". |
 | useSmartLegends | Set to "true" to use Esri's "smart mapping" legends for color and size (where appropriate).  Defaults to false.  This feature is experimental. |
 | useSampleData | Set to "true" to load data from SampleData.json instead of VA.  Useful for testing.  Optional. |
+| showBasemapSelector | Set to "false" to hide the basemap selection widget.  Defaults to true. |
 
 ### Example URLs (using sample data)
 
