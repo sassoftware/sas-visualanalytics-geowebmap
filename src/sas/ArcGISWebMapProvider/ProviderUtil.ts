@@ -81,7 +81,7 @@ class ProviderUtil {
                     type: isChoropleth ? "simple-fill" : "simple-marker", // autocasts as new SimpleMarkerSymbol()
                     color: colors[i],
                     size: isChoropleth ? null : 6,
-                    style: isChoropleth ? "solid" : null,
+                    style: isChoropleth ? "solid" : "circle",
                     outline: options.animation ?
                         null : {
                             width: 0.5,
