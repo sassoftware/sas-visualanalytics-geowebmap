@@ -128,7 +128,7 @@ abstract class BaseLayerBuilder {
     protected createGenericUnformattedPopupTemplate(fields:any[]):PopupTemplate {
         const fieldInfos:any[] = [];
         fields.forEach((field:any) => {
-            if (field.name !== ProviderUtil.FIELD_NAME_OBJECT_ID && field.label !== this._options.x && field.label !== this._options.y) {
+            if (field.name !== ProviderUtil.FIELD_NAME_OBJECT_ID && field.name !== ProviderUtil.getNameWithLabel(this._options.x, fields) && field.name !== ProviderUtil.getNameWithLabel(this._options.y, fields)) {
                 const fieldInfo = {fieldName: field.name, label: field.label, visible: true, format: {}}
                 if (field.type === "number" || field.type === "double") {
                     fieldInfo.format = {digitSeparator: true};
