@@ -124,6 +124,12 @@ class ArcGISVisualizationBridge {
 
         this._mapView = mapView;
 
+        if (this._options.showBasemapSelector) {
+            this._mapView.map.watch("basemap", (newValue, oldValue /*, property, object */):void =>{
+                ProviderUtil.publishPropertyChange(this._dataResultName, "basemap", (newValue)?newValue.title:"", (oldValue)?oldValue.title:"");
+            });
+        }
+
         if (this._options.visualizationType !== ProviderUtil.VISUALIZATION_TYPE_SCATTER || this._options.color) {
             this._sasLegend = new Legend({
                 view: this._mapView,

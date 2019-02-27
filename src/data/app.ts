@@ -23,6 +23,7 @@ export const options = (()=>{
   _options.basemap = _options.basemap || "osm";
   _options.use3D = (_options.use3D && _options.use3D.toUpperCase() === "TRUE");
   _options.useWebScene = false;
+  _options.showBasemapSelector = (_options.showBasemapSelector === undefined || _options.showBasemapSelector === null || _options.showBasemapSelector.toUpperCase() === "TRUE");
   return _options;
 })();
 

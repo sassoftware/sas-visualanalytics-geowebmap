@@ -62,9 +62,11 @@ class AppViewModel extends declared(Accessor) {
     const layerListExpand = new Expand({expandIconClass: "esri-icon-layer-list", view: this.view, content: layerList, group: "top-right"});
     this.view.ui.add(layerListExpand, "top-right");
 
-    const basemapGallery = new BasemapGallery({view: this.view});
-    const basemapExpand = new Expand({expandIconClass: "esri-icon-basemap", view: this.view, content: basemapGallery, group: "top-right"});
-    this.view.ui.add(basemapExpand, "top-right");
+    if (this.options.showBasemapSelector) {
+      const basemapGallery = new BasemapGallery({view: this.view});
+      const basemapExpand = new Expand({expandIconClass: "esri-icon-basemap", view: this.view, content: basemapGallery, group: "top-right"});
+      this.view.ui.add(basemapExpand, "top-right");
+    }
 
     this.view.ui.move("zoom", "top-right");
     this.view.ui.move("navigation-toggle", "top-right");
