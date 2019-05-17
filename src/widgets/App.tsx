@@ -31,6 +31,7 @@ import {
 } from "esri/core/accessorSupport/decorators";
 import { renderable, tsx } from "esri/widgets/support/widget";
 
+import esriConfig from "esri/config";
 import IdentityManager from "esri/identity/IdentityManager";
 import FeatureLayer from "esri/layers/FeatureLayer";
 import Map from "esri/Map";
@@ -114,6 +115,10 @@ export default class App extends declared(Widget) {
       }
       this.options = options;
       this.visualizationBridge = visualizationBridge;
+
+      if (options.portalUrl) {
+        esriConfig.portalUrl = options.portalUrl;
+      }
 
       if (options.portalToken) {
         IdentityManager.registerToken({
