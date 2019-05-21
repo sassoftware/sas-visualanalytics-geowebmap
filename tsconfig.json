@@ -24,14 +24,15 @@
     "importHelpers": true,
     "skipLibCheck": true,
 
-    "baseUrl": "./src",  // Apparently required only for VSC intellisense.
-    "resolveJsonModule": true  // Must include SampleData.json.
+    // "baseUrl": "./src", // Apparently required only for VSC intellisense.
+    "resolveJsonModule": true, // Must include SampleData.json.
+    "types": [
+      "arcgis-js-api",
+      "moment"
+    ]
   },
-  "types": [
-    "arcgis-js-api",   
-    "moment"
-  ],
   "include": [
-    "src/*"
+    // "src/*"
+    "src/**/*"
   ]
 }
