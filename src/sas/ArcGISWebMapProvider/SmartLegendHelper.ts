@@ -16,11 +16,11 @@ limitations under the License.
 
 /// <amd-dependency path="dojox/math/stats" name="stats" />
 /// <amd-dependency path="dojo/on" name="on" />
-declare const stats:any;
-declare const on:any;
+declare const stats: any;
+declare const on: any;
 
 import Color from "esri/Color";
-import lang from "esri/core/lang";
+import lang = require("esri/core/lang");
 import FeatureLayer from "esri/layers/FeatureLayer";
 import VisualVariable from "esri/renderers/visualVariables/VisualVariable";
 import View from "esri/views/View";
@@ -34,7 +34,7 @@ import SizeSlider from "esri/widgets/SizeSlider";
  */
 class SmartLegendHelper {
 
-    private _activeLegends:any[] = [];
+    private _activeLegends: any[] = [];
 
     /**
      * Issues:
@@ -53,13 +53,13 @@ class SmartLegendHelper {
      * https://developers.arcgis.com/javascript/latest/sample-code/visualization-sm-color/index.html
      */
 
-    addSmartLegends(readiedFeatureLayer:FeatureLayer, mapView:View):void {
+    addSmartLegends(readiedFeatureLayer: FeatureLayer, mapView: View): void {
 
         this.removeSmartLegends(mapView);
 
         const visualVariables = (readiedFeatureLayer.renderer as any).visualVariables || [];
 
-        visualVariables.forEach((visualVariable:VisualVariable) => {
+        visualVariables.forEach((visualVariable: VisualVariable) => {
 
             let varStats;
             let slider;
@@ -89,14 +89,14 @@ class SmartLegendHelper {
                 });
 
             }
-            
+
             if (slider) {
-                expand = new Expand({expandIconClass: "esri-icon-question", view: mapView, content: slider, group: "bottom-left"}); 
+                expand = new Expand({ expandIconClass: "esri-icon-question", view: mapView, content: slider, group: "bottom-left" });
                 mapView.ui.add(expand, "bottom-left");
                 this._activeLegends.push(expand);
                 on(
-                    slider, 
-                    "data-change", 
+                    slider,
+                    "data-change",
                     this.buildOnSmartWidgetDataChangeFunction(readiedFeatureLayer, slider)
                 );
             }
@@ -105,8 +105,8 @@ class SmartLegendHelper {
 
     }
 
-    expandTwoPartColorRange(stops:any[]):void {
-            if (stops && stops.length === 2) {
+    expandTwoPartColorRange(stops: any[]): void {
+        if (stops && stops.length === 2) {
             const middleStop = {
                 value: (stops[1].value - stops[0].value) / 2 + stops[0].value,
                 color: this.midColor(stops[0].color, stops[1].color)
@@ -115,12 +115,12 @@ class SmartLegendHelper {
         }
     }
 
-    private buildOnSmartWidgetDataChangeFunction(layer:any, widget:any):() => void {
+    private buildOnSmartWidgetDataChangeFunction(layer: any, widget: any): () => void {
         return () => {
             const renderer = layer.renderer.clone();
             renderer.visualVariables.splice(
                 renderer.visualVariables.findIndex(
-                    (vvar:VisualVariable) => vvar.type === widget.visualVariable.type
+                    (vvar: VisualVariable) => vvar.type === widget.visualVariable.type
                 ),
                 1
             );
@@ -130,11 +130,11 @@ class SmartLegendHelper {
         }
     }
 
-    private calculateStatistics(graphics:any, fieldName:string) {
+    private calculateStatistics(graphics: any, fieldName: string) {
 
         const field = graphics.items
-            .map((item:any) => item.attributes[fieldName])
-            .filter((value:any) => typeof value === "number");
+            .map((item: any) => item.attributes[fieldName])
+            .filter((value: any) => typeof value === "number");
 
         return {
             min: stats.min(field),
@@ -144,7 +144,7 @@ class SmartLegendHelper {
         };
     }
 
-    private midColor(minColor:any, maxColor:any):Color {
+    private midColor(minColor: any, maxColor: any): Color {
 
         // Following yields a tri-part blend with white as the middle color:
         // Color.blendColors(new Color(minColor), new Color(maxColor));
@@ -154,7 +154,7 @@ class SmartLegendHelper {
         minColor = new Color(minColor);
         maxColor = new Color(maxColor);
 
-        const mid = (a:number, b:number) => {
+        const mid = (a: number, b: number) => {
             let max;
             let min;
             if (a > b) {
@@ -166,7 +166,7 @@ class SmartLegendHelper {
             }
             return (max - min) / 2 + min;
         }
-        
+
         return new Color({
             a: mid(minColor.a, maxColor.a),
             b: mid(minColor.b, maxColor.b),
@@ -175,8 +175,8 @@ class SmartLegendHelper {
         });
     }
 
-    private removeSmartLegends(mapView:any):void {
-        this._activeLegends.forEach((legend:Legend) => { mapView.ui.remove(legend); });
+    private removeSmartLegends(mapView: any): void {
+        this._activeLegends.forEach((legend: Legend) => { mapView.ui.remove(legend); });
         this._activeLegends = [];
     }
 
