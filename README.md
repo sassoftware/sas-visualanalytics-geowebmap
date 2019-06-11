@@ -6,22 +6,23 @@ For an overview of this project from the perspective of a user, see the document
 
 ## Project
 
-This project presents a web page with an ArcGIS map designed to serve as a data-driven content for reports built with SAS Visual Analytics. The majority of the code is a fork of [jsapi-resources](https://github.com/Esri/jsapi-resources), Esri's template for JS apps. Uses DOJO and ArcGIS for JS 4.6.
+This project presents a web page with an ArcGIS map designed to serve as a data-driven content for reports built with SAS Visual Analytics. It is a fork of [jsapi-resources](https://github.com/Esri/jsapi-resources), Esri's template for JS applications, using Dojo and ArcGIS for JavaScript 4.x.
 
-A "copy:debug" task has been added to the normal build which will copy an `ArcGISVisualizationBridgeCDN.html` file into the "dist" directory.  This file accomplishes the main tasks that the built application will do, without requiring a full build; however, it may not be as performant as the main application (served by index.html).  *(This file is composited manually, and it is not always up-to-date with the latest changes.)*
-
-The task also adds an `.htaccess` file, which, if configured, will allow an Apache server to cache the built project
-for a minute.
-
-* `npm run buildDebug` - runs the build, leaving the uncompressed js in the `dist` directory.
-
-**Normal installation follows these steps:**
+### Usage
 
 * Download the project.
 * Open a command-line context at the project directory.
 * `npm install`
 * `npm run build`
 * Copy the built application from the `dist` directory to your web server's directory.
+
+#### Prerequisites
+
+Installation requires [node](http://nodejs.org) version 8.x.x or higher.  You can check your current version with `node --version`.
+
+#### Other options
+
+Run `npm run start` to compile and then kick off a webpack-dev-server to host the results locally for immediate testing.
 
 ## Application
 
@@ -35,7 +36,7 @@ Data-driven content aggregates report data.  Keep this in mind when including lo
 
 | Argument | Description |
 | --- | --- |
-| visualizationType | Optional.  Possible values include "scatter", "bubble", or "choropleth".  If unspecified, the value will be inferred from other arguments or left as "scatter". |
+| visualizationType | Optional.  Possible values include "scatter", "bubble", "choropleth," or "filtered".  If unspecified, the value will be inferred from other arguments or left as "scatter". Scatter plots, bubble plots, and choropleths appear as a SAS layer, capable of participating in filtering, interactions, and selection.  "Filtered" layers simply include a named external feature layer filtered by geoId. |
 | x | The label of the column containing longitude expressed in the same terms as the base map.  Defaults to "Longitude".  Required for scatter and bubble visualizations. |
 | y | The label of the column containing latitude expressed in the same terms as the base map.  Defaults to "Latitude".   Required for scatter and bubble visualizations. |
 | size | The label of the column containing the size measurement.  Required for bubble visualizations. |
@@ -44,20 +45,23 @@ Data-driven content aggregates report data.  Keep this in mind when including lo
 | colorMin | A hex, rgba, or named color for the minimum value of the range.  Defaults to "#bfe4e7" (also expressed, for example, as "rgba(191,228,231,1)", which is somewhat close to "LightCyan"). |
 | colorMax | A hex, rgba, or named color for the minimum value of the range.  Defaults to "#00929f".  Also controls dot color for the scatter plot as well as default color for the choropleth (when no color column is assigned). |
 | outline | A hex, rgba, or named color for an outline on drawn shapes.  Defaults to "#007E88".  Also controls highlight color for 3D views. |
-| geoId | The label of the column containing the geographic identifiers for the areas to be drawn.  Required for choropleth. |
-| featureServiceUrl | The url to the Esri feature service containing the shapes of the geographies identified by the geoId.  Required for choropleth. |
-| featureServiceGeoId | The name of the attribute in the Esri feature service that will match values found in the geoId column of the VA data.  Required for choropleth. |
+| geoId | The label of the column containing the geographic identifiers for the areas to be drawn.  Required for choropleth and "filtered". |
+| featureServiceUrl | The url to the Esri feature service containing the shapes of the geographies identified by the geoId.  Required for choropleth and "filtered". |
+| featureServiceGeoId | The name of the attribute in the Esri feature service that will match values found in the geoId column of the VA data.  Required for choropleth and "filtered". |
 | featureServiceWhere | A where clause to be provided to the Esri feature service that filters results.  Optional. |
 | featureServiceMaxAllowableOffset | The optional maxAllowableOffset provided to the feature service.  Can be used to restrict the amount of detail (and thus transmission size) of the geographic shapes it returns. |
 | portalItemId | The ID for a web map served at arcgis.com.  Optional.  Defaults to basemap "osm" (OpenStreetMap). |
+| portalToken | The Esri token string that can be presented to the portal for access. |
+| portalUrl | The full URL to the portal hosting the portal item and validating the portalToken, if one is presented.  Defaults to "http://www.arcgis.com".  This feature is experimental. |
 | basemap | The ID for a basemap from arcgis.com (e.g., "streets", "satellite", "hybrid").  Optional.  Defaults to basemap "osm" (OpenStreetMap).  Ignored if portalItemId is set. |
-| use3D | Set to "true" to display the map in a 3D SceneView.  Defaults to false. |
+| use3D | Set to "true" to display the map in a 3D SceneView.  Defaults to false.  Note that some portal item types will display in a SceneView automatically. |
 | title | The title of the layer that includes VA data.  Optional.  Defaults to the geoId, if available, or to "SAS VA Layer", if not. |
 | zIndex | The index of the layer that includes VA data.  Optional.  Use "0" to insert the layer below all others.  Defaults to the top-most level. |
 | featuresMax | The maximum number of features allowed in the SAS layer.  Optional.  If set, the user will receive a warning when the data's row count exceeds this number, and the SAS layer will be cleared. |
 | period | Defines the interval used to subdivide the animation date.  Valid values are units of time accepted by [Moment](http://momentjs.com/) (e.g., "millisecond", "day", "month", "year").  Defaults to "year". |
 | useSmartLegends | Set to "true" to use Esri's "smart mapping" legends for color and size (where appropriate).  Defaults to false.  This feature is experimental. |
 | useSampleData | Set to "true" to load data from SampleData.json instead of VA.  Useful for testing.  Optional. |
+| showBasemapSelector | Set to "false" to hide the basemap selection widget.  Defaults to true. |
 
 ### Example URLs (using sample data)
 
@@ -77,7 +81,7 @@ An "animated" scatter plot:
 
 http://&lt;server&gt;/ArcGisWebMapProvider/?useSampleData=true&animation=Date
 
-Other examples can be found in the file examples.html.
+Other examples appear in the file `examples.html`.
 
 ### Some useful Esri feature layers
 
@@ -114,32 +118,6 @@ See [SampleData.json](src/sas/ArcGISWebMapProvider/SampleData.json) for a more c
 
 Use of Esri's ArcGIS SDK is subject to their [licensing requirements](https://developers.arcgis.com/arcgis-runtime/licensing).
 
-Subsequent notes are from Esri's (dojo-based) [build project](https://github.com/Esri/jsapi-resources).
+### Notes from Esri's jsapi-resources projects
 
-# Bower Sample application
-
-This is a sample application showing how to use [Bower](http://bower.io/) to build your [ArcGIS API for JavaScript](https://developers.arcgis.com/javascript/) application.
-It provides a Gruntfile for build scenario using Dojo.
-
-# Requirements
-* [node & npm](https://nodejs.org/)
-* [bower](http://bower.io/)
-* [java 7 or greater](https://java.com/en/download/) - for [Closure Compiler](https://github.com/google/closure-compiler) used during build
-
-# Usage
-* `npm install -g bower` - installs bower
-* `npm install` - installs required node and bower packages
-* `npm run clean` - removes built files from `dist` directory
-* `npm run build` - run the Dojo build on application
-
-If you are interested in building the [Sass](http://sass-lang.com/) files included in the Bower release of the API, please refer to this [document](SASS.md).
-
-## Additional tools
-We have also included a `gulpfile` if that is your build tool of choice. Just run `gulp` to start the build.
-
-And just to demonstrate that it can be done, we've included a `makefile` so you can build the demo application using the `make` command.
-
-If you have [Python](https://www.python.org/) you can run `python -m SimpleHTTPServer` in same folder as application to run it in a browser.
-
-# Notes
-For details on the Dojo build system, [review the Dojo documentation](http://dojotoolkit.org/documentation/tutorials/1.10/build/index.html).
+Please refer to  Esri's (dojo-based) [sample project](https://github.com/Esri/jsapi-resources) for information regarding [Webpack](https://webpack.js.org), the [arcgis-js-api](https://github.com/Esri/arcgis-js-api), and the [@arcgis/webpack-plugin](https://github.com/Esri/arcgis-webpack-plugin).
