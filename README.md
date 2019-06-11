@@ -10,6 +10,10 @@ This project presents a web page with an ArcGIS map designed to serve as a data-
 
 ### Usage
 
+The built application is a collection of HTML and Javascript files that can be served from any web server.  You may download a zip of these files (sas-visualanalytics-geowebmap.zip) from the [Releases](https://github.com/sassoftware/sas-visualanalytics-geowebmap/releases) page.
+
+Alternately, you can build and modify the code yourself with the following steps:
+
 * Download the project.
 * Open a command-line context at the project directory.
 * `npm install`
