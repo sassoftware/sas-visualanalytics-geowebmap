@@ -17,4 +17,5 @@ limitations under the License.
 import "./ArcGISWebMapProvider/layerBuilder/TestBubbleLayerBuilder";
 import "./ArcGISWebMapProvider/layerBuilder/TestChoroplethLayerBuilder";
 import "./ArcGISWebMapProvider/layerBuilder/TestScatterLayerBuilder";
+import "./ArcGISWebMapProvider/TestVAOptions";
 
