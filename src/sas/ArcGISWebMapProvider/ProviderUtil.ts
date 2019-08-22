@@ -16,7 +16,7 @@ limitations under the License.
 
 /// <amd-dependency path="dojo/i18n" name="i18n" />
 /// <amd-dependency path="dojo/i18n!sas/nls/resources" name="resources" />
-declare const i18n:any
+declare const i18n: any
 
 import moment from "moment/moment";
 
@@ -25,20 +25,21 @@ import moment from "moment/moment";
  */
 class ProviderUtil {
 
-    static VISUALIZATION_TYPE_SCATTER:string = "SCATTER";
-    static VISUALIZATION_TYPE_BUBBLE:string = "BUBBLE";
-    static VISUALIZATION_TYPE_CHOROPLETH:string = "CHOROPLETH";
-    static VISUALIZATION_TYPE_FILTERED:string = "FILTERED";
-    static FIELD_NAME_OBJECT_ID:string = "ObjectId";
-    static SAS_FEATURE_LAYER_ID:string = "_sasFeatureLayerId";
-    static DEFAULT_PORTAL_URL:string = "http://www.arcgis.com";
-    static PROPERTY_CHANGE_EVENT:string = "change";
+    static VISUALIZATION_TYPE_NONE: string = "NONE";
+    static VISUALIZATION_TYPE_SCATTER: string = "SCATTER";
+    static VISUALIZATION_TYPE_BUBBLE: string = "BUBBLE";
+    static VISUALIZATION_TYPE_CHOROPLETH: string = "CHOROPLETH";
+    static VISUALIZATION_TYPE_FILTERED: string = "FILTERED";
+    static FIELD_NAME_OBJECT_ID: string = "ObjectId";
+    static SAS_FEATURE_LAYER_ID: string = "_sasFeatureLayerId";
+    static DEFAULT_PORTAL_URL: string = "http://www.arcgis.com";
+    static PROPERTY_CHANGE_EVENT: string = "change";
 
-    static getResource(key:string, ...substitutionArguments:string[]):string {
+    static getResource(key: string, ...substitutionArguments: string[]): string {
         const resourceBundle = i18n.getLocalization("sas", "resources");
         let resource = resourceBundle[key] || "";
-        (substitutionArguments || []).forEach((argument:string, i:number)=>{
-            resource = resource.replace(new RegExp("\\{" + i + "\\}","gi"), argument);
+        (substitutionArguments || []).forEach((argument: string, i: number) => {
+            resource = resource.replace(new RegExp("\\{" + i + "\\}", "gi"), argument);
         });
         return resource;
     }
@@ -47,10 +48,10 @@ class ProviderUtil {
         return !isNaN(n) && n !== null;
     }
 
-    static findMinMax(items: any[], field?: number): any[] {  
+    static findMinMax(items: any[], field?: number): any[] {
         return items.reduce((acc: any, val: any) => {
             val = (field !== undefined) ? val[field] : val;
-            if (val === null) { 
+            if (val === null) {
                 val = undefined;
             }
             acc[0] = (acc[0] === undefined || val < acc[0]) ? val : acc[0];
@@ -103,7 +104,7 @@ class ProviderUtil {
     }
 
     static getNameWithLabel(label: string, columns: any[]): string {
-        let match = columns.find((column: any) => { 
+        let match = columns.find((column: any) => {
             return column && column.name === label;
         });
         if (!match) {
@@ -115,7 +116,7 @@ class ProviderUtil {
     }
 
     static getIndexWithLabel(label: string, columns: any[]): number {
-        let index:number = columns.findIndex((column: any) => {
+        let index: number = columns.findIndex((column: any) => {
             return column && column.name === label;
         });
         if (index === -1) {
@@ -127,17 +128,17 @@ class ProviderUtil {
     }
 
     static getNameWithUsage(usage: string, columns: any[]): string {
-        const match = columns.find((column:any) => {
+        const match = columns.find((column: any) => {
             return column && column.usage === usage;
         });
         return (match) ? match.name : null;
     }
 
-    static logError(error: any):void {
+    static logError(error: any): void {
         if (console && console.error) { console.error(error) };
     }
 
-    static publishMessage(msg: any):void {
+    static publishMessage(msg: any): void {
         const target = window.parent || window;
         const targetOrigin = ProviderUtil.selectionPublicationTargetOrigin();
         if (target) {
@@ -145,10 +146,10 @@ class ProviderUtil {
         }
     }
 
-    static publishPropertyChange(resultName:string, propertyName:string, newValue?:any, oldValue?:any):void {
+    static publishPropertyChange(resultName: string, propertyName: string, newValue?: any, oldValue?: any): void {
         this.publishMessage({
             event: ProviderUtil.PROPERTY_CHANGE_EVENT,
-            resultName, 
+            resultName,
             name: propertyName,
             newValue,
             oldValue
@@ -167,14 +168,14 @@ class ProviderUtil {
     }
 
     // See also https://github.com/sassoftware/sas-visualanalytics-thirdpartyvisualizations.
-    static convertToEpochMS(value:any, sasFormat?:string):number {
+    static convertToEpochMS(value: any, sasFormat?: string): number {
 
-        let date:moment.Moment;
+        let date: moment.Moment;
 
         if (sasFormat === "DDMMYY8" && typeof value === "string") {
             date = moment.utc(value, "DD/MM/YYYY");
         }
-        else if (sasFormat === "DATE9" && typeof value === "string") { 
+        else if (sasFormat === "DATE9" && typeof value === "string") {
             date = moment.utc(value, "DDMMMYYYY");
         }
         else {
@@ -203,7 +204,7 @@ class ProviderUtil {
             return value;
         }
 
-        return "'" + value.replace(/[\0\x08\x09\x1a\n\r"'\\%]/g,  (char:string):string => { // eslint-disable-line no-control-regex
+        return "'" + value.replace(/[\0\x08\x09\x1a\n\r"'\\%]/g, (char: string): string => { // eslint-disable-line no-control-regex
             switch (char) {
                 case "\0":
                     return "\\0";
@@ -222,7 +223,7 @@ class ProviderUtil {
                 case "\\":
                 case "%":
                     return "\\" + char; // prepends a backslash to backslash, percent,
-                    // and double/single quotes
+                // and double/single quotes
                 default:
                     return char;
             }
@@ -230,15 +231,15 @@ class ProviderUtil {
     }
 
     // Credit to: http://axonflux.com/handy-rgb-to-hsl-and-rgb-to-hsv-color-model-c
-    private static generateColors(numColors: number):any[] {
+    private static generateColors(numColors: number): any[] {
         let h = Math.floor(Math.random() * Math.floor(360));
         const goldenRatioConjugate = 0.618033988749895;
         const colors = [];
 
-        const hsvToRgb = (s:number, v:number) => {
-            let r:number;
-            let g:number;
-            let b:number;
+        const hsvToRgb = (s: number, v: number) => {
+            let r: number;
+            let g: number;
+            let b: number;
             r = g = b = 0;
 
             const i = Math.floor(h * 6);

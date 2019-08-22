@@ -57,10 +57,8 @@ class VAOptions {
                             name: "basemap",
                             label: R("vaoptions_basemap_label"),
                             tooltip: R("vaoptions_basemap_help"),
-                            // type: "String",
-                            value: "osm",
+                            value: " ",
                             dataProvider: [
-                                // { key: "", text: R("vaoptions_basemap_default") },
                                 { key: "topo", text: R("vaoptions_basemap_topo") },
                                 { key: "streets", text: R("vaoptions_basemap_streets") },
                                 { key: "satellite", text: R("vaoptions_basemap_satellite") },
@@ -69,7 +67,7 @@ class VAOptions {
                                 { key: "gray", text: R("vaoptions_basemap_gray") },
                                 { key: "national-geographic", text: R("vaoptions_basemap_national_geographic") },
                                 { key: "oceans", text: R("vaoptions_basemap_oceans") },
-                                { key: "osm", text: R("vaoptions_basemap_osm") },
+                                { key: " ", text: R("vaoptions_basemap_osm") }, // "osm" or, since it's the default, " ".  An empty string is not accepted by the form control.
                                 { key: "terrain", text: R("vaoptions_basemap_terrain") },
                                 { key: "dark-gray-vector", text: R("vaoptions_basemap_dark_gray_vector") },
                                 { key: "gray-vector", text: R("vaoptions_basemap_gray_vector") },
@@ -116,10 +114,9 @@ class VAOptions {
                             name: "visualizationType",
                             label: R("vaoptions_visualizationType_label"),
                             tooltip: R("vaoptions_visualizationType_help"),
-                            // type: "String",
-                            value: "scatter",
+                            value: ProviderUtil.VISUALIZATION_TYPE_NONE,
                             dataProvider: [
-                                // { key: "", text: R("vaoptions_visualizationType_default") },
+                                { key: ProviderUtil.VISUALIZATION_TYPE_NONE, text: R("vaoptions_visualizationType_none") },
                                 { key: "scatter", text: R("vaoptions_visualizationType_scatter") },
                                 { key: "bubble", text: R("vaoptions_visualizationType_bubble") },
                                 { key: "choropleth", text: R("vaoptions_visualizationType_choropleth") },

@@ -63,7 +63,8 @@ class ArcGISVisualizationBridge {
         if (this._options.visualizationType !== ProviderUtil.VISUALIZATION_TYPE_SCATTER &&
             this._options.visualizationType !== ProviderUtil.VISUALIZATION_TYPE_BUBBLE &&
             this._options.visualizationType !== ProviderUtil.VISUALIZATION_TYPE_CHOROPLETH &&
-            this._options.visualizationType !== ProviderUtil.VISUALIZATION_TYPE_FILTERED) {
+            this._options.visualizationType !== ProviderUtil.VISUALIZATION_TYPE_FILTERED &&
+            this._options.visualizationType !== ProviderUtil.VISUALIZATION_TYPE_NONE) {
             if (this._options.geoId) {
                 this._options.visualizationType = ProviderUtil.VISUALIZATION_TYPE_CHOROPLETH;
             }
@@ -204,7 +205,7 @@ class ArcGISVisualizationBridge {
 
             VAOptions.postOptions(this._dataResultName);
 
-            if (!this.validateOptions() || !this.validateFeaturesMax(event.data.data, this._options.featuresMax)) {
+            if (this._options.visualizationType === ProviderUtil.VISUALIZATION_TYPE_NONE || !this.validateOptions() || !this.validateFeaturesMax(event.data.data, this._options.featuresMax)) {
                 this.removeSasLayer();
                 return;
             }

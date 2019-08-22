@@ -40,7 +40,7 @@ Data-driven content aggregates report data.  Keep this in mind when including lo
 
 | Argument | Description |
 | --- | --- |
-| visualizationType | Optional.  Possible values include "scatter", "bubble", "choropleth," or "filtered".  If unspecified, the value will be inferred from other arguments or left as "scatter". Scatter plots, bubble plots, and choropleths appear as a SAS layer, capable of participating in filtering, interactions, and selection.  "Filtered" layers simply include a named external feature layer filtered by geoId. |
+| visualizationType | Optional.  Possible values include "scatter", "bubble", "choropleth," "filtered", or "none".  If unspecified, the value will be inferred from other arguments or left as "scatter". Scatter plots, bubble plots, and choropleths appear as a SAS layer, capable of participating in filtering, interactions, and selection.  "Filtered" layers simply include a named external feature layer filtered by geoId. |
 | x | The label of the column containing longitude expressed in the same terms as the base map.  Defaults to "Longitude".  Required for scatter and bubble visualizations. |
 | y | The label of the column containing latitude expressed in the same terms as the base map.  Defaults to "Latitude".   Required for scatter and bubble visualizations. |
 | size | The label of the column containing the size measurement.  Required for bubble visualizations. |
