@@ -228,7 +228,6 @@ class VAOptions {
                             type: "Integer",
                             placeholder: R("vaoptions_zIndex_placeholder"),
                         },
-
                     ],
                 },
             ]
