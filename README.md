@@ -53,7 +53,7 @@ Data-driven content aggregates report data.  Keep this in mind when including lo
 | featureServiceUrl | The url to the Esri feature service containing the shapes of the geographies identified by the geoId.  Required for choropleth and "filtered". |
 | featureServiceGeoId | The name of the attribute in the Esri feature service that will match values found in the geoId column of the VA data.  Required for choropleth and "filtered". |
 | featureServiceWhere | A where clause to be provided to the Esri feature service that filters results.  Optional. |
-| featureServiceMaxAllowableOffset | The optional maxAllowableOffset provided to the feature service.  Can be used to restrict the amount of detail (and thus transmission size) of the geographic shapes it returns. |
+| featureServiceMaxAllowableOffset | The optional maxAllowableOffset provided to the feature service.  Can be used to restrict the amount of detail (and thus transmission size) of the geographic shapes it returns. Use 0 to return highest detail.  Defaults to a value appropriate for only the initial extent. |
 | portalItemId | The ID for a web map served at arcgis.com.  Optional.  Defaults to basemap "osm" (OpenStreetMap). |
 | portalToken | The Esri token string that can be presented to the portal for access. |
 | portalUrl | The full URL to the portal hosting the portal item and validating the portalToken, if one is presented.  Defaults to "http://www.arcgis.com".  This feature is experimental. |

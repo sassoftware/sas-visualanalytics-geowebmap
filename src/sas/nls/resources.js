@@ -85,7 +85,7 @@ define({
                 vaoptions_featureServiceWhere_label: "Feature service filter:",
                 vaoptions_featureServiceWhere_help: "A optional where clause to be provided to the Esri feature service that filters results.",
                 vaoptions_featureServiceMaxAllowableOffset_label: "Feature service max allowable offset:",
-                vaoptions_featureServiceMaxAllowableOffset_help: "The optional maxAllowableOffset provided to the feature service. Can be used to restrict the amount of detail (and thus transmission size) of the geographic shapes it returns.",
+                vaoptions_featureServiceMaxAllowableOffset_help: "The optional maxAllowableOffset provided to the feature service. Can be used to restrict the amount of detail (and thus transmission size) of the geographic shapes it returns.  Use 0 to return highest detail.  Defaults to level matching initial extent.",
                 vaoptions_portalItemId_label: "Webmap ID:",
                 vaoptions_portalItemId_help: "The optional ID for a web map provided by the Esri portal (arcgis.com, by default).",
                 vaoptions_portalToken_label: "Esri portal token:",
