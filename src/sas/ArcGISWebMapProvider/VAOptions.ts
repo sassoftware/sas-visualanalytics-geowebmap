@@ -41,11 +41,13 @@ class VAOptions {
         };
 
         return {
-            name: "geowebmapOptions",
+            // name: "geowebmapOptions",
+            version: 1,
+            urlOption: true,
             label: R("vaoptions_label"),
             groups: [
                 {
-                    name: "webmapSettings",
+                    // name: "webmapSettings",
                     label: R("vaoptions_webmap_label"),
                     fields: [
                         {
@@ -100,7 +102,7 @@ class VAOptions {
                     ]
                 },
                 {
-                    name: "sasLayer",
+                    // name: "sasLayer",
                     label: R("vaoptions_vaLayer_label"),
                     fields: [
                         {
