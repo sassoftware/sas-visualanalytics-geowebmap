@@ -46,9 +46,9 @@ Data-driven content aggregates report data.  Keep this in mind when including lo
 | size | The label of the column containing the size measurement.  Required for bubble visualizations. |
 | color | The label of the column containing the color measurement.  Optional for bubble and choropleth visualizations. |
 | animation | The label of the column containing the date used when animating through the data.  Optional.  Animations are not currently supported in choropleths or 3D views, and they should be considered experimental.  It has been observed that performance degrades rapidly when the data's row count enters the tens of thousands.  Acceptable date formats are those correctly interpreted by [Moment](http://momentjs.com/), which include RFC2822 and ISO formats. |
-| colorMin | A hex, rgba, or named color for the minimum value of the range.  Defaults to "#bfe4e7" (also expressed, for example, as "rgba(191,228,231,1)", which is somewhat close to "LightCyan"). |
-| colorMax | A hex, rgba, or named color for the minimum value of the range.  Defaults to "#00929f".  Also controls dot color for the scatter plot as well as default color for the choropleth (when no color column is assigned). |
-| outline | A hex, rgba, or named color for an outline on drawn shapes.  Defaults to "#007E88".  Also controls highlight color for 3D views. |
+| colorMin | A hex, rgba, or named color for the minimum value of the range.  Defaults to "#bfe4e7" (URL-encoded "%23bfe4e7"), which is equally valid to express, for example, as either "rgba(191,228,231,1)" or, approximately, "LightCyan". |
+| colorMax | A hex, rgba, or named color for the minimum value of the range.  Defaults to "#00929f" (URL-encoded "%2300929f").  Also controls dot color for the scatter plot as well as default color for the choropleth (when no color column is assigned). |
+| outline | A hex, rgba, or named color for an outline on drawn shapes.  Defaults to "#007E88" (URL-encoded "%23007E88").  Also controls highlight color for 3D views. |
 | geoId | The label of the column containing the geographic identifiers for the areas to be drawn.  Required for choropleth and "filtered". |
 | featureServiceUrl | The url to the Esri feature service containing the shapes of the geographies identified by the geoId.  Required for choropleth and "filtered". |
 | featureServiceGeoId | The name of the attribute in the Esri feature service that will match values found in the geoId column of the VA data.  Required for choropleth and "filtered". |
