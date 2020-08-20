@@ -1,0 +1,13 @@
+# Deploying the sas-visualanalytics-geowebmap in an nginx webserver.
+# Requires Dockerfile in the same build context.
+# Deployed to http://localhost:8081.
+
+# docker-compose up
+
+version: "3.5"
+services:
+  geowebmap:
+    build: .
+    ports:
+      - target: 80
+        published: 8081
