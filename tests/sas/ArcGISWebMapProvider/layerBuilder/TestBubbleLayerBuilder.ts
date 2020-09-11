@@ -16,6 +16,7 @@ limitations under the License.
 
 import FeatureLayer from "esri/layers/FeatureLayer";
 import BubbleLayerBuilder from "sas/ArcGISWebMapProvider/layerBuilder/BubbleLayerBuilder";
+import TestUtil from "sas/TestUtil";
 
 const { suite, test } = intern.getInterface("tdd");
 const { assert } = intern.getPlugin("chai");
@@ -23,26 +24,31 @@ const { assert } = intern.getPlugin("chai");
 suite("BubbleLayerBuilder", () => {
 
     test("validateOptions", () => {
-        
-        const options = {
-            x: null,
-            y: null,
-            size: null
-        } as any;
 
-        assert.notEqual(0, new BubbleLayerBuilder(options, null, null).validateOptions().length);
+        TestUtil.InitializeI18NOnce().then(() => {
 
-        options.x = "someValue";
+            const options = {
+                x: null,
+                y: null,
+                size: null
+            } as any;
 
-        assert.notEqual(0, new BubbleLayerBuilder(options, null, null).validateOptions().length);
+            assert.notEqual(0, new BubbleLayerBuilder(options, null, null).validateOptions().length);
 
-        options.y = "someValue";
+            options.x = "someValue";
 
-        assert.notEqual(0, new BubbleLayerBuilder(options, null, null).validateOptions().length);
+            assert.notEqual(0, new BubbleLayerBuilder(options, null, null).validateOptions().length);
 
-        options.size = "someValue";
+            options.y = "someValue";
 
-        assert.equal(0, new BubbleLayerBuilder(options, null, null).validateOptions());
+            assert.notEqual(0, new BubbleLayerBuilder(options, null, null).validateOptions().length);
+
+            options.size = "someValue";
+
+            assert.equal(0, new BubbleLayerBuilder(options, null, null).validateOptions());
+
+        });
+
     });
 
     // This test provided to illustrate how to write tests to validate the returned feature layer.
@@ -55,7 +61,7 @@ suite("BubbleLayerBuilder", () => {
             y: "someOtherValue"
         } as any;
 
-        return new BubbleLayerBuilder(options, [], []).buildFeatureLayer().then((layer:FeatureLayer) => {
+        return new BubbleLayerBuilder(options, [], []).buildFeatureLayer().then((layer: FeatureLayer) => {
             assert.ok(layer);
         });
 

@@ -26,13 +26,13 @@ import ProviderUtil from "sas/ArcGISWebMapProvider/ProviderUtil";
  */
 class SelectionHelper {
 
-    private _mapView:View;
-    private _sasFeatureLayerId:string;
-    private _dataResultName:string;        // Name of incoming dataset (from VA)
-    private _selectionColumnName:string;   // Column of incoming dataset that is used to brush data
-    private _highlights:any;
+    private _mapView: View;
+    private _sasFeatureLayerId: string;
+    private _dataResultName: string;        // Name of incoming dataset (from VA)
+    private _selectionColumnName: string;   // Column of incoming dataset that is used to brush data
+    private _highlights: any;
 
-    registerMapView(mapView:View, sasFeatureLayerId:string):void {
+    registerMapView(mapView: View, sasFeatureLayerId: string): void {
 
         this._mapView = mapView;
         this._sasFeatureLayerId = sasFeatureLayerId;
@@ -43,12 +43,12 @@ class SelectionHelper {
         // does not fire when the user dismisses the popup (even though it 
         // clears the highlight in SceneView).  Convert this combination
         // into a selection handler.
-        this._mapView.popup.watch("selectedFeature", (selection:any) => {
+        this._mapView.popup.watch("selectedFeature", (selection: any) => {
             if (selection) {
                 this.onSelection(selection);
             }
         });
-        this._mapView.popup.watch("visible",(isVisible:boolean) => {
+        this._mapView.popup.watch("visible", (isVisible: boolean) => {
             if (!isVisible) {
                 this.onSelection(null);
             }
@@ -56,7 +56,7 @@ class SelectionHelper {
 
     }
 
-    registerMapData(dataResultName:string, selectionColumnName:string):void {
+    registerMapData(dataResultName: string, selectionColumnName: string): void {
         this._dataResultName = dataResultName;
         this._selectionColumnName = selectionColumnName;
     }
@@ -64,53 +64,58 @@ class SelectionHelper {
     /**
      * Processes selection state embedded in data incoming from VA.
      */
-    applySelectionsFromData(sasLayer:FeatureLayer):void {
+    applySelectionsFromData(sasLayer: FeatureLayer): void {
 
         const view = this.getMapView();
+        const map = (view) ? view.map : null;
+        if (map && !map.findLayerById(sasLayer.id)) {
+            ProviderUtil.logInfo("Cannot apply selections before layer added to map.  Skipping.");
+            return;
+        }
 
         this.clearSelections();
 
-        const drawSelection = (args:any) => { this.drawSelection(args[0], args[1]); };
-        const fetchGraphics = (lyrView:FeatureLayerView) => {
-            lyrView.queryFeatures().then((graphics:FeatureSet) => {
+        const drawSelection = (args: any) => { this.drawSelection(args[0], args[1]); };
+        const fetchGraphics = (lyrView: FeatureLayerView) => {
+            lyrView.queryFeatures().then((graphics: FeatureSet) => {
                 // Filter to the ones that are selected, and draw the selection graphics for them.
                 const selectedGraphics = graphics.features
-                    .filter((graphic:Graphic) => graphic.attributes[this._selectionColumnName] === 1);
-                drawSelection([selectedGraphics, lyrView]); 
+                    .filter((graphic: Graphic) => graphic.attributes[this._selectionColumnName] === 1);
+                drawSelection([selectedGraphics, lyrView]);
             });
         };
 
-        view.whenLayerView(sasLayer).then((lyrView:FeatureLayerView) => {
+        view.whenLayerView(sasLayer).then((lyrView: FeatureLayerView) => {
             if (!lyrView.updating) {
                 fetchGraphics(lyrView);
             } else {
-                const watcher = lyrView.watch("updating", (isUpdating:boolean) => {
+                const watcher = lyrView.watch("updating", (isUpdating: boolean) => {
                     // Wait for the layer view to finish updating.
-                    if (!isUpdating) { 
+                    if (!isUpdating) {
                         fetchGraphics(lyrView);
                         watcher.remove();
                     }
                 });
             }
-        });
+        }, (reason: any) => { ProviderUtil.logError(reason); });
 
     }
 
-    private getMapView():View { 
-        return this._mapView; 
+    private getMapView(): View {
+        return this._mapView;
     }
 
     /**
      * Processes selection actions made on the map by the user.
      */
-    private onSelection(graphic:any):void {
+    private onSelection(graphic: any): void {
 
         const isSasFeature = (graphic && graphic.layer && graphic.layer.id === this._sasFeatureLayerId);
 
         // (1) Communicate selection to containing report in VA.
 
         const id = (isSasFeature && graphic && graphic.attributes) ? graphic.attributes[ProviderUtil.FIELD_NAME_OBJECT_ID] : null;
-        const selections = (id === null) ? [] : [{row: id}];
+        const selections = (id === null) ? [] : [{ row: id }];
         ProviderUtil.publishMessage({
             resultName: this._dataResultName,
             selections
@@ -129,24 +134,24 @@ class SelectionHelper {
 
     }
 
-    private clearSelections():void {
+    private clearSelections(): void {
         this.clearHighlights();
     }
 
-    private drawSelection(graphics:any, layerView?:FeatureLayerView):void {
+    private drawSelection(graphics: any, layerView?: FeatureLayerView): void {
         if (!graphics) { return; }
         graphics = (Array.isArray(graphics)) ? graphics : [graphics];
         this.drawHighlights(graphics, layerView);
     }
 
-    private clearHighlights():void {
+    private clearHighlights(): void {
         if (this._highlights) {
             this._highlights.remove();
             this._highlights = null;
         }
     }
 
-    private drawHighlights(graphics:Graphic[], layerView?:FeatureLayerView):void {
+    private drawHighlights(graphics: Graphic[], layerView?: FeatureLayerView): void {
         this.clearHighlights();
         if (layerView && graphics && graphics.length > 0) {
             this._highlights = layerView.highlight(graphics);

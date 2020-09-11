@@ -14,11 +14,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-/// <amd-dependency path="dojo/i18n" name="i18n" />
-/// <amd-dependency path="dojo/i18n!sas/nls/resources" name="resources" />
-declare const i18n: any
-
 import moment from "moment/moment";
+import { l } from "sas/i18n/resources";
 
 /**
  * Encapsulates utility features required by more than one class.
@@ -36,12 +33,7 @@ class ProviderUtil {
     static PROPERTY_CHANGE_EVENT: string = "change";
 
     static getResource(key: string, ...substitutionArguments: string[]): string {
-        const resourceBundle = i18n.getLocalization("sas", "resources");
-        let resource = resourceBundle[key] || "";
-        (substitutionArguments || []).forEach((argument: string, i: number) => {
-            resource = resource.replace(new RegExp("\\{" + i + "\\}", "gi"), argument);
-        });
-        return resource;
+        return l(key, ...substitutionArguments);
     }
 
     static isValidCoordinate(n: any): boolean {
@@ -100,7 +92,7 @@ class ProviderUtil {
             return false;
         }
         const colorIndex = ProviderUtil.getIndexWithLabel(label, columns);
-        return (columns[colorIndex].usage === "categorical" || columns[colorIndex].type === "string")
+        return colorIndex > -1 && (columns[colorIndex].usage === "categorical" || columns[colorIndex].type === "string")
     }
 
     static getNameWithLabel(label: string, columns: any[]): string {
@@ -136,6 +128,10 @@ class ProviderUtil {
 
     static logError(error: any): void {
         if (console && console.error) { console.error(error) };
+    }
+
+    static logInfo(info: any): void {
+        if (console && console.info) { console.info(info) };
     }
 
     static publishMessage(msg: any): void {

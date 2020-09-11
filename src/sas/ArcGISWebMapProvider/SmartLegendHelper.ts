@@ -14,20 +14,22 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-/// <amd-dependency path="dojox/math/stats" name="stats" />
-/// <amd-dependency path="dojo/on" name="on" />
-declare const stats: any;
-declare const on: any;
-
 import Color from "esri/Color";
-import lang = require("esri/core/lang");
 import FeatureLayer from "esri/layers/FeatureLayer";
+import AuthoringInfo from "esri/renderers/support/AuthoringInfo";
+import AuthoringInfoVisualVariable from "esri/renderers/support/AuthoringInfoVisualVariable";
+import ColorVariable from "esri/renderers/visualVariables/ColorVariable";
+import SizeVariable from "esri/renderers/visualVariables/SizeVariable";
 import VisualVariable from "esri/renderers/visualVariables/VisualVariable";
+import histogram = require("esri/smartMapping/statistics/histogram");
+import summaryStatistics = require("esri/smartMapping/statistics/summaryStatistics");
 import View from "esri/views/View";
-import ColorSlider from "esri/widgets/ColorSlider";
 import Expand from "esri/widgets/Expand";
 import Legend from "esri/widgets/Legend";
-import SizeSlider from "esri/widgets/SizeSlider";
+import ColorSlider from "esri/widgets/smartMapping/ColorSlider";
+import SizeSlider from "esri/widgets/smartMapping/SizeSlider";
+
+import esri = __esri;
 
 /**
  * Encapsulate the logic for "smart mapping" legends.
@@ -39,69 +41,39 @@ class SmartLegendHelper {
     /**
      * Issues:
      * 
-     * - Native smart mapping examples use the smart mapping renderers with these controls.
-     *   Here, these are _not_ using the smart mapping renderers.  This implementation
-     *   should be considered experimental.
-     * - The example histogram implemenation relies on server-side queries that are
-     *   not available here, and no workaround has been provided.
-     * - The behavior of the smart mapping size legends is to have the absolute min and max 
-     *   for the data range always display at the absolute min and max display sizes
-     *   specified.  Only intervening sizes can be altered.
-     * - Native color slider examples use five stops.  These use three.
+     * - This is a highly experimental implementation of multivariate smart mapping.  
+     *   Smart mapping behaviors require an AuthorizationInfo on the renderer, which 
+     *   client-side renderers do not have. Below, one is "primed" from an invocation 
+     *   of createContinuousRenderer().  
      * 
+     * https://developers.arcgis.com/javascript/latest/sample-code/visualization-sm-multivariate/index.html
      * https://developers.arcgis.com/javascript/latest/sample-code/sandbox/index.html?sample=visualization-sm-size
      * https://developers.arcgis.com/javascript/latest/sample-code/visualization-sm-color/index.html
      */
 
     addSmartLegends(readiedFeatureLayer: FeatureLayer, mapView: View): void {
 
-        this.removeSmartLegends(mapView);
+        if (readiedFeatureLayer && readiedFeatureLayer.renderer && !readiedFeatureLayer.renderer.authoringInfo) {
 
-        const visualVariables = (readiedFeatureLayer.renderer as any).visualVariables || [];
+            const visualVariables = (readiedFeatureLayer.renderer as any).visualVariables || [];
 
-        visualVariables.forEach((visualVariable: VisualVariable) => {
-
-            let varStats;
-            let slider;
-            let expand;
-
-            if (visualVariable.type === "size") {
-
-                varStats = this.calculateStatistics(readiedFeatureLayer.source, visualVariable.field);
-
-                slider = new SizeSlider({
-                    statistics: varStats,
-                    visualVariable: lang.clone(visualVariable),
-                    minValue: varStats.min,
-                    maxValue: varStats.max,
+            const authoringVariables: AuthoringInfoVisualVariable[] = visualVariables
+                .filter((v: VisualVariable) => {
+                    return v.type === "size" || v.type === "color";
+                })
+                .map((v: VisualVariable) => {
+                    return new AuthoringInfoVisualVariable({
+                        type: v.type as any,
+                        maxSliderValue: 0,
+                        minSliderValue: 0
+                    });
                 });
 
-            } else if (visualVariable.type === "color") {
+            readiedFeatureLayer.renderer.authoringInfo = new AuthoringInfo({ visualVariables: authoringVariables });
 
-                varStats = this.calculateStatistics(readiedFeatureLayer.source, visualVariable.field);
+        }
 
-                slider = new ColorSlider({
-                    statistics: varStats,
-                    visualVariable: lang.clone(visualVariable),
-                    minValue: varStats.min,
-                    maxValue: varStats.max,
-                    numHandles: 3
-                });
-
-            }
-
-            if (slider) {
-                expand = new Expand({ expandIconClass: "esri-icon-question", view: mapView, content: slider, group: "bottom-left" });
-                mapView.ui.add(expand, "bottom-left");
-                this._activeLegends.push(expand);
-                on(
-                    slider,
-                    "data-change",
-                    this.buildOnSmartWidgetDataChangeFunction(readiedFeatureLayer, slider)
-                );
-            }
-
-        });
+        this.addSmartLegendsImpl(readiedFeatureLayer, mapView);
 
     }
 
@@ -115,33 +87,106 @@ class SmartLegendHelper {
         }
     }
 
-    private buildOnSmartWidgetDataChangeFunction(layer: any, widget: any): () => void {
+    private addSmartLegendsImpl(readiedFeatureLayer: FeatureLayer, mapView: View): void {
+
+        this.removeSmartLegends(mapView);
+
+        const visualVariables = (readiedFeatureLayer.renderer as any).visualVariables || [];
+
+        visualVariables.forEach((visualVariable: VisualVariable) => {
+
+            if (visualVariable.type === "size") {
+
+                this.getHistogram(readiedFeatureLayer, visualVariable)
+                    .then((histogramResult: esri.HistogramResult) => {
+                        return this.calculateStatistics(readiedFeatureLayer, visualVariable)
+                            .then((statResult: esri.SummaryStatisticsResult) => {
+
+                                const slider: SizeSlider = SizeSlider.fromRendererResult(
+                                    {
+                                        renderer: (readiedFeatureLayer.renderer as any),
+                                        statistics: statResult,
+                                        visualVariables: [(visualVariable as SizeVariable)]
+                                    } as any,
+                                    histogramResult
+                                );
+
+                                this.addSlider(readiedFeatureLayer, mapView, slider);
+
+                            });
+                    });
+
+            } else if (visualVariable.type === "color") {
+
+                this.getHistogram(readiedFeatureLayer, visualVariable)
+                    .then((histogramResult: esri.HistogramResult) => {
+                        return this.calculateStatistics(readiedFeatureLayer, visualVariable)
+                            .then((statResult: esri.SummaryStatisticsResult) => {
+
+                                const slider: ColorSlider = new ColorSlider({
+                                    primaryHandleEnabled: true,
+                                    stops: (visualVariable as ColorVariable).stops,
+                                    histogramConfig: {
+                                        bins: histogramResult.bins,
+                                        average: statResult.avg
+                                    },
+                                    min: statResult.min,
+                                    max: statResult.max
+                                });
+
+                                this.addSlider(readiedFeatureLayer, mapView, slider);
+
+                            });
+                    });
+
+            }
+
+        });
+
+    }
+
+    private addSlider(readiedFeatureLayer: FeatureLayer, mapView: View, slider: SizeSlider | ColorSlider): void {
+
+        const expand = new Expand({ expandIconClass: "esri-icon-question", view: mapView, content: slider, group: "bottom-left" });
+        mapView.ui.add(expand, "bottom-left");
+        this._activeLegends.push(expand);
+
+        const changeFunction = (slider instanceof SizeSlider) ?
+            this.buildOnSmartSizeSliderDataChangeFunction(readiedFeatureLayer, slider as SizeSlider) :
+            this.buildOnSmartColorSliderDataChangeFunction(readiedFeatureLayer, slider as ColorSlider);
+
+        slider.on(
+            ["thumb-change", "thumb-drag", "min-change", "max-change"],
+            changeFunction
+        );
+
+    }
+
+    private buildOnSmartSizeSliderDataChangeFunction(layer: any, slider: SizeSlider): () => void {
         return () => {
             const renderer = layer.renderer.clone();
-            renderer.visualVariables.splice(
-                renderer.visualVariables.findIndex(
-                    (vvar: VisualVariable) => vvar.type === widget.visualVariable.type
-                ),
-                1
-            );
-            const vv = lang.clone(widget.visualVariable);
-            renderer.visualVariables.push(vv);
+            const variableIndex: number = renderer.visualVariables.findIndex((vv: VisualVariable) => vv.type === "size");
+            if (variableIndex < 0) {
+                return;
+            }
+            renderer.visualVariables.splice(variableIndex, 1, slider.updateVisualVariable(renderer.visualVariables[variableIndex]))
             layer.renderer = renderer;
         }
     }
 
-    private calculateStatistics(graphics: any, fieldName: string) {
+    private buildOnSmartColorSliderDataChangeFunction(layer: any, slider: ColorSlider): () => void {
+        return () => {
+            const renderer = layer.renderer.clone();
+            const colorVariableIndex: number = renderer.visualVariables.findIndex((vv: VisualVariable) => vv.type === "color");
+            if (colorVariableIndex < 0) {
+                return;
+            }
+            const colorVariable: any = renderer.visualVariables[colorVariableIndex].clone();
 
-        const field = graphics.items
-            .map((item: any) => item.attributes[fieldName])
-            .filter((value: any) => typeof value === "number");
-
-        return {
-            min: stats.min(field),
-            max: stats.max(field),
-            avg: stats.mean(field),
-            stddev: stats.sd(field)
-        };
+            colorVariable.stops = slider.stops;
+            renderer.visualVariables.splice(colorVariableIndex, 1, colorVariable)
+            layer.renderer = renderer;
+        }
     }
 
     private midColor(minColor: any, maxColor: any): Color {
@@ -178,6 +223,14 @@ class SmartLegendHelper {
     private removeSmartLegends(mapView: any): void {
         this._activeLegends.forEach((legend: Legend) => { mapView.ui.remove(legend); });
         this._activeLegends = [];
+    }
+
+    private calculateStatistics(layer: FeatureLayer, visualVariable: VisualVariable): Promise<esri.SummaryStatisticsResult> {
+        return summaryStatistics({ layer, field: visualVariable.field });
+    }
+
+    private getHistogram(layer: FeatureLayer, visualVariable: VisualVariable): Promise<esri.HistogramResult> {
+        return histogram({ layer, field: visualVariable.field });
     }
 
 }

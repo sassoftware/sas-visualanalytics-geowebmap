@@ -14,9 +14,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import ArcGISVisualizationBridge from 'sas/ArcGISWebMapProvider/ArcGISVisualizationBridge'; 
+import ArcGISVisualizationBridge from 'sas/ArcGISWebMapProvider/ArcGISVisualizationBridge';
 
-export const options = (()=>{
+export const options = (() => {
   const urlUtils2 = require("esri/core/urlUtils");
   const url = urlUtils2.urlToObject(window.location.href);
   const _options = url.query || {};

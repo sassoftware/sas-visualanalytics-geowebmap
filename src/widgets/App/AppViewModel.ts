@@ -15,7 +15,7 @@ limitations under the License.
 */
 
 import Accessor from "esri/core/Accessor";
-import { declared, property, subclass } from "esri/core/accessorSupport/decorators";
+import { property, subclass } from "esri/core/accessorSupport/decorators";
 import { whenOnce } from "esri/core/watchUtils";
 import FeatureLayer from "esri/layers/FeatureLayer";
 import EsriMap from "esri/Map";
@@ -34,7 +34,7 @@ export interface AppParams {
 }
 
 @subclass("widgets.App.AppViewModel")
-class AppViewModel extends declared(Accessor) {
+class AppViewModel extends Accessor {
   @property() appName: string;
 
   @property() map: EsriMap;

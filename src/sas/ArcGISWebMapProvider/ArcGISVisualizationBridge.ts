@@ -14,11 +14,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-/// <amd-dependency path="dojo/dom-construct" name="domConstruct" />
-/* tslint:disable: no-any */
-declare const domConstruct: any;
-/* tslint:enable */
-
 import FeatureLayer from "esri/layers/FeatureLayer";
 import View from "esri/views/View";
 import Expand from "esri/widgets/Expand";
@@ -89,8 +84,6 @@ class ArcGISVisualizationBridge {
             this._options.outline = "#007E88";
         }
 
-        this._options.title = this._options.title || ProviderUtil.getResource("defaultLayerTitle");
-
         this._options.useSampleData = (this._options.useSampleData && this._options.useSampleData.toUpperCase() === "TRUE");
 
         this._options.useSmartLegends = (this._options.useSmartLegends && this._options.useSmartLegends.toUpperCase() === "TRUE");
@@ -125,6 +118,8 @@ class ArcGISVisualizationBridge {
     registerMapView(mapView: View): void {
 
         this._mapView = mapView;
+
+        this._options.title = this._options.title || ProviderUtil.getResource("defaultLayerTitle");
 
         if (this._options.showBasemapSelector) {
             this._mapView.map.watch("basemap", (newValue, oldValue /*, property, object */): void => {
@@ -186,7 +181,7 @@ class ArcGISVisualizationBridge {
     }
 
     private onMessage(event: any): void {
-        if (!this.getMapView()) {
+        if (!this.getMapView() && this.isVAMessage(event)) {
             this._lastMessageReceivedBeforeMapViewRegistered = event;
         }
         else {
@@ -194,11 +189,15 @@ class ArcGISVisualizationBridge {
         }
     }
 
+    private isVAMessage(event: any): boolean {
+        return event && event.data && event.data.columns && event.data.data;
+    }
+
     /**
      * Builds a SAS feature layer from the incoming data.
      */
     private processMessageEvent(event: any): void {
-        if (event.data && event.data.columns && event.data.data) {
+        if (this.isVAMessage(event)) {
 
             this._dataResultName = event.data.resultName;
             this.setWarning(null);
@@ -409,7 +408,8 @@ class ArcGISVisualizationBridge {
 
     private getWarningControl(): Expand {
         if (!this._warningControl) {
-            const validationDiv = domConstruct.toDom("<div class='warning'></div>");
+            const validationDiv = document.createElement("div");
+            validationDiv.setAttribute("class", "warning");
             this._warningControl = new Expand({
                 id: "sasWarningControl",
                 expandIconClass: "esri-icon-notice-triangle",

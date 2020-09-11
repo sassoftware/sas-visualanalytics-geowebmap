@@ -1,10 +1,10 @@
 {
-  "environments": [
-    {
-      "browserName": "chrome",
-      "chromeOptions": { "args": [ "headless", "disable-gpu" ] },
-      "fixSessionCapabilities": "no-detect"
-    }
-  ],
+  "environments": [{
+    "browserName": "chrome",
+    "chromeOptions": {
+      "args": ["headless", "disable-gpu"]
+    },
+    "fixSessionCapabilities": "no-detect"
+  }],
   "suites": "~tmpTests/tests.js"
 }

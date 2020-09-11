@@ -15,6 +15,7 @@ limitations under the License.
 */
 
 import VAOptions from "sas/ArcGISWebMapProvider/VAOptions";
+import TestUtil from "sas/TestUtil";
 
 const { suite, test } = intern.getInterface("tdd");
 const { assert } = intern.getPlugin("chai");
@@ -26,11 +27,14 @@ suite("VAOptions", () => {
 
     test("getOptions", () => {
 
-        const options: any = VAOptions.getOptions();
+        TestUtil.InitializeI18NOnce().then(() => {
 
-        assert.isOk(options);
-        assert.deepEqual(options, JSON.parse(expectedOptions), "VA options match expectations.");
+            const options: any = VAOptions.getOptions();
 
+            assert.isOk(options);
+            assert.deepEqual(options, JSON.parse(expectedOptions), "VA options match expectations.");
+
+        });
     });
 
 });

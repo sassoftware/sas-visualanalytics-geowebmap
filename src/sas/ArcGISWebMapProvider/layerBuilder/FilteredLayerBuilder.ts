@@ -14,9 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-/// <amd-dependency path="dojo/Deferred" name="Deferred" />
-declare const Deferred:any;
-
+import SpatialReference from "esri/geometry/SpatialReference";
 import FeatureLayer from "esri/layers/FeatureLayer";
 import Error from "sas/ArcGISWebMapProvider/Error";
 import BaseLayerBuilder from "sas/ArcGISWebMapProvider/layerBuilder/BaseLayerBuilder";
@@ -30,55 +28,53 @@ import ProviderUtil from "sas/ArcGISWebMapProvider/ProviderUtil";
  */
 class FilteredLayerBuilder extends BaseLayerBuilder {
 
-    private static MAX_FILTER_VALUES:number = 500; 
-    private _geoIdFilter:any;
+    private static MAX_FILTER_VALUES: number = 500;
+    private _geoIdFilter: any;
 
-    validateOptions():Error[] {
+    validateOptions(): Error[] {
         return this.validateRequiredOptions(['geoId', 'featureServiceUrl', 'featureServiceGeoId']);
     }
 
-    validateResults():Error[] {
+    validateResults(): Error[] {
 
-        let error:Error|null = null;
+        let error: Error | null = null;
 
         if (ProviderUtil.getIndexWithLabel(this._options.geoId, this._columns) < 0) {
             error = Error.error("dataNotIdentifiedGeoId");
-        } 
+        }
         else if (this._rows.length > FilteredLayerBuilder.MAX_FILTER_VALUES) {
             error = Error.error("tooManyFilteredValues", FilteredLayerBuilder.MAX_FILTER_VALUES.toString());
         }
 
-        return (error)?[error]:[];
+        return (error) ? [error] : [];
     }
 
-    getGeoIdFilter():any {
+    getGeoIdFilter(): any {
         return this._geoIdFilter;
     }
 
     protected buildFeatureLayerImpl() {
-       return this.buildFilteredFeatureLayer(this._rows, this._columns);
+        return this.buildFilteredFeatureLayer(this._rows, this._columns);
     }
 
-    private buildFilteredFeatureLayer(rows:any[], columns:any[]) {
+    private buildFilteredFeatureLayer(rows: any[], columns: any[]) {
 
         const geoIdIndex = ProviderUtil.getIndexWithLabel(this._options.geoId, columns);
-        const geoIdValues = rows.map((row)=>row[geoIdIndex]);
+        const geoIdValues = rows.map((row) => row[geoIdIndex]);
 
-        this._geoIdFilter = 
-            this._options.featureServiceGeoId + 
-            " IN (" + 
-            ProviderUtil.sqlEscape(geoIdValues) + 
+        this._geoIdFilter =
+            this._options.featureServiceGeoId +
+            " IN (" +
+            ProviderUtil.sqlEscape(geoIdValues) +
             ")";
 
-        const viewLayer:any = new FeatureLayer({
+        const viewLayer: any = new FeatureLayer({
             id: ProviderUtil.SAS_FEATURE_LAYER_ID,
             title: this._options.title,
             url: this._options.featureServiceUrl,
-            spatialReference: {
-                wkid: 4326
-            },
+            spatialReference: SpatialReference.WGS84,
             definitionExpression: this._geoIdFilter
-        }); 
+        });
 
         return viewLayer;
 

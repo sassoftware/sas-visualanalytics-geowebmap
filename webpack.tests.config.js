@@ -1,6 +1,8 @@
 const ArcGISPlugin = require("@arcgis/webpack-plugin");
-const CleanWebpackPlugin = require("clean-webpack-plugin");
-const CopyWebpackPlugin = require("copy-webpack-plugin");
+const {
+  CleanWebpackPlugin
+} = require("clean-webpack-plugin");
+const CopyPlugin = require('copy-webpack-plugin');
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 
 const path = require("path");
@@ -25,22 +27,27 @@ module.exports = {
   },
 
   module: {
-    rules: [
-      {
-        test: /\.tsx?$/,
-        use: [
-          {
-            loader: "ts-loader",
-            options: {
-              transpileOnly: true
-            }
-          }
-        ]
-      }
-    ]
+    rules: [{
+      test: /\.tsx?$/,
+      use: [{
+        loader: "ts-loader",
+        options: {
+          transpileOnly: true
+        }
+      }]
+    }]
   },
 
-  plugins: [new CleanWebpackPlugin(["~tmpTests"]), new ArcGISPlugin()],
+  plugins: [
+    new CleanWebpackPlugin(),
+    new ArcGISPlugin(),
+    new CopyPlugin({
+      patterns: [{
+        from: "i18n",
+        to: "i18n"
+      }],
+    })
+  ],
 
   node: {
     process: false,

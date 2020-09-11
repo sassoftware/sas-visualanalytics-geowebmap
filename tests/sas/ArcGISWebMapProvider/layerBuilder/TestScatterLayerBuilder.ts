@@ -16,6 +16,7 @@ limitations under the License.
 
 import FeatureLayer from "esri/layers/FeatureLayer";
 import ScatterLayerBuilder from "sas/ArcGISWebMapProvider/layerBuilder/ScatterLayerBuilder";
+import TestUtil from "sas/TestUtil";
 
 const { suite, test } = intern.getInterface("tdd");
 const { assert } = intern.getPlugin("chai");
@@ -23,21 +24,25 @@ const { assert } = intern.getPlugin("chai");
 suite("ScatterLayerBuilder", () => {
 
     test("validateOptions", () => {
-        
-        const options = {
-            x: null,
-            y: null
-        } as any;
 
-        assert.notEqual(0, new ScatterLayerBuilder(options, null, null).validateOptions().length);
+        TestUtil.InitializeI18NOnce().then(() => {
 
-        options.x = "someValue";
+            const options = {
+                x: null,
+                y: null
+            } as any;
 
-        assert.notEqual(0, new ScatterLayerBuilder(options, null, null).validateOptions().length);
+            assert.notEqual(0, new ScatterLayerBuilder(options, null, null).validateOptions().length);
 
-        options.y = "someValue";
+            options.x = "someValue";
 
-        assert.equal(0, new ScatterLayerBuilder(options, null, null).validateOptions().length);
+            assert.notEqual(0, new ScatterLayerBuilder(options, null, null).validateOptions().length);
+
+            options.y = "someValue";
+
+            assert.equal(0, new ScatterLayerBuilder(options, null, null).validateOptions().length);
+
+        });
 
     });
 
@@ -51,7 +56,7 @@ suite("ScatterLayerBuilder", () => {
             y: "someOtherValue"
         } as any;
 
-        return new ScatterLayerBuilder(options, [], []).buildFeatureLayer().then((layer:FeatureLayer) => {
+        return new ScatterLayerBuilder(options, [], []).buildFeatureLayer().then((layer: FeatureLayer) => {
             assert.ok(layer);
         });
 

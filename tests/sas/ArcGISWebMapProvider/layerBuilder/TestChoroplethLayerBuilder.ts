@@ -14,11 +14,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-/// <amd-dependency path="dojo/Deferred" name="Deferred" />
-declare const Deferred:any;
-
+import { resolve } from "esri/core/promiseUtils";
 import FeatureLayer from "esri/layers/FeatureLayer";
 import ChoroplethLayerBuilder from "sas/ArcGISWebMapProvider/layerBuilder/ChoroplethLayerBuilder";
+import TestUtil from "sas/TestUtil";
 
 const { suite, test } = intern.getInterface("tdd");
 const { assert } = intern.getPlugin("chai");
@@ -26,26 +25,30 @@ const { assert } = intern.getPlugin("chai");
 suite("ChoroplethLayerBuilder", () => {
 
     test("validateOptions", () => {
-        
-        const options = {
-            geoId: null,
-            featureServiceUrl: null,
-            featureServiceGeoId: null
-        } as any;
 
-        assert.notEqual(0, new ChoroplethLayerBuilder(options, null, null).validateOptions().length);
+        TestUtil.InitializeI18NOnce().then(() => {
 
-        options.geoId = "someValue";
+            const options = {
+                geoId: null,
+                featureServiceUrl: null,
+                featureServiceGeoId: null
+            } as any;
 
-        assert.notEqual(0, new ChoroplethLayerBuilder(options, null, null).validateOptions().length);
+            assert.notEqual(0, new ChoroplethLayerBuilder(options, null, null).validateOptions().length);
 
-        options.featureServiceUrl = "someValue";
+            options.geoId = "someValue";
 
-        assert.notEqual(0, new ChoroplethLayerBuilder(options, null, null).validateOptions().length);
+            assert.notEqual(0, new ChoroplethLayerBuilder(options, null, null).validateOptions().length);
 
-        options.featureServiceGeoId = "someValue";
+            options.featureServiceUrl = "someValue";
 
-        assert.equal(0, new ChoroplethLayerBuilder(options, null, null).validateOptions().length);
+            assert.notEqual(0, new ChoroplethLayerBuilder(options, null, null).validateOptions().length);
+
+            options.featureServiceGeoId = "someValue";
+
+            assert.equal(0, new ChoroplethLayerBuilder(options, null, null).validateOptions().length);
+
+        });
 
     });
 
@@ -53,7 +56,7 @@ suite("ChoroplethLayerBuilder", () => {
     // Note that the ChoroplethLayerBuilder test must be asynchronous.
     test("samplePromiseResolution", () => {
 
-  
+
         const options = {
             geoId: "someValue",
             featureServiceUrl: "someOtherValue",
@@ -68,15 +71,13 @@ suite("ChoroplethLayerBuilder", () => {
                 return {};
             },
             queryFeatures() {
-                const responseReceived = new Deferred();
-                responseReceived.resolve({
+                return resolve({
                     features: [] // Add features manually.
                 });
-                return responseReceived.promise;
             }
         });
 
-        return builder.buildFeatureLayer().then((layer:FeatureLayer) => {
+        return builder.buildFeatureLayer().then((layer: FeatureLayer) => {
             assert.ok(layer);
         });
 

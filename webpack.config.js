@@ -1,15 +1,18 @@
 const ArcGISPlugin = require("@arcgis/webpack-plugin");
-const CleanWebpackPlugin = require("clean-webpack-plugin");
+const CopyPlugin = require('copy-webpack-plugin');
+const {
+  CleanWebpackPlugin
+} = require("clean-webpack-plugin");
 const HtmlWebPackPlugin = require("html-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
-const UglifyJsPlugin = require("uglifyjs-webpack-plugin");
-const CopyWebpackPlugin = require('copy-webpack-plugin'); 
+const TerserPlugin = require("terser-webpack-plugin");
+
 
 const path = require("path");
 
 module.exports = {
   entry: {
-    index: ["./src/css/main.scss", "./src/index.ts"]
+    index: ["./src/css/main.scss", "@dojo/framework/shim/Promise", "./src/index.ts"]
   },
   output: {
     filename: "[name].[chunkhash].js",
@@ -17,16 +20,20 @@ module.exports = {
   },
   optimization: {
     minimizer: [
-      new UglifyJsPlugin({
+      new TerserPlugin({
         cache: true,
         parallel: true,
-        sourceMap: false
+        sourceMap: false,
+        terserOptions: {
+          output: {
+            comments: false
+          }
+        }
       })
     ]
   },
   module: {
-    rules: [
-      {
+    rules: [{
         test: /\.tsx?$/,
         loader: "ts-loader",
         options: {
@@ -35,12 +42,12 @@ module.exports = {
       },
       {
         test: /\.html$/,
-        use: [
-          {
-            loader: "html-loader",
-            options: { minimize: false }
+        use: [{
+          loader: "html-loader",
+          options: {
+            minimize: false
           }
-        ],
+        }],
         exclude: /node_modules/
       },
       {
@@ -50,7 +57,9 @@ module.exports = {
           "css-loader",
           {
             loader: "resolve-url-loader",
-            options: { includeRoot: true }
+            options: {
+              includeRoot: true
+            }
           },
           "sass-loader?sourceMap"
         ]
@@ -58,7 +67,7 @@ module.exports = {
     ]
   },
   plugins: [
-    new CleanWebpackPlugin(["dist"]),
+    new CleanWebpackPlugin(),
 
     new ArcGISPlugin(),
 
@@ -76,7 +85,16 @@ module.exports = {
       chunkFilename: "[id].css"
     }),
 
-    new CopyWebpackPlugin(["./examples.html"])
+    new CopyPlugin({
+      patterns: [{
+          from: "./examples.html"
+        },
+        {
+          from: "i18n",
+          to: "i18n"
+        }
+      ],
+    })
   ],
   resolve: {
     modules: [

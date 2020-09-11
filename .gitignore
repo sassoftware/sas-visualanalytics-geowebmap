@@ -3,3 +3,5 @@ dist/
 npm-debug.log
 .htaccess
 ~tmpTests/
+stats.json
+.vscode/

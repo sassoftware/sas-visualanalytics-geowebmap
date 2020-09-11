@@ -14,11 +14,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-/// <amd-dependency path="dojo/Deferred" name="Deferred" />
-/// <amd-dependency path="dojo/promise/Promise" name="Promise" />
-declare const Deferred:any;
-declare const Promise:any;
+import { resolve } from "esri/core/promiseUtils";
 import Point from "esri/geometry/Point";
+import SpatialReference from "esri/geometry/SpatialReference";
 import Graphic from "esri/Graphic";
 import FeatureLayer from "esri/layers/FeatureLayer";
 import Field from "esri/layers/support/Field";
@@ -32,66 +30,56 @@ import ProviderUtil from "sas/ArcGISWebMapProvider/ProviderUtil";
  */
 abstract class BaseLayerBuilder {
 
-    static EDITS_COMPLETED:string = "editsCompleted";
-    static EDITS_APPLIED:string = "editsApplied";
+    static EDITS_COMPLETED: string = "editsCompleted";
+    static EDITS_APPLIED: string = "editsApplied";
 
-    protected _options:any;
-    protected _rows:any[];
-    protected _columns:any[];
+    protected _options: any;
+    protected _rows: any[];
+    protected _columns: any[];
 
-    constructor(options:any, rows:any[], columns:any[]) {
+    constructor(options: any, rows: any[], columns: any[]) {
         this._options = options;
         this._rows = rows;
         this._columns = columns;
     }
 
-    supportsEdits():boolean {
+    supportsEdits(): boolean {
         return false;
     }
 
-    buildFeatureLayer():any {
+    buildFeatureLayer(): any {
 
         const result = this.buildFeatureLayerImpl();
+        return (result instanceof Promise) ? result : resolve(result);
 
-        let promise:any;
-
-        if (result instanceof Promise) {
-            promise = result;
-        } else {
-            const featureLayerReady = new Deferred();
-            promise = featureLayerReady.promise;  
-            featureLayerReady.resolve(result);  // Immediately resolve.
-        }
-
-        return promise;
     }
 
     // Subclasses should override this method.  Return string description of errors
     // for input options.
-    abstract validateOptions():Error[];
+    abstract validateOptions(): Error[];
 
     // Subclasses should override this method.  Return string description of errors
     // for results.
-    abstract validateResults():Error[];
+    abstract validateResults(): Error[];
 
     // Subclasses should override this method.  Return where clause used by 
     // feature service (if any).
-    getGeoIdFilter():any {
+    getGeoIdFilter(): any {
         return undefined;
     }
 
     // Subclasses should override this method.  Return a Promise or a feature layer.
-    protected abstract buildFeatureLayerImpl():FeatureLayer;
+    protected abstract buildFeatureLayerImpl(): FeatureLayer;
 
-    protected createGraphics():Graphic[] {
+    protected createGraphics(): Graphic[] {
 
         const rowObjects = this.convertRowsToObjects(this._columns, this._rows);
         const latitudeColumnName = ProviderUtil.getNameWithLabel(this._options.y, this._columns);
         const longitudeColumnName = ProviderUtil.getNameWithLabel(this._options.x, this._columns);
-        return rowObjects.map((row:any) => {
+        return rowObjects.map((row: any) => {
             return new Graphic({
                 geometry: new Point({
-                    x: !ProviderUtil.isValidCoordinate(row[longitudeColumnName]) ? 0 : row[longitudeColumnName], 
+                    x: !ProviderUtil.isValidCoordinate(row[longitudeColumnName]) ? 0 : row[longitudeColumnName],
                     y: !ProviderUtil.isValidCoordinate(row[latitudeColumnName]) ? 0 : row[latitudeColumnName]
                 }), // Assumes wkid 102100.
                 attributes: row
@@ -100,24 +88,24 @@ abstract class BaseLayerBuilder {
 
     }
 
-    protected createFields():Field[] {
+    protected createFields(): Field[] {
 
         // Feature layer's "fields" property expects objects of {name, alias, type}.
-        const fields = [new Field({name: ProviderUtil.FIELD_NAME_OBJECT_ID, alias: ProviderUtil.FIELD_NAME_OBJECT_ID, type: "oid"})];
-        this._columns.forEach((column:any) => {
-            fields.push(new Field({name: column.name, alias: column.label, type: ((column.type === "number") ? "double" : column.type)}));
+        const fields = [new Field({ name: ProviderUtil.FIELD_NAME_OBJECT_ID, alias: ProviderUtil.FIELD_NAME_OBJECT_ID, type: "oid" })];
+        this._columns.forEach((column: any) => {
+            fields.push(new Field({ name: column.name, alias: column.label, type: ((column.type === "number") ? "double" : column.type) }));
         });
         return fields;
 
-    } 
+    }
 
-    protected convertRowsToObjects(columns:any[], rows:any[]):any[] {
+    protected convertRowsToObjects(columns: any[], rows: any[]): any[] {
         const objectIDFieldName = ProviderUtil.FIELD_NAME_OBJECT_ID;
-        return rows.map((row:any, i:number) => {
+        return rows.map((row: any, i: number) => {
             const object = {};
             object[objectIDFieldName] = i; // Adding the object ID.
             let index = 0;
-            columns.forEach((column:any) => {
+            columns.forEach((column: any) => {
                 object[column.name] = (index < row.length) ? row[index] : null;
                 ++index;
             });
@@ -125,65 +113,63 @@ abstract class BaseLayerBuilder {
         });
     }
 
-    protected createGenericUnformattedPopupTemplate(fields:any[]):PopupTemplate {
-        const fieldInfos:any[] = [];
-        fields.forEach((field:any) => {
+    protected createGenericUnformattedPopupTemplate(fields: any[]): PopupTemplate {
+        const fieldInfos: any[] = [];
+        fields.forEach((field: any) => {
             if (field.name !== ProviderUtil.FIELD_NAME_OBJECT_ID && field.name !== ProviderUtil.getNameWithLabel(this._options.x, fields) && field.name !== ProviderUtil.getNameWithLabel(this._options.y, fields)) {
-                const fieldInfo = {fieldName: field.name, label: field.label, visible: true, format: {}}
+                const fieldInfo = { fieldName: field.name, label: field.label, visible: true, format: {} }
                 if (field.type === "number" || field.type === "double") {
-                    fieldInfo.format = {digitSeparator: true};
+                    fieldInfo.format = { digitSeparator: true };
                 } // places: 2  
                 fieldInfos.push(fieldInfo);
             }
         });
-        return new PopupTemplate({title: this._options.title, content: [{type: "fields", fieldInfos}], fieldInfos: []}); 
+        return new PopupTemplate({ title: this._options.title, content: [{ type: "fields", fieldInfos }], fieldInfos: [] });
     }
 
-    protected validateRequiredOptions(optionNames:string[]):Error[] {
+    protected validateRequiredOptions(optionNames: string[]): Error[] {
 
         let message;
-        const missingNames:string[] = [];
+        const missingNames: string[] = [];
 
-        optionNames.forEach((name:string) =>{
+        optionNames.forEach((name: string) => {
             if (!(name in this._options) || !this._options[name] || this._options[name].toString().length === 0) {
                 missingNames.push(name);
             }
         });
 
-        if (missingNames.length > 0) { 
+        if (missingNames.length > 0) {
             message = ProviderUtil.getResource("optionsNotIdentified", missingNames.join(", "));
         }
-        
+
         return message ? [new Error(message)] : [];
 
     }
 
     // Build simple layer (for scatter and bubble).
-    protected buildSimpleFeatureLayer(renderer:any):FeatureLayer {
+    protected buildSimpleFeatureLayer(renderer: any): FeatureLayer {
         return new FeatureLayer({
             id: ProviderUtil.SAS_FEATURE_LAYER_ID,
             title: this._options.title,
-            source: this.createGraphics(), 
-            fields: this.createFields(), 
-            objectIdField: ProviderUtil.FIELD_NAME_OBJECT_ID, 
-            renderer, 
-            spatialReference: {
-                wkid: 4326
-            },
+            source: this.createGraphics(),
+            fields: this.createFields(),
+            objectIdField: ProviderUtil.FIELD_NAME_OBJECT_ID,
+            renderer,
+            spatialReference: SpatialReference.WGS84,
             elevationInfo: this.buildElevationInfo(),
-            geometryType: "point", 
+            geometryType: "point",
             popupTemplate: this.createGenericUnformattedPopupTemplate(this._columns)
         });
     }
 
-    protected buildElevationInfo():{mode:string} {
-        return {mode: (this._options.useWebScene || this._options.use3D)?"on-the-ground":"relative-to-ground"};
+    protected buildElevationInfo(): { mode: string } {
+        return { mode: (this._options.useWebScene || this._options.use3D) ? "on-the-ground" : "relative-to-ground" };
     }
 
     // Validates lat/long data (for scatter and bubble).
-    protected validateCoordinates(rows:any[], columns:any[]):Error[] {
+    protected validateCoordinates(rows: any[], columns: any[]): Error[] {
 
-        let error:Error|null = null;
+        let error: Error | null = null;
         let invalidCount = 0;
         const latitudeColumnIndex = ProviderUtil.getIndexWithLabel(this._options.y, columns);
         const longitudeColumnIndex = ProviderUtil.getIndexWithLabel(this._options.x, columns);
@@ -191,20 +177,20 @@ abstract class BaseLayerBuilder {
         if (latitudeColumnIndex < 0 || longitudeColumnIndex < 0) {
             error = Error.error("dataNotIdentified");
         } else {
-            rows.forEach((row:any) => {
-                if (!ProviderUtil.isValidCoordinate(row[latitudeColumnIndex]) || 
+            rows.forEach((row: any) => {
+                if (!ProviderUtil.isValidCoordinate(row[latitudeColumnIndex]) ||
                     !ProviderUtil.isValidCoordinate(row[longitudeColumnIndex]) ||
-                    Math.abs(Math.round(row[latitudeColumnIndex])) > 90 || 
+                    Math.abs(Math.round(row[latitudeColumnIndex])) > 90 ||
                     Math.abs(Math.round(row[longitudeColumnIndex])) > 180) {
                     ++invalidCount;
                 }
             });
             if (invalidCount > 0) {
-                error = Error.warning("invalidCoordinates", invalidCount.toString()); 
+                error = Error.warning("invalidCoordinates", invalidCount.toString());
             }
         }
 
-        return error?[error]:[];
+        return error ? [error] : [];
 
     }
 }

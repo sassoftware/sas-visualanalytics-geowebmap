@@ -14,24 +14,17 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-/// <amd-dependency path="dojo/Deferred" name="Deferred" />
-declare const Deferred: any;
-
-// /* tslint:disable: no-unused-expression */
-// import __forceLoad = require("esri/layers/graphics/sources/support/MemorySourceWorker"); __forceLoad; // See https://github.com/Esri/arcgis-webpack-plugin/issues/26, 12/19/18.
-// /* tslint:enable */
-
 import esri = __esri;
 
 import {
   aliasOf,
-  declared,
   property,
   subclass
 } from "esri/core/accessorSupport/decorators";
 import { renderable, tsx } from "esri/widgets/support/widget";
 
 import esriConfig from "esri/config";
+import { resolve } from "esri/core/promiseUtils";
 import IdentityManager from "esri/identity/IdentityManager";
 import FeatureLayer from "esri/layers/FeatureLayer";
 import Map from "esri/Map";
@@ -44,6 +37,8 @@ import WebScene from "esri/WebScene";
 import Widget from "esri/widgets/Widget";
 import ArcGISVisualizationBridge from "sas/ArcGISWebMapProvider/ArcGISVisualizationBridge";
 import ProviderUtil from "sas/ArcGISWebMapProvider/ProviderUtil";
+import { initializeI18N } from "sas/i18n/resources";
+
 
 import AppViewModel, { AppParams } from "./App/AppViewModel";
 
@@ -58,7 +53,7 @@ const CSS = {
 };
 
 @subclass("app.widgets.webmapview")
-export default class App extends declared(Widget) {
+export default class App extends Widget {
   @property() viewModel = new AppViewModel();
 
   @aliasOf("viewModel.appName") appName: string;
@@ -125,7 +120,7 @@ export default class App extends declared(Widget) {
           token: options.portalToken,
           server: this.getPortalUrl(options)
         });
-        this.buildMap(element);
+        this.loadUI(element);
       }
       // The following branch is useful for testing, but not 
       // recommended for deployment.  Commented out.
@@ -146,14 +141,14 @@ export default class App extends declared(Widget) {
       //             token.server = serverInfo.server; 
       //         } 
       //         IdentityManager.registerToken(token); 
-      //         this.buildMap(element, options, visualizationBridge, map); 
+      //         this.loadUI(element, options, visualizationBridge, map); 
       //     }, (error) => {
       //       ProviderUtil.logError(error);
       //     }); 
       //   });
       // }
       else {
-        this.buildMap(element);
+        this.loadUI(element);
       }
 
     });
@@ -169,11 +164,15 @@ export default class App extends declared(Widget) {
       }).load();
     }
     else {
-      const portalItem = new Deferred();
-      portalItem.resolve();
-      return portalItem.promise;
+      return resolve(null);
     }
 
+  }
+
+  private loadUI(element: HTMLDivElement) {
+    // Ensure that localized resources are loaded before processing UI.
+    const m = () => { this.buildMap(element); };
+    initializeI18N().then(m, m);
   }
 
   private buildMap(element: HTMLDivElement) {
