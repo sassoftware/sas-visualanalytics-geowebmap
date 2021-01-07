@@ -28,6 +28,7 @@ class ProviderUtil {
     static VISUALIZATION_TYPE_CHOROPLETH: string = "CHOROPLETH";
     static VISUALIZATION_TYPE_FILTERED: string = "FILTERED";
     static FIELD_NAME_OBJECT_ID: string = "ObjectId";
+    static FIELD_NAME_SAS_INDEX: string = "_SASInternalSelectionIndex_";
     static SAS_FEATURE_LAYER_ID: string = "_sasFeatureLayerId";
     static DEFAULT_PORTAL_URL: string = "http://www.arcgis.com";
     static PROPERTY_CHANGE_EVENT: string = "change";

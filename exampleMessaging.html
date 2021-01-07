@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <title>Message Logging Example</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            background: whitesmoke;
+        }
+
+        .header {
+            position: absolute;
+            top: 0;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .row {
+            padding: 20px;
+            bottom: 0;
+            right: 0;
+            left: 0;
+            top: 40px;
+            position: absolute;
+        }
+
+        .column {
+            float: left;
+            width: 50%;
+            height: 100%;
+            padding: 15px;
+        }
+
+        /* Clear floats after the columns */
+        .row:after {
+            content: "";
+            display: table;
+            clear: both;
+        }
+
+        #mapframe {
+            width: 100%;
+            height: 100%;
+            background: white;
+        }
+
+        #traffic {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+
+    <script>
+        var sampleDataJson = null;
+        var readyToLoad = false;
+
+        window.onmessage = (event) => {
+            receiveData(event.data);
+            evaluateSelection(event.data);
+        };
+
+        fetch("src/sas/ArcGISWebMapProvider/SampleData.json")
+            .then(response => response.json())
+            .then(json => {
+                sampleDataJson = json;
+                loadSampleData();
+            });
+
+        function loadSampleData() {
+            if (!readyToLoad || sampleDataJson === null)
+                return;
+            readyToLoad = false;
+            postData(sampleDataJson);
+        }
+
+        function postData(json) {
+            log("\n=== POST ===\n" + JSON.stringify(json));
+            var mapframe = document.getElementById("mapframe");
+            mapframe.contentWindow.postMessage(json, "*");
+        }
+
+        function receiveData(json) {
+            log("\n=== RECEIVE ===\n" + JSON.stringify(json));
+        }
+
+        function evaluateSelection(json) {
+            if (json && json.hasOwnProperty("selections")) {
+                var selection = "(nothing)";
+                if (json.selections.length > 0) {
+                    var index = json.selections[0].row;
+                    if (index >= 0 && index < sampleDataJson.data.length)
+                        selection = sampleDataJson.data[index][0];
+                    else
+                        selection = "Out-of-bounds index returned (" + index + ")";
+                }
+                log("\nSELECTION = " + selection);
+            }
+        }
+
+        function log(msg) {
+            var traffic = document.getElementById("traffic");
+            traffic.innerHTML = traffic.innerHTML + msg;
+            traffic.scrollTop = traffic.scrollHeight;
+        }
+    </script>
+
+</head>
+
+<body>
+
+    <div class="header">
+        IFrame Source:
+        <select id="iframeSource" onchange="document.getElementById('mapframe').src = this.value">
+            <option
+                value="./?visualizationType=choropleth&geoId=Geographic%20Item%201&featureServiceUrl=https://services.arcgis.com/V6ZHFr6zdgNZuVG0/ArcGIS/rest/services/World_borders/FeatureServer&featureServiceGeoId=NAME&useSampleData=false&basemap=gray">
+                Choropleth</option>
+            <option
+                value="./?visualizationType=bubble&x=Longitude&y=Latitude&color=Region&size=GDP%20(current%20US$)&useSampleData=false&basemap=gray">
+                Bubble</option>
+            <option value="./?useSampleData=false&basemap=gray">Scatter</option>
+        </select>
+    </div>
+
+    <div class="row">
+        <div class="column">
+            <iframe id="mapframe" onload="readyToLoad=true;loadSampleData();"
+                src="./?visualizationType=choropleth&geoId=Geographic%20Item%201&featureServiceUrl=https://services.arcgis.com/V6ZHFr6zdgNZuVG0/ArcGIS/rest/services/World_borders/FeatureServer&featureServiceGeoId=NAME&useSampleData=false&basemap=gray">
+            </iframe>
+        </div>
+        <div class="column">
+            <textarea id="traffic" style="width: 100%;height: 100%">
+Window Event Log
+
+</textarea>
+        </div>
+    </div>
+
+</body>

@@ -87,7 +87,7 @@ module.exports = {
 
     new CopyPlugin({
       patterns: [{
-          from: "./examples.html"
+          from: "./example*.html"
         },
         {
           from: "i18n",

@@ -115,11 +115,25 @@ class SelectionHelper {
         // (1) Communicate selection to containing report in VA.
 
         const id = (isSasFeature && graphic && graphic.attributes) ? graphic.attributes[ProviderUtil.FIELD_NAME_OBJECT_ID] : null;
-        const selections = (id === null) ? [] : [{ row: id }];
-        ProviderUtil.publishMessage({
-            resultName: this._dataResultName,
-            selections
-        });
+
+        if (id === null) {
+            ProviderUtil.publishMessage({
+                resultName: this._dataResultName,
+                selections: [] // Empty selection set.
+            });
+        }
+        else if (isSasFeature) {
+            graphic.layer.queryFeatures({ objectIds: [id], outFields: [ProviderUtil.FIELD_NAME_SAS_INDEX], returnGeometry: false })
+                .then((results) => {
+                    if (results && results.features && results.features.length > 0) {
+                        const selection = results.features[0].attributes[ProviderUtil.FIELD_NAME_SAS_INDEX];
+                        ProviderUtil.publishMessage({
+                            resultName: this._dataResultName,
+                            selections: [{ row: selection }]
+                        });
+                    }
+                });
+        }
 
         // (2) Clear any old selection visuals.
 

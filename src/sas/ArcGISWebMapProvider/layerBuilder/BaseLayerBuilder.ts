@@ -91,7 +91,10 @@ abstract class BaseLayerBuilder {
     protected createFields(): Field[] {
 
         // Feature layer's "fields" property expects objects of {name, alias, type}.
-        const fields = [new Field({ name: ProviderUtil.FIELD_NAME_OBJECT_ID, alias: ProviderUtil.FIELD_NAME_OBJECT_ID, type: "oid" })];
+        const fields = [
+            new Field({ name: ProviderUtil.FIELD_NAME_OBJECT_ID, alias: ProviderUtil.FIELD_NAME_OBJECT_ID, type: "oid" }),
+            new Field({ name: ProviderUtil.FIELD_NAME_SAS_INDEX, alias: ProviderUtil.FIELD_NAME_SAS_INDEX, type: "integer" }),
+        ];
         this._columns.forEach((column: any) => {
             fields.push(new Field({ name: column.name, alias: column.label, type: ((column.type === "number") ? "double" : column.type) }));
         });
@@ -100,10 +103,10 @@ abstract class BaseLayerBuilder {
     }
 
     protected convertRowsToObjects(columns: any[], rows: any[]): any[] {
-        const objectIDFieldName = ProviderUtil.FIELD_NAME_OBJECT_ID;
         return rows.map((row: any, i: number) => {
             const object = {};
-            object[objectIDFieldName] = i; // Adding the object ID.
+            object[ProviderUtil.FIELD_NAME_OBJECT_ID] = i + 1; // Adding the object ID.
+            object[ProviderUtil.FIELD_NAME_SAS_INDEX] = i; // The index of the original row.
             let index = 0;
             columns.forEach((column: any) => {
                 object[column.name] = (index < row.length) ? row[index] : null;
@@ -116,7 +119,7 @@ abstract class BaseLayerBuilder {
     protected createGenericUnformattedPopupTemplate(fields: any[]): PopupTemplate {
         const fieldInfos: any[] = [];
         fields.forEach((field: any) => {
-            if (field.name !== ProviderUtil.FIELD_NAME_OBJECT_ID && field.name !== ProviderUtil.getNameWithLabel(this._options.x, fields) && field.name !== ProviderUtil.getNameWithLabel(this._options.y, fields)) {
+            if (field.name !== ProviderUtil.FIELD_NAME_OBJECT_ID && field.name !== ProviderUtil.FIELD_NAME_SAS_INDEX && field.name !== ProviderUtil.getNameWithLabel(this._options.x, fields) && field.name !== ProviderUtil.getNameWithLabel(this._options.y, fields)) {
                 const fieldInfo = { fieldName: field.name, label: field.label, visible: true, format: {} }
                 if (field.type === "number" || field.type === "double") {
                     fieldInfo.format = { digitSeparator: true };
