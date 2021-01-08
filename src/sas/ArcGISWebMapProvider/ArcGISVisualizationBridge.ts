@@ -48,13 +48,27 @@ class ArcGISVisualizationBridge {
 
     constructor(visualizationOptions: any) {
 
+        let first = function (option: any): any {
+            if (!option) return "";
+            if (Array.isArray(option)) {
+                if (option.length > 0) {
+                    ProviderUtil.logError("Multiple input values specified for singular option.  Using first encountered.");
+                    return first(option[0]); // No recursion check here.
+                }
+                else {
+                    return "";
+                }
+            }
+            return option;
+        }
+
         this._selectionHelper = new SelectionHelper();
 
         // Initialize options.
 
         this._options = visualizationOptions;
 
-        this._options.visualizationType = (this._options.visualizationType) ? this._options.visualizationType.toUpperCase() : null;
+        this._options.visualizationType = (this._options.visualizationType) ? first(this._options.visualizationType).toUpperCase() : null;
         if (this._options.visualizationType !== ProviderUtil.VISUALIZATION_TYPE_SCATTER &&
             this._options.visualizationType !== ProviderUtil.VISUALIZATION_TYPE_BUBBLE &&
             this._options.visualizationType !== ProviderUtil.VISUALIZATION_TYPE_CHOROPLETH &&
@@ -84,9 +98,9 @@ class ArcGISVisualizationBridge {
             this._options.outline = "#007E88";
         }
 
-        this._options.useSampleData = (this._options.useSampleData && this._options.useSampleData.toUpperCase() === "TRUE");
+        this._options.useSampleData = (this._options.useSampleData && first(this._options.useSampleData).toUpperCase() === "TRUE");
 
-        this._options.useSmartLegends = (this._options.useSmartLegends && this._options.useSmartLegends.toUpperCase() === "TRUE");
+        this._options.useSmartLegends = (this._options.useSmartLegends && first(this._options.useSmartLegends).toUpperCase() === "TRUE");
 
         if (this._options.featureServiceWhere && this._options.featureServiceWhere.length < 1) {
             this._options.featureServiceWhere = null;

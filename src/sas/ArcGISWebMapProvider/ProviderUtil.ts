@@ -98,11 +98,11 @@ class ProviderUtil {
 
     static getNameWithLabel(label: string, columns: any[]): string {
         let match = columns.find((column: any) => {
-            return column && column.name === label;
+            return column && ProviderUtil.strcmpi(column.name, label);
         });
         if (!match) {
             match = columns.find((column: any) => {
-                return column && column.label === label;
+                return column && ProviderUtil.strcmpi(column.label, label);
             });
         }
         return (match) ? match.name : null;
@@ -110,11 +110,11 @@ class ProviderUtil {
 
     static getIndexWithLabel(label: string, columns: any[]): number {
         let index: number = columns.findIndex((column: any) => {
-            return column && column.name === label;
+            return column && ProviderUtil.strcmpi(column.name, label);
         });
         if (index === -1) {
             index = columns.findIndex((column: any) => {
-                return column && column.label === label;
+                return column && ProviderUtil.strcmpi(column.label, label);
             });
         }
         return index;
@@ -122,9 +122,13 @@ class ProviderUtil {
 
     static getNameWithUsage(usage: string, columns: any[]): string {
         const match = columns.find((column: any) => {
-            return column && column.usage === usage;
+            return column && ProviderUtil.strcmpi(column.usage, usage);
         });
         return (match) ? match.name : null;
+    }
+
+    static strcmpi(a: string, b: string): boolean {
+        return ((a) ? a.toLocaleUpperCase() : "") === ((b) ? b.toLocaleUpperCase() : "");
     }
 
     static logError(error: any): void {

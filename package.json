@@ -1,6 +1,6 @@
 {
   "name": "geowebmap",
-  "version": "1.3.3",
+  "version": "1.3.4",
   "repository": {
     "type": "git",
     "url": "git://github.com/sassoftware/sas-visualanalytics-geowebmap.git"
