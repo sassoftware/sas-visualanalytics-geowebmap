@@ -20,11 +20,6 @@ Alternately, you can build and modify the code yourself with the following steps
 * `npm run build`
 * Copy the built application from the `dist` directory to your web server's directory.
 
-For incidental testing, you may use the version hosted by GitHub Pages at
-https://sassoftware.github.io/sas-visualanalytics-geowebmap/.  However, 
-due to quota constraints, that deployment has no guaranteed availability
-nor any expectation of support.  Do not rely upon it for production use.
-
 #### Prerequisites
 
 Installation requires [node](http://nodejs.org) version 8.x.x or higher.  You can check your current version with `node --version`.
@@ -32,6 +27,13 @@ Installation requires [node](http://nodejs.org) version 8.x.x or higher.  You ca
 #### Other options
 
 Run `npm run start` to compile and then kick off a webpack-dev-server to host the results locally for immediate testing.
+
+#### GitHub Pages hosting
+
+For incidental testing, you may use the version hosted by GitHub Pages at
+https://sassoftware.github.io/sas-visualanalytics-geowebmap/.  However, 
+due to quota constraints, that deployment has no guaranteed availability
+nor any expectation of support.  Do not rely upon it for production use.
 
 ## Application
 
