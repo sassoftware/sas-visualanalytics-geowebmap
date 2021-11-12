@@ -46,7 +46,7 @@ class ScatterLayerBuilder extends BaseLayerBuilder {
     }
 
     private createRenderer(rows: any[], columns: any[]): any {
-        const visualVariables = [];
+        const visualVariables: any[] = [];
         let renderer;
 
         if (this._options.animation) {

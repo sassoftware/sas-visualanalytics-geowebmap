@@ -54,7 +54,7 @@ class ProviderUtil {
 
     static generateUniqueVals(columns: any[], rows: any[], options: any): any[] {
         const categoryVals = {};
-        const uniqueVals = [];
+        const uniqueVals: any[] = [];
         const categoryColumnIndex = ProviderUtil.getIndexWithLabel(options.color, columns);
         const isChoropleth = options.visualizationType === ProviderUtil.VISUALIZATION_TYPE_CHOROPLETH;
 
@@ -230,7 +230,7 @@ class ProviderUtil {
     private static generateColors(numColors: number): any[] {
         let h = Math.floor(Math.random() * Math.floor(360));
         const goldenRatioConjugate = 0.618033988749895;
-        const colors = [];
+        const colors: any[] = [];
 
         const hsvToRgb = (s: number, v: number) => {
             let r: number;

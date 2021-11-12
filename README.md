@@ -6,7 +6,7 @@ For an overview of this project from the perspective of a user, see the document
 
 ## Project
 
-This project presents a web page with an ArcGIS map designed to serve as a data-driven content for reports built with SAS Visual Analytics. It is a fork of [jsapi-resources](https://github.com/Esri/jsapi-resources), Esri's template for JS applications, using ArcGIS for JavaScript 4.x.
+This project presents a web page with an ArcGIS map designed to serve as a data-driven content for reports built with SAS Visual Analytics. It is a fork from [jsapi-resources](https://github.com/Esri/jsapi-resources), Esri's template for JS applications, using ArcGIS for JavaScript 4.x.
 
 ### Usage
 
@@ -16,17 +16,17 @@ Alternately, you can build and modify the code yourself with the following steps
 
 * Download the project.
 * Open a command-line context at the project directory.
-* `npm install`
-* `npm run build`
-* Copy the built application from the `dist` directory to your web server's directory.
+* `yarn install`
+* `yarn build`
+* Copy the built application from the `build` directory to your web server's directory.
 
 #### Prerequisites
 
-Installation requires [node](http://nodejs.org) version 8.x.x or higher.  You can check your current version with `node --version`.
+[Yarn](https://yarnpkg.com/) package manager.
 
 #### Other options
 
-Run `npm run start` to compile and then kick off a webpack-dev-server to host the results locally for immediate testing.
+Run `yarn start` to compile and then kick off a webpack-dev-server to host the results locally for immediate testing.
 
 #### GitHub Pages hosting
 
@@ -34,6 +34,12 @@ For incidental testing, you may use the version hosted by GitHub Pages at
 https://sassoftware.github.io/sas-visualanalytics-geowebmap/.  However, 
 due to quota constraints, that deployment has no guaranteed availability
 nor any expectation of support.  Do not rely upon it for production use.
+
+#### Assets (styles, fonts, and images)
+
+By default, ArcGIS JavaScript assets (approximately 40 MB) are distributed with the build.  To distribute them most efficiently, the hosting web server should configure several mime types.  An example [.htaccess](public/.htaccess) file is included. See developers.arcgis.com for further information.
+
+To load them from arcgis.com instead, two changes are required.  The relevant code has been flagged with the comment "ASSET SOURCE".
 
 ## Application
 
@@ -127,8 +133,8 @@ See [SampleData.json](src/sas/ArcGISWebMapProvider/SampleData.json) for a more c
 
 ## Further information
 
-Use of Esri's ArcGIS SDK is subject to their [licensing requirements](https://developers.arcgis.com/arcgis-runtime/licensing).
+Use of Esri's ArcGIS SDK is subject to their licensing requirements.
 
 ### Notes from Esri's jsapi-resources projects
 
-Please refer to  Esri's [sample project](https://github.com/Esri/jsapi-resources) for information regarding [Webpack](https://webpack.js.org) and the [arcgis-js-api](https://github.com/Esri/arcgis-js-api).
+Please refer to  Esri's [sample project](https://github.com/Esri/jsapi-resources) for information regarding the [arcgis-js-api](https://github.com/Esri/arcgis-js-api).

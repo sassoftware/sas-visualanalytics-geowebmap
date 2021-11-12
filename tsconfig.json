@@ -1,31 +1,29 @@
 {
-  "compilerOptions": {
-    "module": "amd",
-    "target": "es2019",
-    "noImplicitAny": true,
-    "removeComments": true,
-    "jsx": "react",
-    "jsxFactory": "tsx",
-    "moduleResolution": "node",
-    "esModuleInterop": true,
-    "isolatedModules": false,
-    "experimentalDecorators": true,
-    "preserveConstEnums": true,
-    "suppressImplicitAnyIndexErrors": true,
-    "strictNullChecks": true,
-    "sourceMap": true,
-    "noUnusedLocals": true,
-    "importHelpers": true,
-    "baseUrl": "./src", // Apparently required only for VSC intellisense.
-    "resolveJsonModule": true, // Must include SampleData.json.
-    "types": [
-      "moment"
+    "compilerOptions": {
+        "target": "es5",
+        "lib": [
+            "dom",
+            "dom.iterable",
+            "esnext"
+        ],
+        "allowJs": true,
+        "skipLibCheck": true,
+        "esModuleInterop": true,
+        "allowSyntheticDefaultImports": true,
+        "strict": true,
+        "forceConsistentCasingInFileNames": true,
+        "noFallthroughCasesInSwitch": true,
+        "module": "esnext",
+        "moduleResolution": "node",
+        "resolveJsonModule": true,
+        "isolatedModules": true,
+        "noEmit": true,
+        "jsx": "react-jsx",
+        "noImplicitAny": false,
+        "strictPropertyInitialization": false,
+        "baseUrl": "./src"
+    },
+    "include": [
+        "src",
     ]
-  },
-  "include": [
-    "./src/*"
-  ],
-  "exclude": [
-    "node_modules"
-  ]
 }

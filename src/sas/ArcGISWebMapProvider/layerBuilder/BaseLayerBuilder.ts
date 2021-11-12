@@ -22,7 +22,6 @@ import Field from "@arcgis/core/layers/support/Field";
 import PopupTemplate from "@arcgis/core/PopupTemplate";
 import Error from "sas/ArcGISWebMapProvider/Error";
 import ProviderUtil from "sas/ArcGISWebMapProvider/ProviderUtil";
-import esri = __esri;
 
 /**
  * Base class for buildFeatureLayer() and support functions.  Subclasses
@@ -159,7 +158,7 @@ abstract class BaseLayerBuilder {
         });
     }
 
-    protected buildElevationInfo(): esri.FeatureLayerElevationInfo {
+    protected buildElevationInfo(): __esri.FeatureLayerElevationInfo {
         return { mode: (this._options.useWebScene || this._options.use3D) ? "on-the-ground" : "relative-to-ground" };
     }
 

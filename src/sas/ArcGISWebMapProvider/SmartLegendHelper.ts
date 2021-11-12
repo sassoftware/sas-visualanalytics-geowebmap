@@ -21,16 +21,14 @@ import AuthoringInfoVisualVariable from "@arcgis/core/renderers/support/Authorin
 import ColorVariable from "@arcgis/core/renderers/visualVariables/ColorVariable";
 import SizeVariable from "@arcgis/core/renderers/visualVariables/SizeVariable";
 import VisualVariable from "@arcgis/core/renderers/visualVariables/VisualVariable";
+import histogram from "@arcgis/core/smartMapping/statistics/histogram";
+import summaryStatistics from "@arcgis/core/smartMapping/statistics/summaryStatistics";
 import MapView from "@arcgis/core/views/MapView";
 import SceneView from "@arcgis/core/views/SceneView";
 import Expand from "@arcgis/core/widgets/Expand";
 import Legend from "@arcgis/core/widgets/Legend";
 import ColorSlider from "@arcgis/core/widgets/smartMapping/ColorSlider";
 import SizeSlider from "@arcgis/core/widgets/smartMapping/SizeSlider";
-import histogram from "@arcgis/core/smartMapping/statistics/histogram";
-import summaryStatistics from "@arcgis/core/smartMapping/statistics/summaryStatistics";
-
-import esri = __esri;
 
 /**
  * Encapsulate the logic for "smart mapping" legends.
@@ -99,9 +97,9 @@ class SmartLegendHelper {
             if (visualVariable.type === "size") {
 
                 this.getHistogram(readiedFeatureLayer, visualVariable)
-                    .then((histogramResult: esri.HistogramResult) => {
+                    .then((histogramResult: __esri.HistogramResult) => {
                         return this.calculateStatistics(readiedFeatureLayer, visualVariable)
-                            .then((statResult: esri.SummaryStatisticsResult) => {
+                            .then((statResult: __esri.SummaryStatisticsResult) => {
 
                                 const slider: SizeSlider = SizeSlider.fromRendererResult(
                                     {
@@ -120,9 +118,9 @@ class SmartLegendHelper {
             } else if (visualVariable.type === "color") {
 
                 this.getHistogram(readiedFeatureLayer, visualVariable)
-                    .then((histogramResult: esri.HistogramResult) => {
+                    .then((histogramResult: __esri.HistogramResult) => {
                         return this.calculateStatistics(readiedFeatureLayer, visualVariable)
-                            .then((statResult: esri.SummaryStatisticsResult) => {
+                            .then((statResult: __esri.SummaryStatisticsResult) => {
 
                                 const slider: ColorSlider = new ColorSlider({
                                     primaryHandleEnabled: true,
@@ -226,11 +224,11 @@ class SmartLegendHelper {
         this._activeLegends = [];
     }
 
-    private calculateStatistics(layer: FeatureLayer, visualVariable: VisualVariable): Promise<esri.SummaryStatisticsResult> {
+    private calculateStatistics(layer: FeatureLayer, visualVariable: VisualVariable): Promise<__esri.SummaryStatisticsResult> {
         return summaryStatistics({ layer, field: visualVariable.field });
     }
 
-    private getHistogram(layer: FeatureLayer, visualVariable: VisualVariable): Promise<esri.HistogramResult> {
+    private getHistogram(layer: FeatureLayer, visualVariable: VisualVariable): Promise<__esri.HistogramResult> {
         return histogram({ layer, field: visualVariable.field });
     }
 

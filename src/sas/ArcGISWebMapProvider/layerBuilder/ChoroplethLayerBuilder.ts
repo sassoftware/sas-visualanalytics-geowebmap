@@ -190,6 +190,8 @@ class ChoroplethLayerBuilder extends BaseLayerBuilder {
 
             const query: any = this.buildQuery(queryLayer, attributeBlock);
 
+            // Assertions: queryCount promise executed in-scope:
+            // eslint-disable-next-line no-loop-func  
             queryLayer.queryFeatures(query).then((results: any) => {
 
                 // Join the data to the geometries.

@@ -27,7 +27,7 @@ class VAOptions {
 
     private static _options: any = null;
 
-    private static getOptions(): any {
+    protected static getOptions(): any {
         if (!VAOptions._options) {
             VAOptions._options = VAOptions.buildOptions();
         }

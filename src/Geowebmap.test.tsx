@@ -1,0 +1,8 @@
+import React from 'react';
+import { render, screen } from '@testing-library/react';
+import Geowebmap from './Geowebmap';
+
+test('Initialize map', () => {
+    const { container } = render(<Geowebmap />);
+    expect(container.firstChild).toHaveClass('main');
+});

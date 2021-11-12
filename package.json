@@ -1,41 +1,65 @@
 {
-  "name": "geowebmap",
-  "version": "1.3.5",
-  "repository": {
-    "type": "git",
-    "url": "git://github.com/sassoftware/sas-visualanalytics-geowebmap.git"
-  },
-  "dependencies": {
-    "@arcgis/core": "^4.21.0"
-  },
-  "devDependencies": {
-    "@types/arcgis-js-api": "^4.21.0",
-    "@typescript-eslint/eslint-plugin": "^5.3.0",
-    "@typescript-eslint/parser": "^5.3.0",
-    "copy-webpack-plugin": "^9.0.1",
-    "css-loader": "^6.2.0",
-    "eslint": "^8.1.0",
-    "file-loader": "^6.2.0",
-    "html-webpack-plugin": "^5.3.2",
-    "i18next": "^21.3.3",
-    "i18next-browser-languagedetector": "^6.1.2",
-    "i18next-http-backend": "^1.3.1",
-    "intern": "^4.10.0",
-    "mini-css-extract-plugin": "^2.2.0",
-    "ncp": "^2.0.0",
-    "source-map-loader": "^3.0.0",
-    "ts-loader": "^9.2.6",
-    "webpack": "^5.51.1",
-    "webpack-cli": "^4.8.0",
-    "webpack-dev-server": "^4.0.0"
-  },
-  "license": "Apache-2.0",
-  "scripts": {
-    "build": "npm run lint && npm run copyAssets && webpack --mode production",
-    "watch": "npm run copyAssets && webpack -w",
-    "start": "npm run copyAssets && webpack serve --mode development",
-    "lint": "eslint ./src ./tests --ext .ts,.tsx,.js --fix",
-    "test": "webpack --config=webpack.tests.config.js --mode=development && intern",
-    "copyAssets": "ncp ./node_modules/@arcgis/core/assets ./public/assets"
-  }
+    "name": "geowebmap",
+    "version": "1.4.0",
+    "repository": {
+        "type": "git",
+        "url": "git://github.com/sassoftware/sas-visualanalytics-geowebmap.git"
+    },
+    "license": "Apache-2.0",
+    "homepage": ".",
+    "dependencies": {
+        "@arcgis/core": "^4.21.2",
+        "@types/arcgis-js-api": "^4.21.0",
+        "@types/jest": "^27.0.2",
+        "@types/node": "^16.11.6",
+        "@types/react": "^17.0.34",
+        "@types/react-dom": "^17.0.11",
+        "classnames": "^2.3.1",
+        "i18next": "^21.4.0",
+        "i18next-browser-languagedetector": "^6.1.2",
+        "i18next-http-backend": "^1.3.1",
+        "tslib": "^2.3.1",
+        "react": "^17.0.2",
+        "react-dom": "^17.0.2",
+        "react-i18next": "^11.13.0",
+        "react-scripts": "^4.0.3",
+        "web-vitals": "^2.1.2"
+    },
+    "devDependencies": {
+        "typescript": "^4.4.4",
+        "@testing-library/jest-dom": "^5.15.0",
+        "@testing-library/react": "^12.1.2",
+        "@testing-library/user-event": "^13.5.0",
+        "jest-canvas-mock": "^2.3.1",
+        "ncp": "^2.0.0"
+    },
+    "scripts": {
+        "start": "yarn copy && react-scripts start",
+        "build": "yarn copy && react-scripts build",
+        "test": "yarn copy && react-scripts test",
+        "copy": "ncp ./node_modules/@arcgis/core/assets ./public/assets"
+    },
+    "eslintConfig": {
+        "extends": [
+            "react-app",
+            "react-app/jest"
+        ]
+    },
+    "browserslist": {
+        "production": [
+            ">0.2%",
+            "not dead",
+            "not op_mini all"
+        ],
+        "development": [
+            "last 1 chrome version",
+            "last 1 firefox version",
+            "last 1 safari version"
+        ]
+    },
+    "jest": {
+        "transformIgnorePatterns": [
+            "/!node_modules\\/@arcgis/"
+        ]
+    }
 }
