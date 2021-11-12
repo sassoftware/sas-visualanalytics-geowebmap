@@ -10,13 +10,13 @@
 # from the "docs" directory of the "deploy" 
 # branch.
 
-VERSION_NOTE="sas-visualanalytics-geowebmap v1.3.4"
-DIST_DIR=../sas-visualanalytics-geowebmap/dist/
+VERSION_NOTE="sas-visualanalytics-geowebmap v1.4.0"
+DIST_DIR=PATH_TO_PROJECT/sas-visualanalytics-geowebmap/build/
 
 rm -r docs
 mkdir docs
 cp -r ${DIST_DIR} docs/
-echo "User-agent: *\nDisallow: /\n" > docs/robots.txt
+# echo "User-agent: *\nDisallow: /\n" > docs/robots.txt
 echo "${VERSION_NOTE}\n" > docs/version.html
 echo "${VERSION_NOTE}\n" > docs/index.md
 echo "== Deployment complete =="
