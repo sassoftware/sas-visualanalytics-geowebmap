@@ -1,0 +1,11 @@
+{
+    "optionsNotIdentified": "The following required options were not identified: {{0}}.",
+    "dataNotIdentified": "Data for 'x' or 'y' coordinates could not be identified.",
+    "dataNotIdentifiedGeoId": "Data for 'geoid' could not be identified.",
+    "invalidCoordinates": "Data contains missing or invalid coordinates ({{0}}).",
+    "regionsNotFoundFew": "Some geoIds could not be found with the feature service: {{0}}.",
+    "regionsNotFoundMany": "Some geoIds could not be found with the feature service: {{0}} ...",
+    "tooManyFeatures": "Feature count ({{0}}) exceeds maximum allowed ({{1}}).  Please filter your results.",
+    "tooManyFilteredValues": "Filter value count exceeded maximum allowed ({{0}}).",
+    "defaultLayerTitle": "SAS VA Layer"
+}

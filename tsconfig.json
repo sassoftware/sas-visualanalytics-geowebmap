@@ -1,13 +1,7 @@
 {
   "compilerOptions": {
     "module": "amd",
-    "lib": [
-      "dom",
-      "es2015.promise",
-      "es5",
-      "es6"
-    ],
-    "target": "es5",
+    "target": "es2019",
     "noImplicitAny": true,
     "removeComments": true,
     "jsx": "react",
@@ -16,26 +10,22 @@
     "esModuleInterop": true,
     "isolatedModules": false,
     "experimentalDecorators": true,
-    "declaration": false,
-    "noLib": false,
     "preserveConstEnums": true,
     "suppressImplicitAnyIndexErrors": true,
     "strictNullChecks": true,
-    "outDir": "./dist/",
     "sourceMap": true,
-    "noEmitOnError": false,
     "noUnusedLocals": true,
     "importHelpers": true,
-    "skipLibCheck": true,
     "baseUrl": "./src", // Apparently required only for VSC intellisense.
     "resolveJsonModule": true, // Must include SampleData.json.
     "types": [
-      "arcgis-js-api",
       "moment"
     ]
   },
   "include": [
-    "src/*"
-    // "src/**/*"
+    "./src/*"
+  ],
+  "exclude": [
+    "node_modules"
   ]
 }

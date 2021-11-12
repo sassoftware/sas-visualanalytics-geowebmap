@@ -6,7 +6,7 @@ For an overview of this project from the perspective of a user, see the document
 
 ## Project
 
-This project presents a web page with an ArcGIS map designed to serve as a data-driven content for reports built with SAS Visual Analytics. It is a fork of [jsapi-resources](https://github.com/Esri/jsapi-resources), Esri's template for JS applications, using Dojo and ArcGIS for JavaScript 4.x.
+This project presents a web page with an ArcGIS map designed to serve as a data-driven content for reports built with SAS Visual Analytics. It is a fork of [jsapi-resources](https://github.com/Esri/jsapi-resources), Esri's template for JS applications, using ArcGIS for JavaScript 4.x.
 
 ### Usage
 
@@ -131,4 +131,4 @@ Use of Esri's ArcGIS SDK is subject to their [licensing requirements](https://de
 
 ### Notes from Esri's jsapi-resources projects
 
-Please refer to  Esri's (dojo-based) [sample project](https://github.com/Esri/jsapi-resources) for information regarding [Webpack](https://webpack.js.org), the [arcgis-js-api](https://github.com/Esri/arcgis-js-api), and the [@arcgis/webpack-plugin](https://github.com/Esri/arcgis-webpack-plugin).
+Please refer to  Esri's [sample project](https://github.com/Esri/jsapi-resources) for information regarding [Webpack](https://webpack.js.org) and the [arcgis-js-api](https://github.com/Esri/arcgis-js-api).

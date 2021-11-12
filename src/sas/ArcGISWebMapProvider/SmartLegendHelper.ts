@@ -14,20 +14,21 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import Color from "esri/Color";
-import FeatureLayer from "esri/layers/FeatureLayer";
-import AuthoringInfo from "esri/renderers/support/AuthoringInfo";
-import AuthoringInfoVisualVariable from "esri/renderers/support/AuthoringInfoVisualVariable";
-import ColorVariable from "esri/renderers/visualVariables/ColorVariable";
-import SizeVariable from "esri/renderers/visualVariables/SizeVariable";
-import VisualVariable from "esri/renderers/visualVariables/VisualVariable";
-import histogram = require("esri/smartMapping/statistics/histogram");
-import summaryStatistics = require("esri/smartMapping/statistics/summaryStatistics");
-import View from "esri/views/View";
-import Expand from "esri/widgets/Expand";
-import Legend from "esri/widgets/Legend";
-import ColorSlider from "esri/widgets/smartMapping/ColorSlider";
-import SizeSlider from "esri/widgets/smartMapping/SizeSlider";
+import Color from "@arcgis/core/Color";
+import FeatureLayer from "@arcgis/core/layers/FeatureLayer";
+import AuthoringInfo from "@arcgis/core/renderers/support/AuthoringInfo";
+import AuthoringInfoVisualVariable from "@arcgis/core/renderers/support/AuthoringInfoVisualVariable";
+import ColorVariable from "@arcgis/core/renderers/visualVariables/ColorVariable";
+import SizeVariable from "@arcgis/core/renderers/visualVariables/SizeVariable";
+import VisualVariable from "@arcgis/core/renderers/visualVariables/VisualVariable";
+import MapView from "@arcgis/core/views/MapView";
+import SceneView from "@arcgis/core/views/SceneView";
+import Expand from "@arcgis/core/widgets/Expand";
+import Legend from "@arcgis/core/widgets/Legend";
+import ColorSlider from "@arcgis/core/widgets/smartMapping/ColorSlider";
+import SizeSlider from "@arcgis/core/widgets/smartMapping/SizeSlider";
+import histogram from "@arcgis/core/smartMapping/statistics/histogram";
+import summaryStatistics from "@arcgis/core/smartMapping/statistics/summaryStatistics";
 
 import esri = __esri;
 
@@ -51,7 +52,7 @@ class SmartLegendHelper {
      * https://developers.arcgis.com/javascript/latest/sample-code/visualization-sm-color/index.html
      */
 
-    addSmartLegends(readiedFeatureLayer: FeatureLayer, mapView: View): void {
+    addSmartLegends(readiedFeatureLayer: FeatureLayer, mapView: MapView | SceneView): void {
 
         if (readiedFeatureLayer && readiedFeatureLayer.renderer && !readiedFeatureLayer.renderer.authoringInfo) {
 
@@ -87,7 +88,7 @@ class SmartLegendHelper {
         }
     }
 
-    private addSmartLegendsImpl(readiedFeatureLayer: FeatureLayer, mapView: View): void {
+    private addSmartLegendsImpl(readiedFeatureLayer: FeatureLayer, mapView: MapView | SceneView): void {
 
         this.removeSmartLegends(mapView);
 
@@ -145,7 +146,7 @@ class SmartLegendHelper {
 
     }
 
-    private addSlider(readiedFeatureLayer: FeatureLayer, mapView: View, slider: SizeSlider | ColorSlider): void {
+    private addSlider(readiedFeatureLayer: FeatureLayer, mapView: MapView | SceneView, slider: SizeSlider | ColorSlider): void {
 
         const expand = new Expand({ expandIconClass: "esri-icon-question", view: mapView, content: slider, group: "bottom-left" });
         mapView.ui.add(expand, "bottom-left");
@@ -155,10 +156,10 @@ class SmartLegendHelper {
             this.buildOnSmartSizeSliderDataChangeFunction(readiedFeatureLayer, slider as SizeSlider) :
             this.buildOnSmartColorSliderDataChangeFunction(readiedFeatureLayer, slider as ColorSlider);
 
-        slider.on(
-            ["thumb-change", "thumb-drag", "min-change", "max-change"],
-            changeFunction
-        );
+        slider.on("thumb-change", changeFunction);
+        slider.on("thumb-drag", changeFunction);
+        slider.on("max-change", changeFunction);
+        slider.on("min-change", changeFunction);
 
     }
 

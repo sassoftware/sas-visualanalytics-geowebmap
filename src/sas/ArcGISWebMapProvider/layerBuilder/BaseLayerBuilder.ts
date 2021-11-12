@@ -14,15 +14,15 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { resolve } from "esri/core/promiseUtils";
-import Point from "esri/geometry/Point";
-import SpatialReference from "esri/geometry/SpatialReference";
-import Graphic from "esri/Graphic";
-import FeatureLayer from "esri/layers/FeatureLayer";
-import Field from "esri/layers/support/Field";
-import PopupTemplate from "esri/PopupTemplate";
+import Point from "@arcgis/core/geometry/Point";
+import SpatialReference from "@arcgis/core/geometry/SpatialReference";
+import Graphic from "@arcgis/core/Graphic";
+import FeatureLayer from "@arcgis/core/layers/FeatureLayer";
+import Field from "@arcgis/core/layers/support/Field";
+import PopupTemplate from "@arcgis/core/PopupTemplate";
 import Error from "sas/ArcGISWebMapProvider/Error";
 import ProviderUtil from "sas/ArcGISWebMapProvider/ProviderUtil";
+import esri = __esri;
 
 /**
  * Base class for buildFeatureLayer() and support functions.  Subclasses
@@ -30,8 +30,8 @@ import ProviderUtil from "sas/ArcGISWebMapProvider/ProviderUtil";
  */
 abstract class BaseLayerBuilder {
 
-    static EDITS_COMPLETED: string = "editsCompleted";
-    static EDITS_APPLIED: string = "editsApplied";
+    static EDITS_COMPLETED = "editsCompleted";
+    static EDITS_APPLIED = "editsApplied";
 
     protected _options: any;
     protected _rows: any[];
@@ -47,11 +47,8 @@ abstract class BaseLayerBuilder {
         return false;
     }
 
-    buildFeatureLayer(): any {
-
-        const result = this.buildFeatureLayerImpl();
-        return (result instanceof Promise) ? result : resolve(result);
-
+    buildFeatureLayer(): Promise<FeatureLayer> {
+        return this.buildFeatureLayerImpl();
     }
 
     // Subclasses should override this method.  Return string description of errors
@@ -69,7 +66,7 @@ abstract class BaseLayerBuilder {
     }
 
     // Subclasses should override this method.  Return a Promise or a feature layer.
-    protected abstract buildFeatureLayerImpl(): FeatureLayer;
+    protected abstract buildFeatureLayerImpl(): Promise<FeatureLayer>;
 
     protected createGraphics(): Graphic[] {
 
@@ -91,10 +88,7 @@ abstract class BaseLayerBuilder {
     protected createFields(): Field[] {
 
         // Feature layer's "fields" property expects objects of {name, alias, type}.
-        const fields = [
-            new Field({ name: ProviderUtil.FIELD_NAME_OBJECT_ID, alias: ProviderUtil.FIELD_NAME_OBJECT_ID, type: "oid" }),
-            new Field({ name: ProviderUtil.FIELD_NAME_SAS_INDEX, alias: ProviderUtil.FIELD_NAME_SAS_INDEX, type: "integer" }),
-        ];
+        const fields = [new Field({ name: ProviderUtil.FIELD_NAME_OBJECT_ID, alias: ProviderUtil.FIELD_NAME_OBJECT_ID, type: "oid" })];
         this._columns.forEach((column: any) => {
             fields.push(new Field({ name: column.name, alias: column.label, type: ((column.type === "number") ? "double" : column.type) }));
         });
@@ -103,10 +97,10 @@ abstract class BaseLayerBuilder {
     }
 
     protected convertRowsToObjects(columns: any[], rows: any[]): any[] {
+        const objectIDFieldName = ProviderUtil.FIELD_NAME_OBJECT_ID;
         return rows.map((row: any, i: number) => {
             const object = {};
-            object[ProviderUtil.FIELD_NAME_OBJECT_ID] = i + 1; // Adding the object ID.
-            object[ProviderUtil.FIELD_NAME_SAS_INDEX] = i; // The index of the original row.
+            object[objectIDFieldName] = i; // Adding the object ID.
             let index = 0;
             columns.forEach((column: any) => {
                 object[column.name] = (index < row.length) ? row[index] : null;
@@ -119,7 +113,7 @@ abstract class BaseLayerBuilder {
     protected createGenericUnformattedPopupTemplate(fields: any[]): PopupTemplate {
         const fieldInfos: any[] = [];
         fields.forEach((field: any) => {
-            if (field.name !== ProviderUtil.FIELD_NAME_OBJECT_ID && field.name !== ProviderUtil.FIELD_NAME_SAS_INDEX && field.name !== ProviderUtil.getNameWithLabel(this._options.x, fields) && field.name !== ProviderUtil.getNameWithLabel(this._options.y, fields)) {
+            if (field.name !== ProviderUtil.FIELD_NAME_OBJECT_ID && field.name !== ProviderUtil.getNameWithLabel(this._options.x, fields) && field.name !== ProviderUtil.getNameWithLabel(this._options.y, fields)) {
                 const fieldInfo = { fieldName: field.name, label: field.label, visible: true, format: {} }
                 if (field.type === "number" || field.type === "double") {
                     fieldInfo.format = { digitSeparator: true };
@@ -165,7 +159,7 @@ abstract class BaseLayerBuilder {
         });
     }
 
-    protected buildElevationInfo(): { mode: string } {
+    protected buildElevationInfo(): esri.FeatureLayerElevationInfo {
         return { mode: (this._options.useWebScene || this._options.use3D) ? "on-the-ground" : "relative-to-ground" };
     }
 

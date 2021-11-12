@@ -14,16 +14,16 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import Accessor from "esri/core/Accessor";
-import { property, subclass } from "esri/core/accessorSupport/decorators";
-import { whenOnce } from "esri/core/watchUtils";
-import FeatureLayer from "esri/layers/FeatureLayer";
-import EsriMap from "esri/Map";
-import View from "esri/views/View";
-import BasemapGallery from "esri/widgets/BasemapGallery";
-import Expand from "esri/widgets/Expand";
-import LayerList from "esri/widgets/LayerList";
-import Search from "esri/widgets/Search";
+import Accessor from "@arcgis/core/core/Accessor";
+import { property, subclass } from "@arcgis/core/core/accessorSupport/decorators";
+import { whenOnce } from "@arcgis/core/core/watchUtils";
+import FeatureLayer from "@arcgis/core/layers/FeatureLayer";
+import EsriMap from "@arcgis/core/Map";
+import View from "@arcgis/core/views/View";
+import BasemapGallery from "@arcgis/core/widgets/BasemapGallery";
+import Expand from "@arcgis/core/widgets/Expand";
+import LayerList from "@arcgis/core/widgets/LayerList";
+import Search from "@arcgis/core/widgets/Search";
 import ArcGISVisualizationBridge from "sas/ArcGISWebMapProvider/ArcGISVisualizationBridge";
 
 export interface AppParams {
@@ -55,16 +55,16 @@ class AppViewModel extends Accessor {
   onload() {
     this.addMapWidgets(this.view);
   }
-  
-  private addMapWidgets(view:View) {
 
-    const layerList = new LayerList({view: this.view});
-    const layerListExpand = new Expand({expandIconClass: "esri-icon-layer-list", view: this.view, content: layerList, group: "top-right"});
+  private addMapWidgets(view: View) {
+
+    const layerList = new LayerList({ view: this.view });
+    const layerListExpand = new Expand({ expandIconClass: "esri-icon-layer-list", view: this.view, content: layerList, group: "top-right" });
     this.view.ui.add(layerListExpand, "top-right");
 
     if (this.options.showBasemapSelector) {
-      const basemapGallery = new BasemapGallery({view: this.view});
-      const basemapExpand = new Expand({expandIconClass: "esri-icon-basemap", view: this.view, content: basemapGallery, group: "top-right"});
+      const basemapGallery = new BasemapGallery({ view: this.view });
+      const basemapExpand = new Expand({ expandIconClass: "esri-icon-basemap", view: this.view, content: basemapGallery, group: "top-right" });
       this.view.ui.add(basemapExpand, "top-right");
     }
 
@@ -72,8 +72,8 @@ class AppViewModel extends Accessor {
     this.view.ui.move("navigation-toggle", "top-right");
     this.view.ui.move("compass", "top-right");
 
-    const search = new Search({view, container: document.createElement("div")});
-    const searchExpand = new Expand({expandIconClass: "esri-icon-search", view: this.view, content: search});
+    const search = new Search({ view, container: document.createElement("div") });
+    const searchExpand = new Expand({ expandIconClass: "esri-icon-search", view: this.view, content: search });
     this.view.ui.add(searchExpand, "top-left");
 
   }

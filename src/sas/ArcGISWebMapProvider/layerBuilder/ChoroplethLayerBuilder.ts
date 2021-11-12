@@ -14,10 +14,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { create } from "esri/core/promiseUtils";
-import SpatialReference from "esri/geometry/SpatialReference";
-import FeatureLayer from "esri/layers/FeatureLayer";
-import Query from "esri/tasks/support/Query";
+import { create } from "@arcgis/core/core/promiseUtils";
+import SpatialReference from "@arcgis/core/geometry/SpatialReference";
+import FeatureLayer from "@arcgis/core/layers/FeatureLayer";
+import Query from "@arcgis/core/tasks/support/Query";
 import Error from "sas/ArcGISWebMapProvider/Error";
 import BaseLayerBuilder from "sas/ArcGISWebMapProvider/layerBuilder/BaseLayerBuilder";
 import ProviderUtil from "sas/ArcGISWebMapProvider/ProviderUtil";
@@ -69,7 +69,7 @@ class ChoroplethLayerBuilder extends BaseLayerBuilder {
         this._queryServiceLayerOverride = override;
     }
 
-    protected buildFeatureLayerImpl() {
+    protected buildFeatureLayerImpl(): Promise<FeatureLayer> {
         const renderer = this.createRenderer(this._rows, this._columns);
         return this.buildChoroplethFeatureLayer(renderer, this._rows, this._columns);
     }
@@ -138,7 +138,7 @@ class ChoroplethLayerBuilder extends BaseLayerBuilder {
 
     private buildFilter(values: any[]): string {
 
-        let where: string = "";
+        let where = "";
 
         if (this._options.featureServiceWhere) {
             where = "(" + this._options.featureServiceWhere + ") AND ";
@@ -204,7 +204,7 @@ class ChoroplethLayerBuilder extends BaseLayerBuilder {
 
                     if (dataMatch) {
                         for (const key in dataMatch) {
-                            if (dataMatch.hasOwnProperty(key)) {
+                            if (Object.prototype.hasOwnProperty.call(dataMatch, key)) {
                                 feature.attributes[key] = dataMatch[key];
                             }
                         }
@@ -235,12 +235,12 @@ class ChoroplethLayerBuilder extends BaseLayerBuilder {
 
     }
 
-    private buildChoroplethFeatureLayer(renderer: any, rows: any[], columns: any[]) {
+    private buildChoroplethFeatureLayer(renderer: any, rows: any[], columns: any[]): Promise<FeatureLayer> {
 
         // We return a promise that the feature layer is _ready_
         // to be added to a map.
 
-        return create((resolve, reject) => {
+        return create((resolve /* , reject */) => {
 
             const layerSource: any[] = [];
 

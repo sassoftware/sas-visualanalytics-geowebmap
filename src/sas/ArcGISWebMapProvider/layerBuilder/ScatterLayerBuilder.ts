@@ -19,7 +19,8 @@ limitations under the License.
  * scatter plot feature layer in a web map.
  */
 
-import FeatureLayer from "esri/layers/FeatureLayer";
+import { resolve } from "@arcgis/core/core/promiseUtils";
+import FeatureLayer from "@arcgis/core/layers/FeatureLayer";
 import AnimationHelper from "sas/ArcGISWebMapProvider/AnimationHelper";
 import Error from "sas/ArcGISWebMapProvider/Error";
 import BaseLayerBuilder from "sas/ArcGISWebMapProvider/layerBuilder/BaseLayerBuilder";
@@ -31,29 +32,29 @@ import ProviderUtil from "sas/ArcGISWebMapProvider/ProviderUtil";
  */
 class ScatterLayerBuilder extends BaseLayerBuilder {
 
-    validateOptions():Error[] {
+    validateOptions(): Error[] {
         return this.validateRequiredOptions(['x', 'y']);
     }
 
-    validateResults():Error[] {
+    validateResults(): Error[] {
         return this.validateCoordinates(this._rows, this._columns);
     }
 
-    protected buildFeatureLayerImpl():FeatureLayer {
+    protected buildFeatureLayerImpl(): Promise<FeatureLayer> {
         const renderer = this.createRenderer(this._rows, this._columns);
-        return this.buildSimpleFeatureLayer(renderer);
+        return resolve(this.buildSimpleFeatureLayer(renderer));
     }
 
-    private createRenderer(rows:any[], columns:any[]):any {
+    private createRenderer(rows: any[], columns: any[]): any {
         const visualVariables = [];
         let renderer;
 
-        if (this._options.animation) { 
+        if (this._options.animation) {
             visualVariables.push(AnimationHelper.buildAnimationVisualVariable(columns, this._options.animation));
         }
 
         if (ProviderUtil.hasColorCategory(this._options.color, columns)) {
-            renderer =  {
+            renderer = {
                 type: "unique-value",
                 field: ProviderUtil.getNameWithLabel(this._options.color, columns),
                 defaultSymbol: {

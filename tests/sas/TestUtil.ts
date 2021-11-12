@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { resolve } from "esri/core/promiseUtils";
+import { resolve } from "@arcgis/core/core/promiseUtils";
 import { initializeI18N } from "sas/i18n/resources";
 
 class TestUtil {
@@ -28,7 +28,7 @@ class TestUtil {
         }
     }
 
-    private static _i18nInitialized: boolean = false;
+    private static _i18nInitialized = false;
 
 }
 export default TestUtil;

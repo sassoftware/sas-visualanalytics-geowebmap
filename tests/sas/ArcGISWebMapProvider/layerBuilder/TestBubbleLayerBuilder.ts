@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import FeatureLayer from "esri/layers/FeatureLayer";
+import FeatureLayer from "@arcgis/core/layers/FeatureLayer";
 import BubbleLayerBuilder from "sas/ArcGISWebMapProvider/layerBuilder/BubbleLayerBuilder";
 import TestUtil from "sas/TestUtil";
 

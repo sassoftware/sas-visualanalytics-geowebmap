@@ -14,11 +14,11 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import Graphic from "esri/Graphic";
-import FeatureLayer from "esri/layers/FeatureLayer";
-import FeatureSet from "esri/tasks/support/FeatureSet";
-import FeatureLayerView from "esri/views/layers/FeatureLayerView";
-import View from "esri/views/View";
+import Graphic from "@arcgis/core/Graphic";
+import FeatureLayer from "@arcgis/core/layers/FeatureLayer";
+import FeatureSet from "@arcgis/core/tasks/support/FeatureSet";
+import FeatureLayerView from "@arcgis/core/views/layers/FeatureLayerView";
+import View from "@arcgis/core/views/View";
 import ProviderUtil from "sas/ArcGISWebMapProvider/ProviderUtil";
 
 /**
@@ -115,25 +115,11 @@ class SelectionHelper {
         // (1) Communicate selection to containing report in VA.
 
         const id = (isSasFeature && graphic && graphic.attributes) ? graphic.attributes[ProviderUtil.FIELD_NAME_OBJECT_ID] : null;
-
-        if (id === null) {
-            ProviderUtil.publishMessage({
-                resultName: this._dataResultName,
-                selections: [] // Empty selection set.
-            });
-        }
-        else if (isSasFeature) {
-            graphic.layer.queryFeatures({ objectIds: [id], outFields: [ProviderUtil.FIELD_NAME_SAS_INDEX], returnGeometry: false })
-                .then((results) => {
-                    if (results && results.features && results.features.length > 0) {
-                        const selection = results.features[0].attributes[ProviderUtil.FIELD_NAME_SAS_INDEX];
-                        ProviderUtil.publishMessage({
-                            resultName: this._dataResultName,
-                            selections: [{ row: selection }]
-                        });
-                    }
-                });
-        }
+        const selections = (id === null) ? [] : [{ row: id }];
+        ProviderUtil.publishMessage({
+            resultName: this._dataResultName,
+            selections
+        });
 
         // (2) Clear any old selection visuals.
 

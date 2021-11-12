@@ -14,12 +14,13 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import FeatureLayer from "esri/layers/FeatureLayer";
-import View from "esri/views/View";
-import Expand from "esri/widgets/Expand";
-import Legend from "esri/widgets/Legend";
+import FeatureLayer from "@arcgis/core/layers/FeatureLayer";
+import MapView from "@arcgis/core/views/MapView";
+import SceneView from "@arcgis/core/views/SceneView";
+import Expand from "@arcgis/core/widgets/Expand";
+import Legend from "@arcgis/core/widgets/Legend";
 import AnimationHelper from "sas/ArcGISWebMapProvider/AnimationHelper";
-import Error, { Severity } from "sas/ArcGISWebMapProvider/Error";
+import Error from "sas/ArcGISWebMapProvider/Error";
 import BaseLayerBuilder from "sas/ArcGISWebMapProvider/layerBuilder/BaseLayerBuilder";
 import FeatureLayerFactory from "sas/ArcGISWebMapProvider/layerBuilder/FeatureLayerFactory";
 import ProviderUtil from "sas/ArcGISWebMapProvider/ProviderUtil";
@@ -34,33 +35,19 @@ import VAOptions from "sas/ArcGISWebMapProvider/VAOptions";
 class ArcGISVisualizationBridge {
 
     private _options: any;
-    private _mapView: View;
+    private _mapView: MapView | SceneView;
     private _sasLegend: Legend;
     private _animationHelper: AnimationHelper;
     private _selectionHelper: SelectionHelper;
     private _smartLegendHelper: SmartLegendHelper;
     private _lastMessageReceivedBeforeMapViewRegistered: object | null;
     /* Allows automatically fitting extent to data unless user manually panned. */
-    private _hasUserPanned: boolean = false;
+    private _hasUserPanned = false;
     private _warningControl: Expand;
     private _warning: string;
     private _dataResultName: string;
 
     constructor(visualizationOptions: any) {
-
-        let first = function (option: any): any {
-            if (!option) return "";
-            if (Array.isArray(option)) {
-                if (option.length > 0) {
-                    ProviderUtil.logError("Multiple input values specified for singular option.  Using first encountered.");
-                    return first(option[0]); // No recursion check here.
-                }
-                else {
-                    return "";
-                }
-            }
-            return option;
-        }
 
         this._selectionHelper = new SelectionHelper();
 
@@ -68,7 +55,7 @@ class ArcGISVisualizationBridge {
 
         this._options = visualizationOptions;
 
-        this._options.visualizationType = (this._options.visualizationType) ? first(this._options.visualizationType).toUpperCase() : null;
+        this._options.visualizationType = (this._options.visualizationType) ? this._options.visualizationType.toUpperCase() : null;
         if (this._options.visualizationType !== ProviderUtil.VISUALIZATION_TYPE_SCATTER &&
             this._options.visualizationType !== ProviderUtil.VISUALIZATION_TYPE_BUBBLE &&
             this._options.visualizationType !== ProviderUtil.VISUALIZATION_TYPE_CHOROPLETH &&
@@ -98,9 +85,9 @@ class ArcGISVisualizationBridge {
             this._options.outline = "#007E88";
         }
 
-        this._options.useSampleData = (this._options.useSampleData && first(this._options.useSampleData).toUpperCase() === "TRUE");
+        this._options.useSampleData = (this._options.useSampleData && this._options.useSampleData.toUpperCase() === "TRUE");
 
-        this._options.useSmartLegends = (this._options.useSmartLegends && first(this._options.useSmartLegends).toUpperCase() === "TRUE");
+        this._options.useSmartLegends = (this._options.useSmartLegends && this._options.useSmartLegends.toUpperCase() === "TRUE");
 
         if (this._options.featureServiceWhere && this._options.featureServiceWhere.length < 1) {
             this._options.featureServiceWhere = null;
@@ -129,7 +116,7 @@ class ArcGISVisualizationBridge {
 
     }
 
-    registerMapView(mapView: View): void {
+    registerMapView(mapView: MapView | SceneView): void {
 
         this._mapView = mapView;
 
@@ -178,7 +165,7 @@ class ArcGISVisualizationBridge {
             this._lastMessageReceivedBeforeMapViewRegistered = null;
         }
 
-        (this._mapView as any).on("drag", (e: any) => {
+        (this._mapView as any).on("drag", (/* e: any */) => {
             this._hasUserPanned = true;
         });
 
@@ -190,7 +177,7 @@ class ArcGISVisualizationBridge {
 
     }
 
-    private getMapView(): View {
+    private getMapView(): MapView | SceneView {
         return this._mapView;
     }
 

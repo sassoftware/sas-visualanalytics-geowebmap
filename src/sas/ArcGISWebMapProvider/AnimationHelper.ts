@@ -14,8 +14,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import FeatureLayer from "esri/layers/FeatureLayer";
-import Renderer from "esri/renderers/Renderer";
+import FeatureLayer from "@arcgis/core/layers/FeatureLayer";
+import Renderer from "@arcgis/core/renderers/Renderer";
 import moment from "moment/moment";
 import ProviderUtil from "sas/ArcGISWebMapProvider/ProviderUtil";
 
@@ -26,52 +26,52 @@ import ProviderUtil from "sas/ArcGISWebMapProvider/ProviderUtil";
  */
 class AnimationHelper {
 
-    static buildAnimationVisualVariable(columns:any[], animationColumnLabel:string):{type:string, field:string} {
+    static buildAnimationVisualVariable(columns: any[], animationColumnLabel: string): { type: string, field: string } {
         const animationColumnName = ProviderUtil.getNameWithLabel(animationColumnLabel, columns);
         return {
             type: "opacity",
             field: animationColumnName
-        };     
+        };
     }
 
     // See https://momentjs.com/docs/#/manipulating/add/ and/or moment.d.ts unitOfTime.
     private static _periodsAndFormats = [
-        {period: "YEAR", format: "YYYY"},
-        {period: "YEARS", format: "YYYY"},
-        {period: "Y", format: "YYYY"},
-        {period: "QUARTER", format: "L"},
-        {period: "QUARTERS", format: "L"},
-        {period: "Q", format: "L"},
-        {period: "MONTH", format: "L"},
-        {period: "MONTHS", format: "L"},
-        {period: "M", format: "L"},
-        {period: "WEEK", format: "L"},
-        {period: "WEEKS", format: "L"},
-        {period: "W", format: "L"},
-        {period: "DAY", format: "L"},
-        {period: "DAYS", format: "L"},
-        {period: "D", format: "L"},
-        {period: "HOUR", format: "LT"},
-        {period: "HOURS", format: "LT"},
-        {period: "H", format: "LT"},
-        {period: "MINUTE", format: "LT"},
-        {period: "MINUTES", format: "LT"},
-        {period: "M", format: "LT"},
-        {period: "SECOND", format: "LTS"},
-        {period: "SECONDS", format: "LTS"},
-        {period: "S", format: "LTS"},
-        {period: "MILLISECOND", format: "x"},
-        {period: "MILLISECONDS", format: "x"},
-        {period: "MS", format: "x"}
+        { period: "YEAR", format: "YYYY" },
+        { period: "YEARS", format: "YYYY" },
+        { period: "Y", format: "YYYY" },
+        { period: "QUARTER", format: "L" },
+        { period: "QUARTERS", format: "L" },
+        { period: "Q", format: "L" },
+        { period: "MONTH", format: "L" },
+        { period: "MONTHS", format: "L" },
+        { period: "M", format: "L" },
+        { period: "WEEK", format: "L" },
+        { period: "WEEKS", format: "L" },
+        { period: "W", format: "L" },
+        { period: "DAY", format: "L" },
+        { period: "DAYS", format: "L" },
+        { period: "D", format: "L" },
+        { period: "HOUR", format: "LT" },
+        { period: "HOURS", format: "LT" },
+        { period: "H", format: "LT" },
+        { period: "MINUTE", format: "LT" },
+        { period: "MINUTES", format: "LT" },
+        { period: "M", format: "LT" },
+        { period: "SECOND", format: "LTS" },
+        { period: "SECONDS", format: "LTS" },
+        { period: "S", format: "LTS" },
+        { period: "MILLISECOND", format: "x" },
+        { period: "MILLISECONDS", format: "x" },
+        { period: "MS", format: "x" }
     ];
 
-    private static hasClonableRenderer(renderer:Renderer):boolean {
+    private static hasClonableRenderer(renderer: Renderer): boolean {
         /* tslint:disable no-string-literal */
         return renderer && typeof renderer["clone"] === "function";
         /* tslint:enable */
     }
 
-    private static buildAnimationContext(updateAnimationValueFunction:any):{remove: ()=>void} {
+    private static buildAnimationContext(updateAnimationValueFunction: any): { remove: () => void } {
 
         let animating = true;
 
@@ -91,31 +91,31 @@ class AnimationHelper {
             }
         }
 
-    };
+    }
 
-    private _sasLayer:FeatureLayer;
-    private _period:any;
-    private _periodFormat:any;
+    private _sasLayer: FeatureLayer;
+    private _period: any;
+    private _periodFormat: any;
     private _animationLabel: HTMLElement | null;
     private _animationPlayButton: HTMLInputElement | null;
-    private _animationSlider: HTMLInputElement | null;   
-    private _animationMin:number;
-    private _animationMax:number;
-    private _lastAnimationSliderValue:moment.Moment | null;
-    private _animation:any;
+    private _animationSlider: HTMLInputElement | null;
+    private _animationMin: number;
+    private _animationMax: number;
+    private _lastAnimationSliderValue: moment.Moment | null;
+    private _animation: any;
 
-    constructor(animationPeriod:any) {
+    constructor(animationPeriod: any) {
         this.resolvePeriodAndFormat(animationPeriod);
         this.initializeAnimationControls();
     }
 
-    generateSampleAnimationData(result:any, colorColumnLabel:string, sizeColumnLabel:string, animationColumnLabel:string):void {
+    generateSampleAnimationData(result: any, colorColumnLabel: string, sizeColumnLabel: string, animationColumnLabel: string): void {
         let colorIndex;
         /* tslint:disable prefer-conditional-expression */
-        if (ProviderUtil.hasColorCategory(colorColumnLabel, result.columns)) { 
+        if (ProviderUtil.hasColorCategory(colorColumnLabel, result.columns)) {
             colorIndex = -1;
         }
-        else { 
+        else {
             colorIndex = ProviderUtil.getIndexWithLabel(colorColumnLabel, result.columns);
         }
         /* tslint:enable */
@@ -125,7 +125,7 @@ class AnimationHelper {
         for (let x = 0; x < initialLength; ++x) {
             for (let y = 1; y < 11; ++y) {  // Add ten years of sample data.
                 const clone = result.data[x].slice();
-                clone[animationIndex] = moment.utc(ProviderUtil.convertToEpochMS(clone[animationIndex],result.columns[animationIndex].format.formatString)).startOf(this._period).add(y,this._period).valueOf();
+                clone[animationIndex] = moment.utc(ProviderUtil.convertToEpochMS(clone[animationIndex], result.columns[animationIndex].format.formatString)).startOf(this._period).add(y, this._period).valueOf();
                 if (colorIndex > -1) {
                     clone[colorIndex] = clone[colorIndex] * y;
                     if (isNaN(clone[colorIndex])) {
@@ -146,33 +146,33 @@ class AnimationHelper {
         }
     }
 
-    initializeAnimationData(event:any, animationColumnLabel:string):void {
+    initializeAnimationData(event: any, animationColumnLabel: string): void {
         this._lastAnimationSliderValue = null;
         const animationIndex = ProviderUtil.getIndexWithLabel(animationColumnLabel, event.data.columns);
-        this.convertDateColumn(event.data.data,animationIndex);
-        const minMax = ProviderUtil.findMinMax(event.data.data,animationIndex);  
+        this.convertDateColumn(event.data.data, animationIndex);
+        const minMax = ProviderUtil.findMinMax(event.data.data, animationIndex);
         this._animationMin = moment.utc(minMax[0]).startOf(this._period).valueOf();
-        this._animationMax = moment.utc(minMax[1]).endOf(this._period).valueOf(); 
+        this._animationMax = moment.utc(minMax[1]).endOf(this._period).valueOf();
     }
 
-    initializeAnimation(sasLayer:FeatureLayer):void {
+    initializeAnimation(sasLayer: FeatureLayer): void {
         this._sasLayer = sasLayer;
         const slider = this.getAnimationSlider();
         this.processAnimationSliderValue((slider) ? slider.value : 0);
     }
 
-    private getAnimationSlider(): HTMLInputElement | null { 
+    private getAnimationSlider(): HTMLInputElement | null {
         if (!this._animationSlider) {
             this._animationSlider = document.getElementById("animationSlider") as HTMLInputElement;
         }
-        return this._animationSlider; 
+        return this._animationSlider;
     }
 
-    private getAnimationPlayButton(): HTMLInputElement | null { 
+    private getAnimationPlayButton(): HTMLInputElement | null {
         if (!this._animationPlayButton) {
             this._animationPlayButton = document.getElementById("animationPlayButton") as HTMLInputElement;
         }
-        return this._animationPlayButton; 
+        return this._animationPlayButton;
     }
 
     private getAnimationLabel(): HTMLElement | null {
@@ -182,11 +182,11 @@ class AnimationHelper {
         return this._animationLabel;
     }
 
-    private initializeAnimationControls():void {
+    private initializeAnimationControls(): void {
 
-        const sliderChangeHandler = (event:any) => { 
+        const sliderChangeHandler = (event: any) => {
             this.stopAnimation();
-            this.processAnimationSliderValue(event.target.value) 
+            this.processAnimationSliderValue(event.target.value)
         };
 
         const slider = this.getAnimationSlider();
@@ -197,8 +197,8 @@ class AnimationHelper {
 
         const playButton = this.getAnimationPlayButton();
         if (playButton) {
-            playButton.addEventListener("click", (e:any) => {
-                if (!this._animation) { 
+            playButton.addEventListener("click", (/* e: any */) => {
+                if (!this._animation) {
                     this.startAnimation();
                 }
                 else {
@@ -209,45 +209,45 @@ class AnimationHelper {
 
     }
 
-    private convertDateColumn(rows:any[], dateColumnIndex:number):void {
+    private convertDateColumn(rows: any[], dateColumnIndex: number): void {
         rows.forEach((row) => {
             row[dateColumnIndex] = moment.utc(row[dateColumnIndex]).startOf(this._period).valueOf();
         });
     }
 
-    private resolvePeriodAndFormat(period:any):void {
+    private resolvePeriodAndFormat(period: any): void {
         let found;
         if (period) {
             const option = period.toUpperCase();
-            found = AnimationHelper._periodsAndFormats.find((paf:any) => option === paf.period );
+            found = AnimationHelper._periodsAndFormats.find((paf: any) => option === paf.period);
         }
         this._period = (found) ? found.period : "years";
         this._periodFormat = (found) ? found.format : "YYYY";
     }
 
-    private updateAnimationLabel(value:any):void {
+    private updateAnimationLabel(value: any): void {
         const label = this.getAnimationLabel();
         if (label) {
             label.innerHTML = (typeof value === "object" && "format" in value) ? value.format(this._periodFormat) : value;
         }
     }
 
-    private processAnimationSliderValue(animationSliderValue:any):void {
+    private processAnimationSliderValue(animationSliderValue: any): void {
 
-        const animationEpochValue:number = animationSliderValue / 100 * (this._animationMax - this._animationMin) + this._animationMin;
+        const animationEpochValue: number = animationSliderValue / 100 * (this._animationMax - this._animationMin) + this._animationMin;
 
-        const animationValue:moment.Moment = moment.utc(animationEpochValue).startOf(this._period);
+        const animationValue: moment.Moment = moment.utc(animationEpochValue).startOf(this._period);
 
-        if (this._lastAnimationSliderValue !== null && animationValue.isSame(this._lastAnimationSliderValue)) { 
-             return;
+        if (this._lastAnimationSliderValue !== null && animationValue.isSame(this._lastAnimationSliderValue)) {
+            return;
         }
-        
+
         this._lastAnimationSliderValue = moment(animationValue);
 
         this.updateAnimationLabel(animationValue);
 
         const animationValueBefore = moment(animationValue).subtract(1, this._period);
-        const animationValueAfter  = moment(animationValue).add(1, this._period);
+        const animationValueAfter = moment(animationValue).add(1, this._period);
 
         if (this._sasLayer) {
             const clonedRenderer = AnimationHelper.hasClonableRenderer(this._sasLayer.renderer) ? (this._sasLayer.renderer as any).clone() : this._sasLayer.renderer;
@@ -257,24 +257,24 @@ class AnimationHelper {
             if (clonedRenderer.defaultSymbol) {
                 clonedRenderer.defaultSymbol.outline = null;
             } // TODO: Bind outline opacity to symbol opacity.  Disabled for now.
-            const opacityVV = clonedRenderer.visualVariables.find((vv:any) => vv.type === "opacity");
+            const opacityVV = clonedRenderer.visualVariables.find((vv: any) => vv.type === "opacity");
             if (opacityVV) {
                 opacityVV.stops = [
-                    {opacity: 0, value: animationValueBefore.valueOf()}, 
-                    {opacity: 1, value: animationValue.valueOf()},
-                    {opacity: 0, value: animationValueAfter.valueOf()} 
+                    { opacity: 0, value: animationValueBefore.valueOf() },
+                    { opacity: 1, value: animationValue.valueOf() },
+                    { opacity: 0, value: animationValueAfter.valueOf() }
                 ];
-            } 
+            }
             // In testing, it was determined that visualVariables array assignment
             // was doing something necessary to the initialization of the renderer.
             // Without it, past state was not cleared:
             clonedRenderer.visualVariables = clonedRenderer.visualVariables.slice();
             this._sasLayer.renderer = clonedRenderer;
         }
-        
+
     }
 
-    private updateAnimationValue():void {
+    private updateAnimationValue(): void {
 
         const slider = this.getAnimationSlider();
         if (!slider) {
@@ -283,24 +283,24 @@ class AnimationHelper {
 
         const sliderMax = parseInt(slider.max, undefined);
         const sliderMin = parseInt(slider.min, undefined);
-       
+
         const newValue = parseFloat(slider.value) + (sliderMax - sliderMin) / 1000.0;
         slider.value = (newValue > sliderMax) ? sliderMin.toString() : newValue.toString();
-        
+
         this.processAnimationSliderValue(slider.value);
 
     }
 
-    private startAnimation():void {
+    private startAnimation(): void {
         this.stopAnimation();
         const button = this.getAnimationPlayButton();
         if (button) {
             button.value = "||";
         }
-        this._animation = AnimationHelper.buildAnimationContext(()=>{this.updateAnimationValue();});
+        this._animation = AnimationHelper.buildAnimationContext(() => { this.updateAnimationValue(); });
     }
 
-    private stopAnimation():void {
+    private stopAnimation(): void {
         if (this._animation) {
             this._animation.remove();
             this._animation = null;

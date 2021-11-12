@@ -14,8 +14,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import SpatialReference from "esri/geometry/SpatialReference";
-import FeatureLayer from "esri/layers/FeatureLayer";
+import { resolve } from "@arcgis/core/core/promiseUtils";
+import SpatialReference from "@arcgis/core/geometry/SpatialReference";
+import FeatureLayer from "@arcgis/core/layers/FeatureLayer";
 import Error from "sas/ArcGISWebMapProvider/Error";
 import BaseLayerBuilder from "sas/ArcGISWebMapProvider/layerBuilder/BaseLayerBuilder";
 import ProviderUtil from "sas/ArcGISWebMapProvider/ProviderUtil";
@@ -28,7 +29,7 @@ import ProviderUtil from "sas/ArcGISWebMapProvider/ProviderUtil";
  */
 class FilteredLayerBuilder extends BaseLayerBuilder {
 
-    private static MAX_FILTER_VALUES: number = 500;
+    private static MAX_FILTER_VALUES = 500;
     private _geoIdFilter: any;
 
     validateOptions(): Error[] {
@@ -53,8 +54,8 @@ class FilteredLayerBuilder extends BaseLayerBuilder {
         return this._geoIdFilter;
     }
 
-    protected buildFeatureLayerImpl() {
-        return this.buildFilteredFeatureLayer(this._rows, this._columns);
+    protected buildFeatureLayerImpl(): Promise<FeatureLayer> {
+        return resolve(this.buildFilteredFeatureLayer(this._rows, this._columns));
     }
 
     private buildFilteredFeatureLayer(rows: any[], columns: any[]) {

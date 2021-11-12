@@ -14,8 +14,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { resolve } from "esri/core/promiseUtils";
-import FeatureLayer from "esri/layers/FeatureLayer";
+import { resolve } from "@arcgis/core/core/promiseUtils";
+import FeatureLayer from "@arcgis/core/layers/FeatureLayer";
 import ChoroplethLayerBuilder from "sas/ArcGISWebMapProvider/layerBuilder/ChoroplethLayerBuilder";
 import TestUtil from "sas/TestUtil";
 

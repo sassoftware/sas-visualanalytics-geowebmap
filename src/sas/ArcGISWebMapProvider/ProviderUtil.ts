@@ -22,16 +22,15 @@ import { l } from "sas/i18n/resources";
  */
 class ProviderUtil {
 
-    static VISUALIZATION_TYPE_NONE: string = "NONE";
-    static VISUALIZATION_TYPE_SCATTER: string = "SCATTER";
-    static VISUALIZATION_TYPE_BUBBLE: string = "BUBBLE";
-    static VISUALIZATION_TYPE_CHOROPLETH: string = "CHOROPLETH";
-    static VISUALIZATION_TYPE_FILTERED: string = "FILTERED";
-    static FIELD_NAME_OBJECT_ID: string = "ObjectId";
-    static FIELD_NAME_SAS_INDEX: string = "_SASInternalSelectionIndex_";
-    static SAS_FEATURE_LAYER_ID: string = "_sasFeatureLayerId";
-    static DEFAULT_PORTAL_URL: string = "http://www.arcgis.com";
-    static PROPERTY_CHANGE_EVENT: string = "change";
+    static VISUALIZATION_TYPE_NONE = "NONE";
+    static VISUALIZATION_TYPE_SCATTER = "SCATTER";
+    static VISUALIZATION_TYPE_BUBBLE = "BUBBLE";
+    static VISUALIZATION_TYPE_CHOROPLETH = "CHOROPLETH";
+    static VISUALIZATION_TYPE_FILTERED = "FILTERED";
+    static FIELD_NAME_OBJECT_ID = "ObjectId";
+    static SAS_FEATURE_LAYER_ID = "_sasFeatureLayerId";
+    static DEFAULT_PORTAL_URL = "http://www.arcgis.com";
+    static PROPERTY_CHANGE_EVENT = "change";
 
     static getResource(key: string, ...substitutionArguments: string[]): string {
         return l(key, ...substitutionArguments);
@@ -60,7 +59,7 @@ class ProviderUtil {
         const isChoropleth = options.visualizationType === ProviderUtil.VISUALIZATION_TYPE_CHOROPLETH;
 
         rows.forEach((row: any) => {
-            if (!categoryVals.hasOwnProperty(row[categoryColumnIndex])) {
+            if (!Object.prototype.hasOwnProperty.call(categoryVals, row[categoryColumnIndex])) {
                 categoryVals[row[categoryColumnIndex]] = true;
             }
         });
@@ -98,11 +97,11 @@ class ProviderUtil {
 
     static getNameWithLabel(label: string, columns: any[]): string {
         let match = columns.find((column: any) => {
-            return column && ProviderUtil.strcmpi(column.name, label);
+            return column && column.name === label;
         });
         if (!match) {
             match = columns.find((column: any) => {
-                return column && ProviderUtil.strcmpi(column.label, label);
+                return column && column.label === label;
             });
         }
         return (match) ? match.name : null;
@@ -110,11 +109,11 @@ class ProviderUtil {
 
     static getIndexWithLabel(label: string, columns: any[]): number {
         let index: number = columns.findIndex((column: any) => {
-            return column && ProviderUtil.strcmpi(column.name, label);
+            return column && column.name === label;
         });
         if (index === -1) {
             index = columns.findIndex((column: any) => {
-                return column && ProviderUtil.strcmpi(column.label, label);
+                return column && column.label === label;
             });
         }
         return index;
@@ -122,21 +121,17 @@ class ProviderUtil {
 
     static getNameWithUsage(usage: string, columns: any[]): string {
         const match = columns.find((column: any) => {
-            return column && ProviderUtil.strcmpi(column.usage, usage);
+            return column && column.usage === usage;
         });
         return (match) ? match.name : null;
     }
 
-    static strcmpi(a: string, b: string): boolean {
-        return ((a) ? a.toLocaleUpperCase() : "") === ((b) ? b.toLocaleUpperCase() : "");
-    }
-
     static logError(error: any): void {
-        if (console && console.error) { console.error(error) };
+        if (console && console.error) { console.error(error) } // eslint-disable-line no-console
     }
 
     static logInfo(info: any): void {
-        if (console && console.info) { console.info(info) };
+        if (console && console.info) { console.info(info) } // eslint-disable-line no-console
     }
 
     static publishMessage(msg: any): void {

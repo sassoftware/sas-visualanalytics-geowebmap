@@ -14,7 +14,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import FeatureLayer from "esri/layers/FeatureLayer";
+import { resolve } from "@arcgis/core/core/promiseUtils";
+import FeatureLayer from "@arcgis/core/layers/FeatureLayer";
 import AnimationHelper from "sas/ArcGISWebMapProvider/AnimationHelper";
 import Error from "sas/ArcGISWebMapProvider/Error";
 import BaseLayerBuilder from "sas/ArcGISWebMapProvider/layerBuilder/BaseLayerBuilder";
@@ -27,22 +28,22 @@ import SmartLegendHelper from "sas/ArcGISWebMapProvider/SmartLegendHelper";
  */
 class BubbleLayerBuilder extends BaseLayerBuilder {
 
-    validateOptions():Error[] {
-        return this.validateRequiredOptions(['x', 'y', 'size']);     
+    validateOptions(): Error[] {
+        return this.validateRequiredOptions(['x', 'y', 'size']);
     }
 
-    validateResults():Error[] {
+    validateResults(): Error[] {
         return this.validateCoordinates(this._rows, this._columns);
     }
 
-    protected buildFeatureLayerImpl():FeatureLayer {
+    protected buildFeatureLayerImpl(): Promise<FeatureLayer> {
         const renderer = this.createRenderer(this._rows, this._columns);
         const layer = this.buildSimpleFeatureLayer(renderer);
         this.excludeWhereSizeIsNull(layer);
-        return layer;
+        return resolve(layer);
     }
 
-    private excludeWhereSizeIsNull(layer:FeatureLayer):void {
+    private excludeWhereSizeIsNull(layer: FeatureLayer): void {
         if (this._options.size) {
             const sizeColumnName = ProviderUtil.getNameWithLabel(this._options.size, this._columns);
             if (sizeColumnName !== null && sizeColumnName.length > 0) {
@@ -51,9 +52,9 @@ class BubbleLayerBuilder extends BaseLayerBuilder {
         }
     }
 
-    private createRenderer(rows:any[], columns:any[]):any {
+    private createRenderer(rows: any[], columns: any[]): any {
 
-        const visualVariables:any[] = [];
+        const visualVariables: any[] = [];
         let minMax;
         let renderer;
 
@@ -93,7 +94,7 @@ class BubbleLayerBuilder extends BaseLayerBuilder {
         if (this._options.size) {
             const sizeColumnName = ProviderUtil.getNameWithLabel(this._options.size, columns);
             const sizeIndex = ProviderUtil.getIndexWithLabel(this._options.size, columns);
-            minMax = ProviderUtil.findMinMax(rows,sizeIndex);
+            minMax = ProviderUtil.findMinMax(rows, sizeIndex);
             renderer.visualVariables.push({
                 type: "size",
                 field: sizeColumnName,
@@ -112,19 +113,19 @@ class BubbleLayerBuilder extends BaseLayerBuilder {
             const colorColumnName = ProviderUtil.getNameWithLabel(this._options.color, columns);
             const colorIndex = ProviderUtil.getIndexWithLabel(this._options.color, columns);
 
-            minMax = ProviderUtil.findMinMax(rows,colorIndex);
+            minMax = ProviderUtil.findMinMax(rows, colorIndex);
             renderer.visualVariables.push({
                 type: "color",
                 field: colorColumnName,
                 stops: [
-                {
-                  value: minMax[0],
-                  color: this._options.colorMin
-                },
-                {
-                  value: minMax[1],
-                  color: this._options.colorMax
-                }]
+                    {
+                        value: minMax[0],
+                        color: this._options.colorMin
+                    },
+                    {
+                        value: minMax[1],
+                        color: this._options.colorMax
+                    }]
             });
             if (this._options.useSmartLegends) {
                 new SmartLegendHelper().expandTwoPartColorRange(visualVariables[visualVariables.length - 1].stops);

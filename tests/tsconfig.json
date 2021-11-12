@@ -9,8 +9,7 @@
         },
         "types": [
             "arcgis-js-api",
-            "intern",
-            "sinon"
+            "intern"
         ]
     },
     "include": [

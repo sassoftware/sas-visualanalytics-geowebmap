@@ -1,39 +1,28 @@
-const ArcGISPlugin = require("@arcgis/webpack-plugin");
-const CopyPlugin = require('copy-webpack-plugin');
-const {
-  CleanWebpackPlugin
-} = require("clean-webpack-plugin");
-const HtmlWebPackPlugin = require("html-webpack-plugin");
+const path = require('path');
+
+const HtmlWebPackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
-const TerserPlugin = require("terser-webpack-plugin");
-
-
-const path = require("path");
+const CopyPlugin = require('copy-webpack-plugin');
 
 module.exports = {
   entry: {
-    index: ["./src/css/main.scss", "@dojo/framework/shim/Promise", "./src/index.ts"]
+    index: ['./src/index.css', './src/index.ts']
   },
+  node: false,
   output: {
-    filename: "[name].[chunkhash].js",
-    publicPath: ""
+    path: path.join(__dirname, 'dist'),
+    chunkFilename: 'chunks/[id].js',
+    publicPath: '',
+    clean: true
   },
-  optimization: {
-    minimizer: [
-      new TerserPlugin({
-        cache: true,
-        parallel: true,
-        sourceMap: false,
-        terserOptions: {
-          output: {
-            comments: false
-          }
-        }
-      })
-    ]
+  devServer: {
+    static: path.join(__dirname, 'dist'),
+    compress: true,
+    port: 3001,
   },
   module: {
-    rules: [{
+    rules: [
+      {
         test: /\.tsx?$/,
         loader: "ts-loader",
         options: {
@@ -41,61 +30,14 @@ module.exports = {
         }
       },
       {
-        test: /\.html$/,
-        use: [{
-          loader: "html-loader",
-          options: {
-            minimize: false
-          }
-        }],
-        exclude: /node_modules/
-      },
-      {
-        test: /\.scss$/,
+        test: /\.css$/,
         use: [
           MiniCssExtractPlugin.loader,
-          "css-loader",
-          {
-            loader: "resolve-url-loader",
-            options: {
-              includeRoot: true
-            }
-          },
-          "sass-loader?sourceMap"
+          'css-loader'
         ]
-      }
+      },
     ]
   },
-  plugins: [
-    new CleanWebpackPlugin(),
-
-    new ArcGISPlugin(),
-
-    new HtmlWebPackPlugin({
-      title: "ArcGIS Template Application",
-      template: "./src/index.html",
-      filename: "./index.html",
-      favicon: "./src/assets/favicon.ico",
-      chunksSortMode: "none",
-      inlineSource: ".(css)$"
-    }),
-
-    new MiniCssExtractPlugin({
-      filename: "[name].[chunkhash].css",
-      chunkFilename: "[id].css"
-    }),
-
-    new CopyPlugin({
-      patterns: [{
-          from: "./example*.html"
-        },
-        {
-          from: "i18n",
-          to: "i18n"
-        }
-      ],
-    })
-  ],
   resolve: {
     modules: [
       path.resolve(__dirname, "src"),
@@ -103,9 +45,34 @@ module.exports = {
     ],
     extensions: [".ts", ".tsx", ".js", ".scss", ".css"]
   },
-  node: {
-    process: false,
-    global: false,
-    fs: "empty"
-  }
+  plugins: [
+    new HtmlWebPackPlugin({
+      title: 'ArcGIS API  for JavaScript',
+      template: './public/index.html',
+      filename: './index.html',
+      chunksSortMode: 'none',
+      inlineSource: '.(css)$'
+    }),
+    new MiniCssExtractPlugin({
+      filename: "[name].[chunkhash].css",
+      chunkFilename: "[id].css"
+    }),
+    new CopyPlugin({
+      patterns: [{
+          from: "./public/assets",
+          to: "assets"
+        },
+        {
+          from: "./public/examples.html"
+        },
+        {
+          from: "./public/.htaccess"
+        },
+        {
+          from: "./public/i18n",
+          to: "i18n"
+        }
+      ],
+    })
+  ]
 };

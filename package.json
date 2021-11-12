@@ -1,57 +1,41 @@
 {
   "name": "geowebmap",
-  "version": "1.3.4",
+  "version": "1.3.5",
   "repository": {
     "type": "git",
     "url": "git://github.com/sassoftware/sas-visualanalytics-geowebmap.git"
   },
+  "dependencies": {
+    "@arcgis/core": "^4.21.0"
+  },
   "devDependencies": {
-    "@theintern/istanbul-loader": "^1.0.0-beta.2",
-    "@types/sinon": "^7.0.13",
-    "clean-webpack-plugin": "^3.0.0",
-    "copy-webpack-plugin": "^6.1.0",
-    "css-loader": "^3.0.0",
-    "html-loader": "^0.5.5",
-    "html-webpack-plugin": "^3.2.0",
-    "i18next": "^19.7.0",
-    "i18next-browser-languagedetector": "^6.0.1",
-    "i18next-http-backend": "^1.0.19",
-    "intern": "^4.8.7",
-    "istanbul-lib-instrument": "^1.10.2",
-    "maquette": "^3.3.7",
-    "mini-css-extract-plugin": "^0.7.0",
-    "node-sass": "^4.14.1",
-    "prettier": "^1.14.3",
-    "resolve-url-loader": "^2.3.1",
-    "sass-loader": "^7.1.0",
-    "style-loader": "~0.23.1",
-    "terser-webpack-plugin": "^1.3.0",
-    "ts-loader": "^6.0.4",
-    "tslib": "^1.13.0",
-    "tslint": "^5.20.1",
-    "tslint-config-prettier": "^1.15.0",
-    "tslint-eslint-rules": "^5.4.0",
-    "tslint-plugin-prettier": "^2.0.1",
-    "typescript": "^3.0.3",
-    "uglifyjs-webpack-plugin": "^2.2.0",
-    "webpack": "^4.20.1",
-    "webpack-cli": "^3.3.12",
-    "webpack-dev-server": "^3.1.10"
+    "@types/arcgis-js-api": "^4.21.0",
+    "@typescript-eslint/eslint-plugin": "^5.3.0",
+    "@typescript-eslint/parser": "^5.3.0",
+    "copy-webpack-plugin": "^9.0.1",
+    "css-loader": "^6.2.0",
+    "eslint": "^8.1.0",
+    "file-loader": "^6.2.0",
+    "html-webpack-plugin": "^5.3.2",
+    "i18next": "^21.3.3",
+    "i18next-browser-languagedetector": "^6.1.2",
+    "i18next-http-backend": "^1.3.1",
+    "intern": "^4.10.0",
+    "mini-css-extract-plugin": "^2.2.0",
+    "ncp": "^2.0.0",
+    "source-map-loader": "^3.0.0",
+    "ts-loader": "^9.2.6",
+    "webpack": "^5.51.1",
+    "webpack-cli": "^4.8.0",
+    "webpack-dev-server": "^4.0.0"
   },
   "license": "Apache-2.0",
   "scripts": {
-    "start": "webpack-dev-server --mode development --open",
-    "build": "webpack --mode production --display-origins --display-provided-exports --display-reasons --json > stats.json",
-    "profile": "webpack --profile --json > stats.json",
-    "serve": "webpack-dev-server --mode production --open --https --compress",
-    "prettier": "prettier --write \"src/**/*.ts?(x)\"",
-    "lint": "tslint --fix \"src/**/*.ts?(x)\"",
-    "test": "webpack --config=webpack.tests.config.js --mode=development && intern"
-  },
-  "dependencies": {
-    "@arcgis/webpack-plugin": "~4.16.0"
-  },
-  "arcgis": {
-    "type": "jsapi"
+    "build": "npm run lint && npm run copyAssets && webpack --mode production",
+    "watch": "npm run copyAssets && webpack -w",
+    "start": "npm run copyAssets && webpack serve --mode development",
+    "lint": "eslint ./src ./tests --ext .ts,.tsx,.js --fix",
+    "test": "webpack --config=webpack.tests.config.js --mode=development && intern",
+    "copyAssets": "ncp ./node_modules/@arcgis/core/assets ./public/assets"
   }
 }

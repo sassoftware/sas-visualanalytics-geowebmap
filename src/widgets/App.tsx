@@ -20,21 +20,20 @@ import {
   aliasOf,
   property,
   subclass
-} from "esri/core/accessorSupport/decorators";
-import { renderable, tsx } from "esri/widgets/support/widget";
-
-import esriConfig from "esri/config";
-import { resolve } from "esri/core/promiseUtils";
-import IdentityManager from "esri/identity/IdentityManager";
-import FeatureLayer from "esri/layers/FeatureLayer";
-import Map from "esri/Map";
-import PortalItem from "esri/portal/PortalItem";
-import MapView from "esri/views/MapView";
-import SceneView from "esri/views/SceneView";
-import View from "esri/views/View";
-import WebMap from "esri/WebMap";
-import WebScene from "esri/WebScene";
-import Widget from "esri/widgets/Widget";
+} from "@arcgis/core/core/accessorSupport/decorators";
+import { tsx } from "@arcgis/core/widgets/support/widget"; // eslint-disable-line @typescript-eslint/no-unused-vars
+import esriConfig from "@arcgis/core/config";
+import { resolve } from "@arcgis/core/core/promiseUtils";
+import IdentityManager from "@arcgis/core/identity/IdentityManager";
+import FeatureLayer from "@arcgis/core/layers/FeatureLayer";
+import Map from "@arcgis/core/Map";
+import PortalItem from "@arcgis/core/portal/PortalItem";
+import MapView from "@arcgis/core/views/MapView";
+import SceneView from "@arcgis/core/views/SceneView";
+import View from "@arcgis/core/views/View";
+import WebMap from "@arcgis/core/WebMap";
+import WebScene from "@arcgis/core/WebScene";
+import Widget from "@arcgis/core/widgets/Widget";
 import ArcGISVisualizationBridge from "sas/ArcGISWebMapProvider/ArcGISVisualizationBridge";
 import ProviderUtil from "sas/ArcGISWebMapProvider/ProviderUtil";
 import { initializeI18N } from "sas/i18n/resources";
@@ -69,8 +68,7 @@ export default class App extends Widget {
   @aliasOf("viewModel.options") options: any;
 
   @property()
-  @renderable()
-  animation: boolean = false;
+  animation = false;
 
   constructor(params: Partial<AppViewParams>) {
     super(params);

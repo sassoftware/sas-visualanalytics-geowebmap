@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import FeatureLayer from "esri/layers/FeatureLayer";
+import FeatureLayer from "@arcgis/core/layers/FeatureLayer";
 import ScatterLayerBuilder from "sas/ArcGISWebMapProvider/layerBuilder/ScatterLayerBuilder";
 import TestUtil from "sas/TestUtil";
 

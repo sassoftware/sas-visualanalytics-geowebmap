@@ -15,10 +15,10 @@ limitations under the License.
 */
 
 import ArcGISVisualizationBridge from 'sas/ArcGISWebMapProvider/ArcGISVisualizationBridge';
+import * as urlUtils from "@arcgis/core/core/urlUtils";
 
 export const options = (() => {
-  const urlUtils2 = require("esri/core/urlUtils");
-  const url = urlUtils2.urlToObject(window.location.href);
+  const url = urlUtils.urlToObject(window.location.href);
   const _options = url.query || {};
   _options.basemap = _options.basemap || "osm";
   _options.use3D = (_options.use3D && _options.use3D.toUpperCase() === "TRUE");
@@ -29,4 +29,4 @@ export const options = (() => {
 
 export const visualizationBridge = new ArcGISVisualizationBridge(options);
 
-export const featureLayer = null; 
+export const featureLayer = null;

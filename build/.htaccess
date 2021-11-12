@@ -1,0 +1,12 @@
+# The following mime-type registrations are required for optimal performance
+# when hosting the ArcGIS JavaScript API locally.  See
+# https://developers.arcgis.com/javascript/latest/install-and-set-up/#web-server-hosting-configuration.
+# Types listed below are mostly just for reference, although they would apply 
+# for Apache web servers configured to AllowOverride in order to process an 
+# .htaccess.
+#
+AddType application/octet-stream .ttf
+AddType application/wasm .wasm
+AddType application/font-woff .woff
+AddType application/font-woff2 .woff2
+AddType application/octet-stream .wsv
