@@ -53,7 +53,7 @@ class ArcGISVisualizationBridge {
 
         // Initialize options.
 
-        this._options = visualizationOptions;
+        this._options = Object.assign({}, visualizationOptions);
 
         this._options.visualizationType = (this._options.visualizationType) ? this._options.visualizationType.toUpperCase() : null;
         if (this._options.visualizationType !== ProviderUtil.VISUALIZATION_TYPE_SCATTER &&
@@ -283,7 +283,7 @@ class ArcGISVisualizationBridge {
                 // TODO: VA has a "Reset Zoom" feature that would move the extent
                 // back to the last goTo (see the Home widget) and that would
                 // essentially reset _hasUserPanned to false.
-                if (!this._hasUserPanned || this._options.visualizationType === ProviderUtil.VISUALIZATION_TYPE_CHOROPLETH) {
+                if (!this._hasUserPanned || this._options.visualizationType === ProviderUtil.VISUALIZATION_TYPE_CHOROPLETH || this._options.visualizationType === ProviderUtil.VISUALIZATION_TYPE_FILTERED) {
                     this.goToDataExtent(sasLayerReadied);
                 }
 
@@ -291,7 +291,7 @@ class ArcGISVisualizationBridge {
                     this._animationHelper.initializeAnimation(sasLayerReadied);
                 }
 
-                sasLayerReadied.layerEnabled = false; // (this._sasLegend);
+                sasLayerReadied.layerEnabled = false;
                 if (this._sasLegend) {
                     sasLayerReadied.layerInfos = [{
                         layer: sasLayerReadied,
@@ -481,14 +481,19 @@ class ArcGISVisualizationBridge {
      * Adapted from ArcGIS examples.
      */
     private goToDataExtent(sasLayer: FeatureLayer): void {
+        const failGoto = (error: any) => { ProviderUtil.logError(error); };
         if (sasLayer.fullExtent) {
-            (this.getMapView() as any).goTo(sasLayer.fullExtent, { animate: false });
+            (this.getMapView() as any).goTo(sasLayer.fullExtent, { animate: false }).catch(failGoto);
         }
         else {
             this.forDataExtent(sasLayer, (results: any) => {
-                (this.getMapView() as any).goTo(results.extent, {
-                    animate: false
-                }); // go to the extent of all the graphics in the layer view
+                if (results.extent) {
+                    (this.getMapView() as any).goTo(results.extent, {
+                        animate: false
+                    }).catch(failGoto); // go to the extent of all the graphics in the layer view
+                } else {
+                    ProviderUtil.logInfo("Could not navigate to null extent.");
+                }
             });
         }
     }

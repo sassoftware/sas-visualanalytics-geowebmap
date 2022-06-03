@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { resolve } from "@arcgis/core/core/promiseUtils";
+import { create } from "@arcgis/core/core/promiseUtils";
 import SpatialReference from "@arcgis/core/geometry/SpatialReference";
 import FeatureLayer from "@arcgis/core/layers/FeatureLayer";
 import Error from "sas/ArcGISWebMapProvider/Error";
@@ -55,7 +55,7 @@ class FilteredLayerBuilder extends BaseLayerBuilder {
     }
 
     protected buildFeatureLayerImpl(): Promise<FeatureLayer> {
-        return resolve(this.buildFilteredFeatureLayer(this._rows, this._columns));
+        return this.buildFilteredFeatureLayer(this._rows, this._columns);
     }
 
     private buildFilteredFeatureLayer(rows: any[], columns: any[]) {
@@ -77,7 +77,15 @@ class FilteredLayerBuilder extends BaseLayerBuilder {
             definitionExpression: this._geoIdFilter
         });
 
-        return viewLayer;
+        return create((resolve /* , reject */) => {
+            viewLayer.queryExtent().then((results: any) => {
+                viewLayer.fullExtent = results.extent;
+                resolve(viewLayer);
+            }, (error: any) => {
+                ProviderUtil.logError(error);
+                resolve(viewLayer); // Still returning what we have.
+            });
+        });
 
     }
 

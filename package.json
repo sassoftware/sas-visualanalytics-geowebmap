@@ -1,43 +1,40 @@
 {
     "name": "geowebmap",
-    "version": "1.4.0",
+    "version": "1.4.1",
     "repository": {
         "type": "git",
         "url": "git://github.com/sassoftware/sas-visualanalytics-geowebmap.git"
     },
     "license": "Apache-2.0",
-    "homepage": ".",
+    "private": true,
     "dependencies": {
-        "@arcgis/core": "^4.21.2",
-        "@types/arcgis-js-api": "^4.21.0",
-        "@types/jest": "^27.0.2",
-        "@types/node": "^16.11.6",
-        "@types/react": "^17.0.34",
-        "@types/react-dom": "^17.0.11",
+        "@arcgis/core": "^4.23.0",
+        "@types/jest": "^27.0.1",
+        "@types/node": "^16.7.13",
+        "@types/react": "^18.0.8",
+        "@types/react-dom": "^18.0.0",
         "classnames": "^2.3.1",
-        "i18next": "^21.4.0",
-        "i18next-browser-languagedetector": "^6.1.2",
-        "i18next-http-backend": "^1.3.1",
-        "tslib": "^2.3.1",
-        "react": "^17.0.2",
-        "react-dom": "^17.0.2",
-        "react-i18next": "^11.13.0",
-        "react-scripts": "^4.0.3",
-        "web-vitals": "^2.1.2"
+        "i18next": "^21.8.4",
+        "i18next-browser-languagedetector": "^6.1.4",
+        "i18next-http-backend": "^1.4.1",
+        "moment": "^2.29.3",
+        "react": "^18.1.0",
+        "react-dom": "^18.1.0",
+        "react-i18next": "^11.16.9",
+        "react-scripts": "5.0.1",
+        "typescript": "^4.4.2",
+        "web-vitals": "^2.1.4"
     },
     "devDependencies": {
-        "typescript": "^4.4.4",
-        "@testing-library/jest-dom": "^5.15.0",
-        "@testing-library/react": "^12.1.2",
-        "@testing-library/user-event": "^13.5.0",
-        "jest-canvas-mock": "^2.3.1",
-        "ncp": "^2.0.0"
+        "@testing-library/jest-dom": "^5.16.2",
+        "@testing-library/react": "^13.0.1",
+        "@testing-library/user-event": "^14.0.0",
+        "jest-canvas-mock": "^2.4.0"
     },
     "scripts": {
-        "start": "yarn copy && react-scripts start",
-        "build": "yarn copy && react-scripts build",
-        "test": "yarn copy && react-scripts test",
-        "copy": "ncp ./node_modules/@arcgis/core/assets ./public/assets"
+        "start": "react-scripts start",
+        "build": "react-scripts build",
+        "test": "react-scripts test"
     },
     "eslintConfig": {
         "extends": [
@@ -47,14 +44,20 @@
     },
     "browserslist": {
         "production": [
-            ">0.2%",
-            "not dead",
-            "not op_mini all"
+            "last 1 Chrome version",
+            "last 1 Firefox version",
+            "last 2 Edge major versions",
+            "last 2 Safari major versions",
+            "last 2 iOS major versions",
+            "Firefox ESR"
         ],
         "development": [
-            "last 1 chrome version",
-            "last 1 firefox version",
-            "last 1 safari version"
+            "last 1 Chrome version",
+            "last 1 Firefox version",
+            "last 2 Edge major versions",
+            "last 2 Safari major versions",
+            "last 2 iOS major versions",
+            "Firefox ESR"
         ]
     },
     "jest": {

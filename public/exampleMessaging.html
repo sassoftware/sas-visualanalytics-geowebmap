@@ -116,6 +116,15 @@
             traffic.innerHTML = traffic.innerHTML + msg;
             traffic.scrollTop = traffic.scrollHeight;
         }
+
+        function makeRandomUpdate(){
+            var newSample = Object.assign({}, sampleDataJson, {})
+            var selection = Math.random()*newSample.data.length;
+            newSample.data = newSample.data.slice(selection,selection+1)
+            console.debug(newSample.data[0][0], newSample.data)
+            postData(newSample);
+        }
+
     </script>
 
 </head>
@@ -126,19 +135,24 @@
         IFrame Source:
         <select id="iframeSource" onchange="document.getElementById('mapframe').src = this.value">
             <option
-                value="./?visualizationType=choropleth&geoId=Geographic%20Item%201&featureServiceUrl=https://services.arcgis.com/V6ZHFr6zdgNZuVG0/ArcGIS/rest/services/World_borders/FeatureServer&featureServiceGeoId=NAME&useSampleData=false&basemap=gray">
+                value="./?visualizationType=choropleth&geoId=Geographic%20Item%201&featureServiceUrl=https://services.arcgis.com/V6ZHFr6zdgNZuVG0/ArcGIS/rest/services/World_borders/FeatureServer&featureServiceGeoId=NAME&useSampleData=false&basemap=gray-vector">
                 Choropleth</option>
+                <option
+                value="./?visualizationType=filtered&geoId=Geographic%20Item%201&featureServiceUrl=https://services.arcgis.com/V6ZHFr6zdgNZuVG0/ArcGIS/rest/services/World_borders/FeatureServer&featureServiceGeoId=NAME&useSampleData=false&basemap=gray-vector">
+                Filtered</option>
             <option
-                value="./?visualizationType=bubble&x=Longitude&y=Latitude&color=Region&size=GDP%20(current%20US$)&useSampleData=false&basemap=gray">
+                value="./?visualizationType=bubble&x=Longitude&y=Latitude&color=Region&size=GDP%20(current%20US$)&useSampleData=false&basemap=gray-vector">
                 Bubble</option>
-            <option value="./?useSampleData=false&basemap=gray">Scatter</option>
+            <option value="./?useSampleData=false&basemap=gray-vector">Scatter</option>
         </select>
+        &emsp;
+        <input type="button" value="Update Data (Randomly)" onclick="makeRandomUpdate()"> 
     </div>
 
     <div class="row">
         <div class="column">
             <iframe id="mapframe" onload="readyToLoad=true;loadSampleData();"
-                src="./?visualizationType=choropleth&geoId=Geographic%20Item%201&featureServiceUrl=https://services.arcgis.com/V6ZHFr6zdgNZuVG0/ArcGIS/rest/services/World_borders/FeatureServer&featureServiceGeoId=NAME&useSampleData=false&basemap=gray">
+                src="./?visualizationType=choropleth&geoId=Geographic%20Item%201&featureServiceUrl=https://services.arcgis.com/V6ZHFr6zdgNZuVG0/ArcGIS/rest/services/World_borders/FeatureServer&featureServiceGeoId=NAME&useSampleData=false&basemap=gray-vector">
             </iframe>
         </div>
         <div class="column">

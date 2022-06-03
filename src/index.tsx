@@ -1,6 +1,6 @@
 import esriConfig from "@arcgis/core/config.js";
 import React from 'react';
-import ReactDOM from 'react-dom';
+import * as ReactDOMClient from 'react-dom/client';
 import Geowebmap from './Geowebmap';
 import './index.css';
 import reportWebVitals from './reportWebVitals';
@@ -11,11 +11,14 @@ import reportWebVitals from './reportWebVitals';
  */
 esriConfig.assetsPath = "./assets";
 
-ReactDOM.render(
+const container = document.getElementById('root')!;
+
+const root = ReactDOMClient.createRoot(container);
+
+root.render(
     <React.StrictMode>
         <Geowebmap />
-    </React.StrictMode>,
-    document.getElementById('root')
+    </React.StrictMode>
 );
 
 // If you want to start measuring performance in your app, pass a function
