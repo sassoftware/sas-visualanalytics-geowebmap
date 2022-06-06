@@ -63,11 +63,18 @@ class FilteredLayerBuilder extends BaseLayerBuilder {
         const geoIdIndex = ProviderUtil.getIndexWithLabel(this._options.geoId, columns);
         const geoIdValues = rows.map((row) => row[geoIdIndex]);
 
-        this._geoIdFilter =
-            this._options.featureServiceGeoId +
-            " IN (" +
-            ProviderUtil.sqlEscape(geoIdValues) +
-            ")";
+        // Convert ids to "where" expression: "COLUMN_NAME like '%value1%' OR ..."
+        this._geoIdFilter = geoIdValues.reduce((previous, current) => {
+            let escapedVal: any = ProviderUtil.sqlEscape(current);
+            if (typeof escapedVal === 'string')
+                escapedVal = escapedVal.substring(1, escapedVal.length - 1); // Remove surrounding quotes.
+            return previous +
+                ((previous.length > 0) ? " OR " : "") +
+                this._options.featureServiceGeoId +
+                " like '%" +
+                escapedVal +
+                "%'";
+        }, "");
 
         const viewLayer: any = new FeatureLayer({
             id: ProviderUtil.SAS_FEATURE_LAYER_ID,
