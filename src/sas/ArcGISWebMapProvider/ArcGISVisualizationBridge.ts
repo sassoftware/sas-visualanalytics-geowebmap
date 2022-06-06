@@ -483,7 +483,15 @@ class ArcGISVisualizationBridge {
     private goToDataExtent(sasLayer: FeatureLayer): void {
         const failGoto = (error: any) => { ProviderUtil.logError(error); };
         if (sasLayer.fullExtent) {
-            (this.getMapView() as any).goTo(sasLayer.fullExtent, { animate: false }).catch(failGoto);
+            let extent = sasLayer.fullExtent;
+            if (this._options.visualizationType === ProviderUtil.VISUALIZATION_TYPE_FILTERED && sasLayer.geometryType === "point") {
+                const miles = 10 * 1609;  // miles * meters/mile
+                extent.xmin -= miles;
+                extent.xmax += miles;
+                extent.ymin -= miles;
+                extent.ymax += miles;
+            }
+            (this.getMapView() as any).goTo(extent, { animate: false }).catch(failGoto);
         }
         else {
             this.forDataExtent(sasLayer, (results: any) => {
