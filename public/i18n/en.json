@@ -91,5 +91,7 @@
     "vaoptions_portalToken_help": "The Esri token string that can be presented to the portal for access.",
     "vaoptions_portalUrl_label": "Esri portal Url:",
     "vaoptions_portalUrl_help": "The full URL to the Esri portal.  Defaults to \"http://www.arcgis.com\".",
-    "vaoptions_portalUrl_placeholder": "http://www.arcgis.com"
+    "vaoptions_portalUrl_placeholder": "http://www.arcgis.com",
+    "vaoptions_filterToFeatureServiceGeoId_label": "Filter all layers by GeoID?",
+    "vaoptions_filterToFeatureServiceGeoId_help": "Applies filters to all layers having a Geo ID column."
 }
