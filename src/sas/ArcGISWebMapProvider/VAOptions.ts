@@ -228,6 +228,12 @@ class VAOptions {
                             placeholder: R("vaoptions_zIndex_placeholder"),
                             constraints: { min: 0 }
                         },
+                        {
+                            name: "filterToFeatureServiceGeoId",
+                            label: R("vaoptions_filterToFeatureServiceGeoId_label"),
+                            tooltip: R("vaoptions_filterToFeatureServiceGeoId_help"),
+                            type: "Boolean"
+                        },
                     ],
                 },
             ]
