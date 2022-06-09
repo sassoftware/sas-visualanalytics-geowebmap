@@ -293,9 +293,10 @@ class ChoroplethLayerBuilder extends BaseLayerBuilder {
             this.queryExtent(queryLayer, attributes).then((success: any) => {
                 viewLayer.fullExtent = success.extent;
                 resolve(viewLayer);
-                if (isNaN(this._options.featureServiceMaxAllowableOffset)) {
-                    this._options.featureServiceMaxAllowableOffset = this.calculateMaxAllowableOffset(success.extent.width, success.extent.height);
-                }
+                // v1.5.0: Allowing offset to default if not specified.
+                // if (isNaN(this._options.featureServiceMaxAllowableOffset)) {
+                //     this._options.featureServiceMaxAllowableOffset = this.calculateMaxAllowableOffset(success.extent.width, success.extent.height);
+                // }
                 this.queryFeatures(queryLayer, attributes, viewLayer);
             },
                 (error: any) => {
