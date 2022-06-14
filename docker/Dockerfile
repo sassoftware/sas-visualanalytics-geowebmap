@@ -15,6 +15,6 @@
 FROM nginx AS deploy
 # Five mime types added to https://github.com/nginx/nginx/raw/master/conf/mime.types:
 COPY ./mime.types /etc/nginx
-RUN curl -L https://github.com/sassoftware/sas-visualanalytics-geowebmap/releases/download/v1.4.0/sas-visualanalytics-geowebmap.tar.gz | tar -xzC /usr/share/nginx/html
+RUN curl -L https://github.com/sassoftware/sas-visualanalytics-geowebmap/releases/download/v1.5.0/sas-visualanalytics-geowebmap.tar.gz | tar -xzC /usr/share/nginx/html
 # Or, from ../build :
 # COPY . /usr/share/nginx/html/ 
