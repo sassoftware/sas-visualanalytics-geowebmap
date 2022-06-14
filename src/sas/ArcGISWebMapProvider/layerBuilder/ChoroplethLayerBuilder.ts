@@ -262,6 +262,7 @@ class ChoroplethLayerBuilder extends BaseLayerBuilder {
                 title: this._options.title,
                 source: layerSource,
                 fields,
+                outFields: fields.map(f => f.name),
                 objectIdField: ProviderUtil.FIELD_NAME_OBJECT_ID,
                 renderer,
                 // spatialReference: lang.clone(results.spatialReference),
