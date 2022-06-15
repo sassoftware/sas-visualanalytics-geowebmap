@@ -107,7 +107,7 @@
                     else
                         selection = "Out-of-bounds index returned (" + index + ")";
                 }
-                log("\nSELECTION = " + selection);
+                log("\nSELECTION = " + selection + " (reporting accurately only if unfiltered)");
             }
         }
 
@@ -116,6 +116,26 @@
             traffic.innerHTML = traffic.innerHTML + msg;
             traffic.scrollTop = traffic.scrollHeight;
         }
+
+        function applyRandomFilter(){
+            var newSample = Object.assign({}, sampleDataJson, {})
+            var selection = Math.random()*newSample.data.length;
+            newSample.data = newSample.data.slice(selection,selection+1)
+            console.debug(newSample.data[0][0], newSample.data)
+            postData(newSample);
+        }
+
+        function applyRandomSelection(){
+            var newSample = Object.assign({}, sampleDataJson, {})
+            newSample.columns.push({name: "exampleMessagingColumn", type: "number", usage: "brush", format: null});
+            var selection = Math.floor(Math.random()*newSample.data.length);
+            newSample.data.forEach((row, i) => {
+                row.push((i === selection)?1:0); // Select only "selection" row.
+            });
+            console.debug("Selecting ", newSample.data[selection][0], "(" + selection + ")")
+            postData(newSample);
+        }
+
     </script>
 
 </head>
@@ -126,19 +146,26 @@
         IFrame Source:
         <select id="iframeSource" onchange="document.getElementById('mapframe').src = this.value">
             <option
-                value="./?visualizationType=choropleth&geoId=Geographic%20Item%201&featureServiceUrl=https://services.arcgis.com/V6ZHFr6zdgNZuVG0/ArcGIS/rest/services/World_borders/FeatureServer&featureServiceGeoId=NAME&useSampleData=false&basemap=gray">
+                value="./?visualizationType=choropleth&geoId=Geographic%20Item%201&featureServiceUrl=https://services.arcgis.com/V6ZHFr6zdgNZuVG0/ArcGIS/rest/services/World_borders/FeatureServer&featureServiceGeoId=NAME&useSampleData=false&basemap=gray-vector">
                 Choropleth</option>
+                <option
+                value="./?visualizationType=filtered&geoId=Geographic%20Item%201&featureServiceUrl=https://services.arcgis.com/V6ZHFr6zdgNZuVG0/ArcGIS/rest/services/World_borders/FeatureServer&featureServiceGeoId=NAME&useSampleData=false&basemap=gray-vector">
+                Filtered</option>
             <option
-                value="./?visualizationType=bubble&x=Longitude&y=Latitude&color=Region&size=GDP%20(current%20US$)&useSampleData=false&basemap=gray">
+                value="./?visualizationType=bubble&x=Longitude&y=Latitude&color=Region&size=GDP%20(current%20US$)&useSampleData=false&basemap=gray-vector">
                 Bubble</option>
-            <option value="./?useSampleData=false&basemap=gray">Scatter</option>
+            <option value="./?useSampleData=false&basemap=gray-vector">Scatter</option>
         </select>
+        &emsp;
+        <input type="button" value="Filter Random Country" onclick="applyRandomFilter()"> 
+        &emsp;
+        <input type="button" value="Select Random Country" onclick="applyRandomSelection()"> 
     </div>
 
     <div class="row">
         <div class="column">
             <iframe id="mapframe" onload="readyToLoad=true;loadSampleData();"
-                src="./?visualizationType=choropleth&geoId=Geographic%20Item%201&featureServiceUrl=https://services.arcgis.com/V6ZHFr6zdgNZuVG0/ArcGIS/rest/services/World_borders/FeatureServer&featureServiceGeoId=NAME&useSampleData=false&basemap=gray">
+                src="./?visualizationType=choropleth&geoId=Geographic%20Item%201&featureServiceUrl=https://services.arcgis.com/V6ZHFr6zdgNZuVG0/ArcGIS/rest/services/World_borders/FeatureServer&featureServiceGeoId=NAME&useSampleData=false&basemap=gray-vector">
             </iframe>
         </div>
         <div class="column">

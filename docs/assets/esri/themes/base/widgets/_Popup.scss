@@ -302,8 +302,10 @@
     > .esri-popup__action-toggle {
       flex: 0 1 auto;
     }
-    .esri-popup__icon,
-    [class*="esri-icon"] {
+    .esri-popup__icon {
+      margin: 0 $side-spacing--quarter;
+    }
+    @include icomoonIconSelector() {
       margin: 0 $side-spacing--quarter;
     }
   }
@@ -693,10 +695,6 @@
           margin-left: $side-spacing--half;
           margin-right: auto;
         }
-      }
-      .esri-popup__action {
-        margin-right: $side-spacing--half;
-        margin-left: $side-spacing;
       }
     }
     .esri-popup--is-docked .esri-popup__loading-container {
