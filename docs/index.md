@@ -1,2 +1,2 @@
-sas-visualanalytics-geowebmap v1.5.0
+sas-visualanalytics-geowebmap v1.5.0a
 

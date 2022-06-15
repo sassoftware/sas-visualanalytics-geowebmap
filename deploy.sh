@@ -10,7 +10,7 @@
 # from the "docs" directory of the "deploy" 
 # branch.
 
-VERSION_NOTE="sas-visualanalytics-geowebmap v1.5.0"
+VERSION_NOTE="sas-visualanalytics-geowebmap v1.5.0a"
 DIST_DIR=../sas-visualanalytics-geowebmap/build/
 
 rm -r docs
