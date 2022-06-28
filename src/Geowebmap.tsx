@@ -1,7 +1,7 @@
 import classnames from "classnames";
 import GeowebmapMounter from "GeowebmapMounter";
 import ProviderUtil from "sas/ArcGISWebMapProvider/ProviderUtil";
-import "./Geowebmap.css";
+import "Geowebmap.css";
 import { useRef, useEffect, useState } from "react";
 
 function Geowebmap() {

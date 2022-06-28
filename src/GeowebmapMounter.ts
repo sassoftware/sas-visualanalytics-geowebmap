@@ -32,7 +32,7 @@ import Search from "@arcgis/core/widgets/Search";
 import ArcGISVisualizationBridge from 'sas/ArcGISWebMapProvider/ArcGISVisualizationBridge';
 import ProviderUtil from "sas/ArcGISWebMapProvider/ProviderUtil";
 import { initializeI18N } from "sas/i18n/resources";
-import "./Geowebmap.css";
+import "Geowebmap.css";
 
 /**
  * Adapts ArcGISVisualzationBridge for React.

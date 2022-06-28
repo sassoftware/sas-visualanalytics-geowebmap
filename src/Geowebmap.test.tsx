@@ -1,5 +1,5 @@
 import { render } from '@testing-library/react';
-import Geowebmap from './Geowebmap';
+import Geowebmap from 'Geowebmap';
 
 test('Initialize map', () => {
     const { container } = render(<Geowebmap />);

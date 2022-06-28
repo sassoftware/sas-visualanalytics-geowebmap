@@ -9,8 +9,8 @@
  */
 @import "@arcgis/core/assets/esri/themes/light/main.css";
 
-@import "./css/main.css";
-@import "./css/sas.css";
+@import "css/main.css";
+@import "css/sas.css";
 
 .mapDiv {
     padding: 0;

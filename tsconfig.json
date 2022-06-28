@@ -21,7 +21,7 @@
         "jsx": "react-jsx",
         "noImplicitAny": false,
         "strictPropertyInitialization": false,
-        "baseUrl": "./src"
+        "baseUrl": "src"
     },
     "include": [
         "src"
