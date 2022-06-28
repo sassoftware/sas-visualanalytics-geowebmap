@@ -16,6 +16,7 @@ limitations under the License.
 
 import moment from "moment/moment";
 import { l } from "sas/i18n/resources";
+import settings from "settings.json";
 
 /**
  * Encapsulates utility features required by more than one class.
@@ -32,6 +33,13 @@ class ProviderUtil {
     static SAS_FEATURE_LAYER_ID = "_sasFeatureLayerId";
     static DEFAULT_PORTAL_URL = "http://www.arcgis.com";
     static PROPERTY_CHANGE_EVENT = "change";
+
+    static getHomePage() {
+        const homePage = (settings && settings.homepage) ? settings.homepage.trim() : "";
+        if (homePage === "" || homePage === "." || homePage === "./")
+            return "";
+        return (homePage.slice(homePage.length - 1) === "/") ? homePage : homePage + "/";
+    }
 
     static getResource(key: string, ...substitutionArguments: string[]): string {
         return l(key, ...substitutionArguments);

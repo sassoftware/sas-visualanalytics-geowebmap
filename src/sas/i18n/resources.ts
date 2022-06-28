@@ -17,6 +17,7 @@ limitations under the License.
 import i18next from 'i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
 import Backend from 'i18next-http-backend';
+import ProviderUtil from "sas/ArcGISWebMapProvider/ProviderUtil";
 
 export function initializeI18N(): Promise<any> {
     return i18next
@@ -26,7 +27,7 @@ export function initializeI18N(): Promise<any> {
             // debug: true,
             fallbackLng: 'en',
             backend: {
-                loadPath: 'i18n/{{lng}}.json'
+                loadPath: ProviderUtil.getHomePage() + 'i18n/{{lng}}.json'
             }
         });
 }

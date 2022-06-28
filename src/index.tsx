@@ -1,15 +1,16 @@
 import esriConfig from "@arcgis/core/config.js";
-import React from 'react';
-import * as ReactDOMClient from 'react-dom/client';
 import Geowebmap from 'Geowebmap';
 import 'index.css';
+import React from 'react';
+import * as ReactDOMClient from 'react-dom/client';
 import reportWebVitals from 'reportWebVitals';
+import ProviderUtil from "sas/ArcGISWebMapProvider/ProviderUtil";
 
 /* ASSET SOURCE: The following line loads style assets locally.  To load them from 
  * arcgis.com instead, remove it, and alter Geowebmap.css to import styles
  * from arcgis.com. 
  */
-esriConfig.assetsPath = "assets";
+esriConfig.assetsPath = ProviderUtil.getHomePage() + "assets";
 
 const container = document.getElementById('root')!;
 
