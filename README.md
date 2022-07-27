@@ -4,6 +4,8 @@
 
 For an overview of this project from the perspective of a user, see the document "[Using ArcGIS WebMaps in SAS Visual Analytics](https://raw.githubusercontent.com/sassoftware/sas-visualanalytics-geowebmap/master/doc/UsingArcGISWebMapsInSASVA.pdf)."  
 
+A pre-built deployment of the current version is available for use at https://cdn.developer.sas.com/geowebmap/1.5.2.  Available versions include [1.5.2](https://cdn.developer.sas.com/geowebmap/1.5.2/) and [1.4.0](https://cdn.developer.sas.com/geowebmap/1.4.0/).
+
 ## Project
 
 This project presents a web page with an ArcGIS map designed to serve as a data-driven content for reports built with SAS Visual Analytics. It is a fork from [jsapi-resources](https://github.com/Esri/jsapi-resources), Esri's template for JS applications, using ArcGIS for JavaScript 4.x.
@@ -33,7 +35,7 @@ Run `yarn start` to compile and then kick off a webpack-dev-server to host the r
 For incidental testing, you may use the version hosted by GitHub Pages at
 https://sassoftware.github.io/sas-visualanalytics-geowebmap/.  However, 
 due to quota constraints, that deployment has no guaranteed availability
-nor any expectation of support.  Do not rely upon it for production use.
+nor any expectation of support.  Do not rely upon it for production use.  Furthermore, now that a build is hosted on the [SAS developer CDN](https://cdn.developer.sas.com/geowebmap/1.5.2/), this deployment on GitHub Pages is deprecated.
 
 #### Assets (styles, fonts, and images)
 
