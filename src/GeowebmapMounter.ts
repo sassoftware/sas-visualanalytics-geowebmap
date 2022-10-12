@@ -82,28 +82,28 @@ class GeowebmapMounter {
         }
         // The following branch is useful for testing, but not 
         // recommended for deployment.  Commented out.
-        // else if (options.username && options.password) {
-        //   const server = this.getPortalUrl(options);
-        //   IdentityManager.checkSignInStatus(server).then((success)=>{
-        //     this.buildMap(element, options, visualizationBridge, map);
-        //   },(failure)=>{
-        //     const serverInfo = IdentityManager.findServerInfo(server);
-        //     IdentityManager.generateToken(
-        //         serverInfo,
-        //         {
-        //             username: options.username,
-        //             password: options.password
-        //         } 
-        //     ).then((token: any) => {
-        //         if (token && !token.server) {
-        //             token.server = serverInfo.server; 
-        //         } 
-        //         IdentityManager.registerToken(token); 
-        //         this.loadUI(element, options, visualizationBridge, map); 
-        //     }, (error) => {
-        //       ProviderUtil.logError(error);
-        //     }); 
-        //   });
+        // else if (this._options.username && this._options.password) {
+        //     const server = this.getPortalUrl(this._options);
+        //     IdentityManager.checkSignInStatus(server).then((success) => {
+        //         this.loadUI(element)
+        //     }, (failure) => {
+        //         const serverInfo = IdentityManager.findServerInfo(server);
+        //         IdentityManager.generateToken(
+        //             serverInfo,
+        //             {
+        //                 username: this._options.username,
+        //                 password: this._options.password
+        //             }
+        //         ).then((token: any) => {
+        //             if (token && !token.server) {
+        //                 token.server = serverInfo.server;
+        //             }
+        //             IdentityManager.registerToken(token);
+        //             this.loadUI(element);
+        //         }, (error) => {
+        //             ProviderUtil.logError(error);
+        //         });
+        //     });
         // }
         else {
             this.loadUI(element);
