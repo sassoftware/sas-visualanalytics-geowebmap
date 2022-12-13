@@ -16,7 +16,7 @@ limitations under the License.
 
 import { resolve } from "@arcgis/core/core/promiseUtils";
 import i18next from 'i18next';
-import * as defaultTranslations from "../../Public/i18n/en.json";
+import * as defaultTranslations from "../../public/i18n/en.json";
 
 class TestUtil {
 

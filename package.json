@@ -1,6 +1,6 @@
 {
     "name": "geowebmap",
-    "version": "1.5.3",
+    "version": "1.5.4",
     "repository": {
         "type": "git",
         "url": "git://github.com/sassoftware/sas-visualanalytics-geowebmap.git"
@@ -9,7 +9,7 @@
     "private": true,
     "homepage": ".",
     "dependencies": {
-        "@arcgis/core": "^4.23.0",
+        "@arcgis/core": "~4.23.0",
         "@types/jest": "^27.0.1",
         "@types/node": "^16.7.13",
         "@types/react": "^18.0.8",
@@ -30,12 +30,14 @@
         "@testing-library/jest-dom": "^5.16.2",
         "@testing-library/react": "^13.0.1",
         "@testing-library/user-event": "^14.0.0",
-        "jest-canvas-mock": "^2.4.0"
+        "jest-canvas-mock": "^2.4.0",
+        "ncp": "^2.0.0"
     },
     "scripts": {
-        "start": "react-scripts start",
-        "build": "react-scripts build",
-        "test": "react-scripts test"
+        "start": "yarn copy && react-scripts start",
+        "build": "yarn copy && react-scripts build",
+        "test": "react-scripts test",
+        "copy": "ncp ./node_modules/@arcgis/core/assets ./public/assets"
     },
     "eslintConfig": {
         "extends": [
